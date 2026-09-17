@@ -1,0 +1,20 @@
+{
+  "model_type": "dinov3_vit",
+  "image_size": 224,
+  "patch_size": 16,
+  "num_channels": 3,
+  "hidden_size": 768,
+  "intermediate_size": 3072,
+  "num_hidden_layers": 12,
+  "num_attention_heads": 12,
+  "num_register_tokens": 4,
+  "rope_theta": 100.0,
+  "layerscale_value": 1e-05,
+  "pos_embed_rescale": 2.0,
+  "query_bias": true,
+  "key_bias": false,
+  "value_bias": true,
+  "proj_bias": true,
+  "mlp_bias": true,
+  "layer_norm_eps": 1e-05
+}

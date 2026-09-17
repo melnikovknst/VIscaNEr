@@ -1,0 +1,30 @@
+# macOS metadata.
+.DS_Store
+
+# Local Python/Jupyter environment.
+.venv/
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+
+# Keep dataset contents and generated dataset artifacts out of Git.
+datasets/**/*
+
+# Keep directory traversal open so archives can be explicitly tracked anywhere
+# under datasets/. Git LFS rules in .gitattributes apply to these archives.
+!datasets/**/
+!datasets/**/*.zip
+!datasets/**/*.7z
+!datasets/**/*.rar
+!datasets/**/*.tar
+!datasets/**/*.tar.gz
+!datasets/**/*.tgz
+!datasets/**/*.tar.bz2
+!datasets/**/*.tar.xz
+
+# Large generated checkpoints, experiment outputs, and Kaggle staging folders.
+models/**/*.pt
+models/**/*.safetensors
+runs/**
+kaggle_upload/
+/yolo*.pt

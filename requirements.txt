@@ -1,0 +1,24 @@
+# Core ML stack. A fresh project .venv is used so the system PyTorch is not replaced.
+torch>=2.6,<3
+torchvision>=0.21,<1
+ultralytics>=8.3,<9
+transformers>=5.6,<6
+safetensors>=0.5,<1
+scikit-learn>=1.5,<2
+
+# Image processing, data handling, and notebook visuals.
+opencv-python>=4.10,<5
+Pillow>=10.4,<13
+matplotlib>=3.9,<4
+pandas>=2.2,<4
+numpy>=1.26,<3
+PyYAML>=6.0,<7
+tqdm>=4.66,<5
+
+# Reproducible Jupyter environment and project kernel.
+jupyterlab>=4.2,<5
+ipykernel>=6.29,<8
+ipython>=8.27,<10
+nbformat>=5.10,<6
+nbclient>=0.10,<1
+ipywidgets>=8.1,<9

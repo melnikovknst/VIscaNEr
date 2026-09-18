@@ -72,7 +72,7 @@ Kaggle документирует включение GPU и режим `Save & R
 from pathlib import Path
 import shutil
 
-SOURCE = Path("/kaggle/input/viscaner-dinov3-code")
+SOURCE = Path("/kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-code")
 PROJECT = Path("/kaggle/working/VIscaNEr")
 PROJECT.mkdir(parents=True, exist_ok=True)
 
@@ -94,11 +94,11 @@ for source in SOURCE.rglob("*"):
 from pathlib import Path
 
 required = [
-    Path("/kaggle/input/viscaner-dinov3-data/crops_metadata.csv"),
-    Path("/kaggle/input/viscaner-dinov3-data/bottle_images_manifest.csv"),
-    Path("/kaggle/input/viscaner-dinov3-data/crops/successful"),
-    Path("/kaggle/input/viscaner-dinov3-data/refs"),
-    Path("/kaggle/input/viscaner-dinov3-vitb16-weights/model.safetensors"),
+    Path("/kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops_metadata.csv"),
+    Path("/kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/bottle_images_manifest.csv"),
+    Path("/kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops/successful"),
+    Path("/kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/refs"),
+    Path("/kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-vitb16-weights/model.safetensors"),
 ]
 for path in required:
     print(path.exists(), path)
@@ -116,11 +116,11 @@ backward и сохранение checkpoint на маленькой подвыб
 !python /kaggle/working/VIscaNEr/train_dinov3_retrieval.py all \
   --config /kaggle/working/VIscaNEr/configs/dinov3_retrieval.yaml \
   --project-root /kaggle/working/VIscaNEr \
-  --weights-path /kaggle/input/viscaner-dinov3-vitb16-weights/model.safetensors \
-  --crops-metadata-path /kaggle/input/viscaner-dinov3-data/crops_metadata.csv \
-  --bottle-manifest-path /kaggle/input/viscaner-dinov3-data/bottle_images_manifest.csv \
-  --crops-root /kaggle/input/viscaner-dinov3-data/crops \
-  --refs-root /kaggle/input/viscaner-dinov3-data/refs \
+  --weights-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-vitb16-weights/model.safetensors \
+  --crops-metadata-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops_metadata.csv \
+  --bottle-manifest-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/bottle_images_manifest.csv \
+  --crops-root /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops \
+  --refs-root /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/refs \
   --device cuda --num-workers 4 --quick-smoke
 ```
 
@@ -135,11 +135,11 @@ Smoke test перезаписывает `best.pt` тестовым checkpoint. �
 !python /kaggle/working/VIscaNEr/train_dinov3_retrieval.py all \
   --config /kaggle/working/VIscaNEr/configs/dinov3_retrieval.yaml \
   --project-root /kaggle/working/VIscaNEr \
-  --weights-path /kaggle/input/viscaner-dinov3-vitb16-weights/model.safetensors \
-  --crops-metadata-path /kaggle/input/viscaner-dinov3-data/crops_metadata.csv \
-  --bottle-manifest-path /kaggle/input/viscaner-dinov3-data/bottle_images_manifest.csv \
-  --crops-root /kaggle/input/viscaner-dinov3-data/crops \
-  --refs-root /kaggle/input/viscaner-dinov3-data/refs \
+  --weights-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-vitb16-weights/model.safetensors \
+  --crops-metadata-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops_metadata.csv \
+  --bottle-manifest-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/bottle_images_manifest.csv \
+  --crops-root /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops \
+  --refs-root /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/refs \
   --device cuda --num-workers 4
 ```
 
@@ -203,11 +203,11 @@ OLD_BEST = checkpoints[0]
 !python /kaggle/working/VIscaNEr/train_dinov3_retrieval.py validate \
   --config /kaggle/working/VIscaNEr/configs/dinov3_retrieval.yaml \
   --project-root /kaggle/working/VIscaNEr \
-  --weights-path /kaggle/input/viscaner-dinov3-vitb16-weights/model.safetensors \
-  --crops-metadata-path /kaggle/input/viscaner-dinov3-data/crops_metadata.csv \
-  --bottle-manifest-path /kaggle/input/viscaner-dinov3-data/bottle_images_manifest.csv \
-  --crops-root /kaggle/input/viscaner-dinov3-data/crops \
-  --refs-root /kaggle/input/viscaner-dinov3-data/refs \
+  --weights-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-vitb16-weights/model.safetensors \
+  --crops-metadata-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops_metadata.csv \
+  --bottle-manifest-path /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/bottle_images_manifest.csv \
+  --crops-root /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/crops \
+  --refs-root /kaggle/input/datasets/konstantinmelnikof/viscaner-dinov3-data/refs \
   --checkpoint "{OLD_BEST}" \
   --device cuda --num-workers 4
 ```

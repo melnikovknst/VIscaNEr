@@ -22,6 +22,7 @@ from dinov3_retrieval import (
     load_trained_model,
     plot_retrieval_failures,
     prepare_retrieval_index,
+    save_retrieval_audit,
     train_pipeline,
 )
 
@@ -93,7 +94,10 @@ def main() -> None:
         _, prepared_summary = prepare_retrieval_index(
             cfg, validate_files=not args.skip_file_validation
         )
-        print(json.dumps(prepared_summary, ensure_ascii=False, indent=2))
+        # `all` and `validate` include this summary in their final JSON.  Print
+        # it here only for the standalone command to avoid duplicate log blocks.
+        if args.command == "prepare":
+            print(json.dumps(prepared_summary, ensure_ascii=False, indent=2))
     if args.command in {"train", "all"}:
         result = train_pipeline(
             cfg,
@@ -121,6 +125,11 @@ def main() -> None:
             )
             export_gallery_embeddings(details, gallery_path)
             plot_retrieval_failures(details, failures_path)
+            audit_summary = save_retrieval_audit(
+                details,
+                run_dir / f"{output_prefix}_audit",
+                n=8,
+            )
             result = {
                 "mode": args.command,
                 "checkpoint_path": str(checkpoint_path.resolve()),
@@ -130,6 +139,7 @@ def main() -> None:
                 "metrics_path": str(metrics_path.resolve()),
                 "gallery_embeddings_path": str(gallery_path.resolve()),
                 "failures_path": str(failures_path.resolve()),
+                "audit": audit_summary,
             }
             (run_dir / f"{output_prefix}_summary.json").write_text(
                 json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"

@@ -27,4 +27,5 @@ models/**/*.pt
 models/**/*.safetensors
 runs/**
 kaggle_upload/
+kaggle_recovered/
 /yolo*.pt

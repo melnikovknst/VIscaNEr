@@ -40,6 +40,12 @@ METADATA_COLUMNS = [
     "padding",
     "image_width",
     "image_height",
+    "num_detections",
+    "selection_score",
+    "selection_margin",
+    "center_score",
+    "size_score",
+    "edge_clearance_score",
 ]
 
 
@@ -85,19 +91,69 @@ def unique_output_path(directory: Path, input_path: Path, extension: str) -> Pat
     return directory / f"{input_path.stem}{extension}"
 
 
-def extract_best_detection(result: Any) -> tuple[float | None, tuple[float, float, float, float] | None]:
+def extract_target_detection(
+    result: Any,
+    image_width: int,
+    image_height: int,
+    candidate_confidence: float,
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    """Rank label detections by how likely they are to be the photographed bottle.
+
+    Organiser guidance says that, when several bottles are visible, the target is
+    the central fully-visible bottle.  Detector confidence therefore remains a
+    quality signal but must not decide the target on its own.
+    """
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
-        return None, None
+        return None, []
     xyxy = boxes.xyxy.detach().cpu().numpy()
     confidence = boxes.conf.detach().cpu().numpy()
     classes = boxes.cls.detach().cpu().numpy().astype(int)
-    candidates = [
-        (float(score), tuple(float(value) for value in coordinates))
-        for coordinates, score, class_id in zip(xyxy, confidence, classes)
-        if class_id == 0
-    ]
-    return max(candidates, key=lambda item: item[0]) if candidates else (None, None)
+    candidates: list[dict[str, Any]] = []
+    target_x, target_y = 0.50, 0.55
+    sigma_x, sigma_y = 0.22, 0.32
+
+    for coordinates, score, class_id in zip(xyxy, confidence, classes):
+        confidence_value = float(score)
+        if class_id != 0 or confidence_value < candidate_confidence:
+            continue
+        x1, y1, x2, y2 = (float(value) for value in coordinates)
+        width = max(0.0, x2 - x1)
+        height = max(0.0, y2 - y1)
+        if width <= 0 or height <= 0:
+            continue
+
+        center_x = ((x1 + x2) * 0.5) / image_width
+        center_y = ((y1 + y2) * 0.5) / image_height
+        normalized_distance = (
+            ((center_x - target_x) / sigma_x) ** 2
+            + ((center_y - target_y) / sigma_y) ** 2
+        )
+        center_score = math.exp(-0.5 * normalized_distance)
+
+        area_ratio = (width * height) / float(image_width * image_height)
+        size_score = min(1.0, math.sqrt(max(area_ratio, 0.0)) / 0.35)
+        edge_clearance = min(center_x, 1.0 - center_x, center_y, 1.0 - center_y)
+        edge_clearance_score = min(1.0, max(0.0, edge_clearance / 0.5))
+        selection_score = (
+            0.60 * center_score
+            + 0.15 * size_score
+            + 0.15 * confidence_value
+            + 0.10 * edge_clearance_score
+        )
+        candidates.append(
+            {
+                "confidence": confidence_value,
+                "box": (x1, y1, x2, y2),
+                "selection_score": selection_score,
+                "center_score": center_score,
+                "size_score": size_score,
+                "edge_clearance_score": edge_clearance_score,
+            }
+        )
+
+    candidates.sort(key=lambda item: item["selection_score"], reverse=True)
+    return (candidates[0] if candidates else None), candidates
 
 
 def padded_box(
@@ -122,13 +178,31 @@ def write_debug(
     status: str,
     confidence: float | None,
     box: tuple[int, int, int, int] | None,
+    candidates: list[dict[str, Any]] | None = None,
 ) -> None:
     debug = image.copy()
     color = (45, 170, 45) if status == "successful" else (30, 100, 240)
+    for candidate in candidates or []:
+        raw_x1, raw_y1, raw_x2, raw_y2 = candidate["box"]
+        candidate_box = tuple(int(round(value)) for value in (raw_x1, raw_y1, raw_x2, raw_y2))
+        cx1, cy1, cx2, cy2 = candidate_box
+        cv2.rectangle(debug, (cx1, cy1), (cx2, cy2), (0, 165, 255), 2)
+        candidate_text = (
+            f"conf={candidate['confidence']:.2f} target={candidate['selection_score']:.2f}"
+        )
+        cv2.putText(
+            debug,
+            candidate_text,
+            (cx1, max(18, cy1 - 6)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.48,
+            (0, 120, 255),
+            1,
+        )
     if box is not None:
         x1, y1, x2, y2 = box
         cv2.rectangle(debug, (x1, y1), (x2, y2), color, 3)
-        text = f"wine_label {confidence:.3f}" if confidence is not None else "wine_label"
+        text = f"SELECTED {confidence:.3f}" if confidence is not None else "SELECTED"
         cv2.putText(debug, text, (x1, max(24, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
     cv2.putText(debug, status, (12, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
     cv2.imwrite(str(destination), debug, [cv2.IMWRITE_JPEG_QUALITY, 90])
@@ -154,6 +228,7 @@ def run_crop(
     batch_size: int,
     imgsz: int,
     save_debug_successful: bool,
+    candidate_confidence: float,
     limit: int | None,
 ) -> dict[str, Any]:
     if not input_dir.is_dir():
@@ -162,6 +237,8 @@ def run_crop(
         raise FileNotFoundError(f"YOLO checkpoint not found: {model_path}")
     if not (0 <= low_confidence_threshold <= confidence_threshold <= 1):
         raise ValueError("Require 0 <= low_confidence_threshold <= confidence_threshold <= 1")
+    if not (0 <= candidate_confidence <= 1):
+        raise ValueError("candidate_confidence must be in the range 0..1")
 
     successful_dir = output_root / "successful"
     low_confidence_dir = output_root / "low_confidence"
@@ -210,7 +287,14 @@ def run_crop(
         original_source_filename = original_source_path.name
         image = result.orig_img
         image_height, image_width = image.shape[:2]
-        confidence, raw_box = extract_best_detection(result)
+        selected, candidates = extract_target_detection(
+            result,
+            image_width=image_width,
+            image_height=image_height,
+            candidate_confidence=candidate_confidence,
+        )
+        confidence = selected["confidence"] if selected is not None else None
+        raw_box = selected["box"] if selected is not None else None
         crop_box = padded_box(raw_box, image_width, image_height, padding) if raw_box is not None else None
 
         if confidence is not None and confidence >= confidence_threshold:
@@ -234,16 +318,22 @@ def run_crop(
             crop_path = unique_output_path(failed_dir, input_path, input_path.suffix.lower())
             shutil.copy2(input_path, crop_path)
 
-        if save_debug_successful or status in {"low_confidence", "failed"}:
+        if save_debug_successful or len(candidates) > 1 or status in {"low_confidence", "failed"}:
             write_debug(
                 image,
                 unique_output_path(debug_dir, input_path, ".jpg"),
                 status,
                 confidence,
                 crop_box,
+                candidates,
             )
 
         x1, y1, x2, y2 = crop_box if crop_box is not None else (None, None, None, None)
+        selection_margin = (
+            selected["selection_score"] - candidates[1]["selection_score"]
+            if selected is not None and len(candidates) > 1
+            else None
+        )
         writer.writerow(
             {
                 "source_path": str(original_source_path),
@@ -258,6 +348,14 @@ def run_crop(
                 "padding": padding,
                 "image_width": image_width,
                 "image_height": image_height,
+                "num_detections": len(candidates),
+                "selection_score": "" if selected is None else f"{selected['selection_score']:.8f}",
+                "selection_margin": "" if selection_margin is None else f"{selection_margin:.8f}",
+                "center_score": "" if selected is None else f"{selected['center_score']:.8f}",
+                "size_score": "" if selected is None else f"{selected['size_score']:.8f}",
+                "edge_clearance_score": (
+                    "" if selected is None else f"{selected['edge_clearance_score']:.8f}"
+                ),
             }
         )
         metadata_handle.flush()
@@ -295,6 +393,12 @@ def run_crop(
                 "padding": padding,
                 "image_width": image_width,
                 "image_height": image_height,
+                "num_detections": 0,
+                "selection_score": "",
+                "selection_margin": "",
+                "center_score": "",
+                "size_score": "",
+                "edge_clearance_score": "",
             }
         )
         metadata_handle.flush()
@@ -312,6 +416,7 @@ def run_crop(
                     source=[str(path) for path in batch_paths],
                     imgsz=imgsz,
                     conf=0.001,
+                    iou=0.50,
                     device=device,
                     verbose=False,
                 )
@@ -332,6 +437,7 @@ def run_crop(
                             source=str(input_path),
                             imgsz=imgsz,
                             conf=0.001,
+                            iou=0.50,
                             device=device,
                             verbose=False,
                         )[0]
@@ -350,6 +456,8 @@ def run_crop(
         partial_path.replace(metadata_path)
     status_counts = metadata["status"].value_counts().to_dict()
     confidences = pd.to_numeric(metadata["confidence"], errors="coerce").dropna()
+    detection_counts = pd.to_numeric(metadata["num_detections"], errors="coerce").fillna(0)
+    selection_margins = pd.to_numeric(metadata["selection_margin"], errors="coerce").dropna()
     elapsed_seconds = time.perf_counter() - started_at
     summary = {
         "input_dir": str(input_dir.resolve()),
@@ -360,6 +468,11 @@ def run_crop(
         "low_confidence": int(status_counts.get("low_confidence", 0)),
         "failed": int(status_counts.get("failed", 0)),
         "average_confidence": float(confidences.mean()) if not confidences.empty else None,
+        "multiple_detection_images": int((detection_counts > 1).sum()),
+        "low_selection_margin_images": int((selection_margins < 0.05).sum()),
+        "average_selection_margin": (
+            float(selection_margins.mean()) if not selection_margins.empty else None
+        ),
         "new_rows": new_rows,
         "new_errors": new_errors,
         "elapsed_seconds": elapsed_seconds,
@@ -384,6 +497,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--save-debug-successful", action="store_true")
+    parser.add_argument(
+        "--candidate-confidence",
+        type=float,
+        default=0.10,
+        help="Minimum YOLO confidence for a box to enter target selection",
+    )
     parser.add_argument("--limit", type=int, default=None, help="Optional smoke-test limit")
     return parser.parse_args()
 
@@ -403,6 +522,7 @@ if __name__ == "__main__":
             batch_size=arguments.batch_size,
             imgsz=arguments.imgsz,
             save_debug_successful=arguments.save_debug_successful,
+            candidate_confidence=arguments.candidate_confidence,
             limit=arguments.limit,
         )
     except KeyboardInterrupt:

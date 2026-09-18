@@ -20,6 +20,7 @@ from dinov3_retrieval import (
     evaluate_splits,
     export_gallery_embeddings,
     load_trained_model,
+    plot_retrieval_failures,
     prepare_retrieval_index,
     train_pipeline,
 )
@@ -37,7 +38,10 @@ def load_config(path: str | Path, overrides: dict[str, Any]) -> PipelineConfig:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("prepare", "train", "all", "evaluate", "benchmark"))
+    parser.add_argument(
+        "command",
+        choices=("prepare", "train", "all", "evaluate", "validate", "benchmark"),
+    )
     parser.add_argument("--config", default="configs/dinov3_retrieval.yaml")
     parser.add_argument("--project-root")
     parser.add_argument("--weights-path")
@@ -54,6 +58,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--eval-batch-size", type=int)
     parser.add_argument("--quick-smoke", action="store_true")
     parser.add_argument("--skip-file-validation", action="store_true")
+    parser.add_argument("--resume-checkpoint")
+    parser.add_argument(
+        "--checkpoint",
+        help="Checkpoint used by evaluate/validate/benchmark; defaults to models_dir/best.pt",
+    )
     return parser.parse_args()
 
 
@@ -79,25 +88,53 @@ def main() -> None:
     }
     cfg = load_config(args.config, overrides)
 
-    if args.command in {"prepare", "all"}:
-        _, summary = prepare_retrieval_index(cfg, validate_files=not args.skip_file_validation)
-        print(json.dumps(summary, ensure_ascii=False, indent=2))
+    prepared_summary: dict[str, Any] | None = None
+    if args.command in {"prepare", "all", "validate"}:
+        _, prepared_summary = prepare_retrieval_index(
+            cfg, validate_files=not args.skip_file_validation
+        )
+        print(json.dumps(prepared_summary, ensure_ascii=False, indent=2))
     if args.command in {"train", "all"}:
-        result = train_pipeline(cfg, quick_smoke=args.quick_smoke)
+        result = train_pipeline(
+            cfg,
+            quick_smoke=args.quick_smoke,
+            resume_checkpoint=args.resume_checkpoint,
+        )
         print(json.dumps(result, ensure_ascii=False, indent=2))
-    if args.command in {"evaluate", "benchmark"}:
+    if args.command in {"evaluate", "validate", "benchmark"}:
         index = pd.read_csv(cfg.index_path)
         device = choose_device(cfg.device)
-        model, checkpoint = load_trained_model(Path(cfg.models_dir) / "best.pt", cfg.weights_path, device)
+        checkpoint_path = Path(args.checkpoint) if args.checkpoint else Path(cfg.models_dir) / "best.pt"
+        if not checkpoint_path.is_file():
+            raise FileNotFoundError(f"Evaluation checkpoint does not exist: {checkpoint_path}")
+        model, checkpoint = load_trained_model(checkpoint_path, cfg.weights_path, device)
         run_dir = Path(cfg.runs_dir) / cfg.run_name
         run_dir.mkdir(parents=True, exist_ok=True)
-        if args.command == "evaluate":
+        if args.command in {"evaluate", "validate"}:
             metrics, details = evaluate_splits(model, index, cfg, device)
-            (run_dir / "final_metrics.json").write_text(
+            output_prefix = "validation_only" if args.command == "validate" else "final"
+            metrics_path = run_dir / f"{output_prefix}_metrics.json"
+            gallery_path = run_dir / f"{output_prefix}_gallery_embeddings.pt"
+            failures_path = run_dir / f"{output_prefix}_failures.png"
+            metrics_path.write_text(
                 json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8"
             )
-            export_gallery_embeddings(details, run_dir / "gallery_embeddings.pt")
-            print(json.dumps({"checkpoint": checkpoint.get("metrics"), "metrics": metrics}, indent=2))
+            export_gallery_embeddings(details, gallery_path)
+            plot_retrieval_failures(details, failures_path)
+            result = {
+                "mode": args.command,
+                "checkpoint_path": str(checkpoint_path.resolve()),
+                "checkpoint_metrics_on_old_data": checkpoint.get("metrics"),
+                "metrics_on_current_data": metrics,
+                "current_data_summary": prepared_summary,
+                "metrics_path": str(metrics_path.resolve()),
+                "gallery_embeddings_path": str(gallery_path.resolve()),
+                "failures_path": str(failures_path.resolve()),
+            }
+            (run_dir / f"{output_prefix}_summary.json").write_text(
+                json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
             records = index[index["split"].eq("gallery")].head(max(cfg.eval_batch_size, 128))
             timings = benchmark_model(model, create_eval_loader(records, cfg), device)

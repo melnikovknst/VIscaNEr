@@ -27,12 +27,12 @@ projection_hidden_dim: 512
 
 # Stage 1 trains only the retrieval head. Stage 2 fine-tunes the last blocks.
 stage1_epochs: 5
-stage2_epochs: 12
+stage2_epochs: 30
 stage1_identities_per_batch: 16
 stage1_images_per_identity: 4
 stage2_identities_per_batch: 8
 stage2_images_per_identity: 2
-unfreeze_last_blocks: 2
+unfreeze_last_blocks: 4
 
 # Optimisation.
 head_lr: 0.0003
@@ -41,7 +41,7 @@ weight_decay: 0.05
 supcon_temperature: 0.07
 ce_temperature: 0.07
 ce_weight: 0.5
-patience: 5
+patience: 6
 
 # Runtime. `auto` selects CUDA, then MPS, then CPU.
 device: auto

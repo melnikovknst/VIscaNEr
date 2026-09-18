@@ -177,6 +177,10 @@ embedding для каждого из 2 103 вин.
 
 ## 8. Validation-only на новых кропах
 
+Готовый отдельный notebook находится в корне проекта:
+`validate_dinov3_new_crops.ipynb`. После подключения четырёх inputs достаточно
+нажать `Run All`; training-функции в нём не вызываются.
+
 Команда `validate` заново строит `index.csv` из текущего Kaggle Dataset,
 загружает существующий обученный `best.pt` и пересчитывает метрики. Обучение,
 backward и изменение checkpoint не выполняются.

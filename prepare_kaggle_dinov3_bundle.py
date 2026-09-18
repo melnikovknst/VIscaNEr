@@ -84,6 +84,7 @@ def main() -> None:
         Path("dinov3_retrieval.py"),
         Path("train_dinov3_retrieval.py"),
         Path("train_dinov3_retrieval.ipynb"),
+        Path("validate_dinov3_new_crops.ipynb"),
         Path("requirements.txt"),
         Path("configs/dinov3_retrieval.yaml"),
     ):

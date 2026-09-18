@@ -789,6 +789,57 @@ def _save_checkpoint(
     )
 
 
+def normalize_retrieval_checkpoint_state_dict(
+    model: DINOv3RetrievalModel,
+    state_dict: dict[str, torch.Tensor],
+) -> dict[str, torch.Tensor]:
+    """Adapt trained checkpoints across Transformers DINOv3 key layouts.
+
+    Transformers releases expose encoder blocks either as ``backbone.layer``
+    or ``backbone.model.layer``.  The tensors are equivalent; only the module
+    path changed.  Keep strict loading after the targeted rename so genuine
+    architecture mismatches still fail loudly.
+    """
+
+    expected_keys = set(model.state_dict())
+    checkpoint_keys = set(state_dict)
+    expected_nested = any(key.startswith("backbone.model.layer.") for key in expected_keys)
+    checkpoint_nested = any(
+        key.startswith("backbone.model.layer.") for key in checkpoint_keys
+    )
+
+    normalized = state_dict
+    if expected_nested and not checkpoint_nested:
+        normalized = {
+            (
+                key.replace("backbone.layer.", "backbone.model.layer.", 1)
+                if key.startswith("backbone.layer.")
+                else key
+            ): value
+            for key, value in state_dict.items()
+        }
+    elif checkpoint_nested and not expected_nested:
+        normalized = {
+            (
+                key.replace("backbone.model.layer.", "backbone.layer.", 1)
+                if key.startswith("backbone.model.layer.")
+                else key
+            ): value
+            for key, value in state_dict.items()
+        }
+
+    normalized_keys = set(normalized)
+    missing = sorted(expected_keys - normalized_keys)
+    unexpected = sorted(normalized_keys - expected_keys)
+    if missing or unexpected:
+        raise RuntimeError(
+            "Checkpoint architecture mismatch after DINOv3 key normalization. "
+            f"Missing ({len(missing)}): {missing[:10]}; "
+            f"unexpected ({len(unexpected)}): {unexpected[:10]}"
+        )
+    return normalized
+
+
 def load_trained_model(
     checkpoint_path: str | Path,
     weights_path: str | Path,
@@ -804,7 +855,10 @@ def load_trained_model(
         projection_hidden_dim=cfg.projection_hidden_dim,
         ce_temperature=cfg.ce_temperature,
     )
-    model.load_state_dict(checkpoint["model_state_dict"], strict=True)
+    model_state = normalize_retrieval_checkpoint_state_dict(
+        model, checkpoint["model_state_dict"]
+    )
+    model.load_state_dict(model_state, strict=True)
     model.to(device)
     return model, checkpoint
 
@@ -852,7 +906,10 @@ def train_pipeline(
         if not resume_path.is_file():
             raise FileNotFoundError(f"Resume checkpoint does not exist: {resume_path}")
         resume_payload = torch.load(resume_path, map_location="cpu", weights_only=False)
-        model.load_state_dict(resume_payload["model_state_dict"], strict=True)
+        resume_state = normalize_retrieval_checkpoint_state_dict(
+            model, resume_payload["model_state_dict"]
+        )
+        model.load_state_dict(resume_state, strict=True)
         print(
             f"Resuming from {resume_path} "
             f"(epoch={resume_payload.get('epoch')}, stage={resume_payload.get('stage')})"

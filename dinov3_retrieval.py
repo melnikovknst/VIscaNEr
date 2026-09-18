@@ -1044,6 +1044,171 @@ def plot_retrieval_failures(details: dict[str, Any], output_path: str | Path, n:
     plt.close(fig)
 
 
+def build_retrieval_audit(
+    details: dict[str, Any],
+    splits: Sequence[str] = ("val_seen", "val_unseen", "val_hard"),
+    top_k: int = 5,
+    chunk_size: int = 256,
+) -> pd.DataFrame:
+    """Create one inspectable row per query with its ranked gallery matches."""
+    gallery_embeddings = F.normalize(details["gallery_embeddings"].float(), dim=-1)
+    gallery_labels = details["gallery_labels"].long()
+    gallery_paths = details["gallery_paths"]
+    gallery_slugs = details["gallery_slugs"]
+    gallery_by_label = {int(label): idx for idx, label in enumerate(gallery_labels.tolist())}
+    effective_top_k = min(top_k, len(gallery_embeddings))
+    rows: list[dict[str, Any]] = []
+
+    for split in splits:
+        if split not in details:
+            continue
+        payload = details[split]
+        query_embeddings = F.normalize(payload["embeddings"].float(), dim=-1)
+        query_labels = payload["labels"].long()
+        for start in range(0, len(query_embeddings), chunk_size):
+            stop = min(start + chunk_size, len(query_embeddings))
+            similarities = query_embeddings[start:stop] @ gallery_embeddings.T
+            top_scores, top_indices = torch.topk(similarities, k=effective_top_k, dim=1)
+            labels = query_labels[start:stop]
+            true_indices = torch.tensor(
+                [gallery_by_label[int(label)] for label in labels], dtype=torch.long
+            )
+            true_scores = similarities[torch.arange(stop - start), true_indices]
+
+            for local_index in range(stop - start):
+                query_index = start + local_index
+                ranked_indices = top_indices[local_index].tolist()
+                ranked_scores = top_scores[local_index].tolist()
+                row: dict[str, Any] = {
+                    "split": split,
+                    "query_path": payload["paths"][query_index],
+                    "true_slug": payload["slugs"][query_index],
+                    "true_reference_path": gallery_paths[int(true_indices[local_index])],
+                    "rank": int(payload["ranks"][query_index]),
+                    "true_similarity": float(true_scores[local_index]),
+                    "top1_top2_margin": (
+                        float(ranked_scores[0] - ranked_scores[1])
+                        if len(ranked_scores) > 1
+                        else float("nan")
+                    ),
+                }
+                for position in range(effective_top_k):
+                    gallery_index = int(ranked_indices[position])
+                    prefix = f"top{position + 1}"
+                    row[f"{prefix}_slug"] = gallery_slugs[gallery_index]
+                    row[f"{prefix}_path"] = gallery_paths[gallery_index]
+                    row[f"{prefix}_similarity"] = float(ranked_scores[position])
+                rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _short_slug(value: str, limit: int = 42) -> str:
+    return value if len(value) <= limit else f"{value[: limit - 1]}…"
+
+
+def plot_retrieval_audit_group(
+    records: pd.DataFrame,
+    output_path: str | Path,
+    title: str,
+    n: int = 8,
+) -> Path | None:
+    """Plot query, true reference, Top-1 and Top-2 for selected audit rows."""
+    if records.empty:
+        return None
+    selected = records.head(n).reset_index(drop=True)
+    fig, axes = plt.subplots(len(selected), 4, figsize=(16, max(4, 3.6 * len(selected))))
+    axes = np.atleast_2d(axes)
+    for row_index, row in selected.iterrows():
+        panels = (
+            (
+                row["query_path"],
+                f"Query · rank={int(row['rank'])}\n{_short_slug(str(row['true_slug']))}",
+            ),
+            (
+                row["true_reference_path"],
+                f"Ground truth · sim={row['true_similarity']:.3f}\n"
+                f"{_short_slug(str(row['true_slug']))}",
+            ),
+            (
+                row["top1_path"],
+                f"Top-1 · sim={row['top1_similarity']:.3f}\n"
+                f"{_short_slug(str(row['top1_slug']))}",
+            ),
+            (
+                row["top2_path"],
+                f"Top-2 · sim={row['top2_similarity']:.3f}\n"
+                f"{_short_slug(str(row['top2_slug']))}",
+            ),
+        )
+        for column_index, (path, panel_title) in enumerate(panels):
+            axes[row_index, column_index].imshow(open_rgb(Path(path)))
+            axes[row_index, column_index].set_title(panel_title, fontsize=9)
+            axes[row_index, column_index].axis("off")
+    fig.suptitle(title, fontsize=14)
+    fig.tight_layout()
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    return output
+
+
+def save_retrieval_audit(
+    details: dict[str, Any],
+    output_dir: str | Path,
+    splits: Sequence[str] = ("val_seen", "val_unseen", "val_hard"),
+    n: int = 8,
+) -> dict[str, Any]:
+    """Save full ranking CSV plus worst-error and rank-2 visual sheets."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    audit = build_retrieval_audit(details, splits=splits, top_k=5)
+    csv_path = output_dir / "retrieval_audit.csv"
+    audit.to_csv(csv_path, index=False)
+    images: dict[str, str] = {}
+    category_counts: dict[str, dict[str, int]] = {}
+
+    for split in splits:
+        split_rows = audit[audit["split"].eq(split)].copy()
+        if split_rows.empty:
+            continue
+        errors = split_rows[split_rows["rank"].gt(1)].copy()
+        worst = errors.sort_values(
+            ["rank", "true_similarity"], ascending=[False, True]
+        )
+        rank2 = errors[errors["rank"].eq(2)].copy()
+        rank2["wrong_lead"] = rank2["top1_similarity"] - rank2["true_similarity"]
+        rank2 = rank2.sort_values("wrong_lead", ascending=False)
+        category_counts[split] = {
+            "queries": int(len(split_rows)),
+            "errors": int(len(errors)),
+            "rank2_errors": int(len(rank2)),
+        }
+
+        for category, records, title in (
+            ("worst", worst, f"{split}: worst retrieval errors"),
+            ("rank2", rank2, f"{split}: ground truth is Top-2"),
+        ):
+            image_path = plot_retrieval_audit_group(
+                records,
+                output_dir / f"{split}_{category}.png",
+                title,
+                n=n,
+            )
+            if image_path is not None:
+                images[f"{split}_{category}"] = str(image_path.resolve())
+
+    summary = {
+        "audit_csv": str(csv_path.resolve()),
+        "images": images,
+        "category_counts": category_counts,
+    }
+    (output_dir / "audit_summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return summary
+
+
 def visualize_transforms(config: PipelineConfig, n: int = 6) -> None:
     cfg = config.resolved()
     index = pd.read_csv(cfg.index_path)

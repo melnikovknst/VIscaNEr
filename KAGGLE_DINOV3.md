@@ -40,6 +40,20 @@ kaggle datasets create -p kaggle_upload/viscaner-dinov3-code -r zip
 Можно вместо CLI вручную создать три private Dataset в интерфейсе Kaggle и
 перетащить содержимое соответствующих папок.
 
+Для замены уже существующих data/code datasets новыми версиями:
+
+```bash
+kaggle datasets version -p kaggle_upload/viscaner-dinov3-data \
+  -m "Central-target crop selector; rebuilt 45k crops" -r zip -d
+
+kaggle datasets version -p kaggle_upload/viscaner-dinov3-code \
+  -m "Add validation-only command for rebuilt crops" -r zip -d
+```
+
+Флаг `-d` удаляет старые версии соответствующего Kaggle Dataset после загрузки
+новой. Dataset с базовыми DINOv3-весами не изменился, повторно загружать его не
+нужно.
+
 ## 2. Создать Kaggle Notebook
 
 1. `Create → New Notebook`.
@@ -160,3 +174,43 @@ Input остаётся 224×224; снижать его не рекомендуе
 `best.pt` + `gallery_embeddings.pt` — два основных production-артефакта.
 Первый превращает новый YOLO-кроп в embedding, второй содержит reference
 embedding для каждого из 2 103 вин.
+
+## 8. Validation-only на новых кропах
+
+Команда `validate` заново строит `index.csv` из текущего Kaggle Dataset,
+загружает существующий обученный `best.pt` и пересчитывает метрики. Обучение,
+backward и изменение checkpoint не выполняются.
+
+Сначала найти checkpoint из сохранённого output предыдущего Kaggle notebook:
+
+```python
+from pathlib import Path
+
+checkpoints = sorted(Path("/kaggle/input").rglob("best.pt"))
+for checkpoint in checkpoints:
+    print(checkpoint)
+assert checkpoints, "Добавьте output предыдущего training notebook через Add Input"
+OLD_BEST = checkpoints[0]
+```
+
+Затем выполнить только validation:
+
+```python
+!python /kaggle/working/VIscaNEr/train_dinov3_retrieval.py validate \
+  --config /kaggle/working/VIscaNEr/configs/dinov3_retrieval.yaml \
+  --project-root /kaggle/working/VIscaNEr \
+  --weights-path /kaggle/input/viscaner-dinov3-vitb16-weights/model.safetensors \
+  --crops-metadata-path /kaggle/input/viscaner-dinov3-data/crops_metadata.csv \
+  --bottle-manifest-path /kaggle/input/viscaner-dinov3-data/bottle_images_manifest.csv \
+  --crops-root /kaggle/input/viscaner-dinov3-data/crops \
+  --refs-root /kaggle/input/viscaner-dinov3-data/refs \
+  --checkpoint "{OLD_BEST}" \
+  --device cuda --num-workers 4
+```
+
+Результаты сохраняются отдельно от training run:
+
+- `validation_only_metrics.json`;
+- `validation_only_summary.json`;
+- `validation_only_gallery_embeddings.pt`;
+- `validation_only_failures.png`.

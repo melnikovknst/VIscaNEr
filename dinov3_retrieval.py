@@ -471,9 +471,16 @@ def load_local_dinov3_backbone(weights_path: str | Path, image_size: int = 224) 
         raise FileNotFoundError(weights_path)
     backbone = DINOv3ViTModel(make_dinov3_vitb16_config(image_size))
     state = load_file(str(weights_path), device="cpu")
-    # Transformers 5.17 nests encoder blocks under ``model``; the supplied
-    # checkpoint is the equivalent bare backbone state dict.
-    state = {(f"model.{key}" if key.startswith("layer.") else key): value for key, value in state.items()}
+    # DINOv3 encoder keys changed between Transformers releases: some builds
+    # expose ``layer.*`` while others expose ``model.layer.*``.  Normalize the
+    # checkpoint to the state-dict layout expected by the installed build.
+    expected_keys = set(backbone.state_dict())
+    expects_model_prefix = any(key.startswith("model.layer.") for key in expected_keys)
+    checkpoint_has_model_prefix = any(key.startswith("model.layer.") for key in state)
+    if expects_model_prefix and not checkpoint_has_model_prefix:
+        state = {(f"model.{key}" if key.startswith("layer.") else key): value for key, value in state.items()}
+    elif checkpoint_has_model_prefix and not expects_model_prefix:
+        state = {(key.removeprefix("model.") if key.startswith("model.layer.") else key): value for key, value in state.items()}
     result = backbone.load_state_dict(state, strict=True)
     if result.missing_keys or result.unexpected_keys:
         raise RuntimeError(f"Checkpoint mismatch: {result}")
@@ -508,7 +515,10 @@ class DINOv3RetrievalModel(nn.Module):
         for parameter in self.backbone.parameters():
             parameter.requires_grad = False
         if last_n_blocks > 0:
-            blocks = self.backbone.model.layer
+            # Transformers releases expose DINOv3 encoder blocks either as
+            # ``model.layer`` or directly as ``layer``.
+            encoder = getattr(self.backbone, "model", self.backbone)
+            blocks = encoder.layer
             for block in blocks[-last_n_blocks:]:
                 for parameter in block.parameters():
                     parameter.requires_grad = True
@@ -799,7 +809,11 @@ def load_trained_model(
     return model, checkpoint
 
 
-def train_pipeline(config: PipelineConfig, quick_smoke: bool = False) -> dict[str, Any]:
+def train_pipeline(
+    config: PipelineConfig,
+    quick_smoke: bool = False,
+    resume_checkpoint: str | Path | None = None,
+) -> dict[str, Any]:
     cfg = config.resolved()
     seed_everything(cfg.seed)
     device = choose_device(cfg.device)
@@ -832,10 +846,35 @@ def train_pipeline(config: PipelineConfig, quick_smoke: bool = False) -> dict[st
         projection_hidden_dim=cfg.projection_hidden_dim,
         ce_temperature=cfg.ce_temperature,
     ).to(device)
+    resume_payload: dict[str, Any] | None = None
+    if resume_checkpoint is not None:
+        resume_path = Path(resume_checkpoint)
+        if not resume_path.is_file():
+            raise FileNotFoundError(f"Resume checkpoint does not exist: {resume_path}")
+        resume_payload = torch.load(resume_path, map_location="cpu", weights_only=False)
+        model.load_state_dict(resume_payload["model_state_dict"], strict=True)
+        print(
+            f"Resuming from {resume_path} "
+            f"(epoch={resume_payload.get('epoch')}, stage={resume_payload.get('stage')})"
+        )
     scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda" and cfg.amp))
-    history: list[dict[str, Any]] = []
+    history_path = run_dir / "history.csv"
+    if resume_payload is not None and history_path.is_file():
+        history = pd.read_csv(history_path).to_dict("records")
+    else:
+        history: list[dict[str, Any]] = []
+    global_epoch = int(resume_payload.get("epoch", 0)) if resume_payload else 0
     best_recall = -1.0
-    global_epoch = 0
+    best_path = Path(cfg.models_dir) / "best.pt"
+    if resume_payload is not None and best_path.is_file():
+        best_payload = torch.load(best_path, map_location="cpu", weights_only=False)
+        best_recall = float(
+            best_payload.get("metrics", {}).get("val_seen", {}).get("recall_at_1", -1.0)
+        )
+    elif resume_payload is not None:
+        best_recall = float(
+            resume_payload.get("metrics", {}).get("val_seen", {}).get("recall_at_1", -1.0)
+        )
 
     for stage, epochs, unfrozen in (
         (1, cfg.stage1_epochs, 0),
@@ -843,11 +882,26 @@ def train_pipeline(config: PipelineConfig, quick_smoke: bool = False) -> dict[st
     ):
         if epochs <= 0:
             continue
+        completed_stage_epochs = 0
+        if resume_payload is not None:
+            resume_stage = int(resume_payload.get("stage", 1))
+            if stage < resume_stage:
+                completed_stage_epochs = epochs
+            elif stage == resume_stage:
+                if stage == 1:
+                    completed_stage_epochs = min(global_epoch, cfg.stage1_epochs)
+                else:
+                    completed_stage_epochs = min(
+                        max(global_epoch - cfg.stage1_epochs, 0), cfg.stage2_epochs
+                    )
+        if completed_stage_epochs >= epochs:
+            print(f"Skipping completed stage {stage} ({completed_stage_epochs}/{epochs} epochs)")
+            continue
         stage_epochs_without_improvement = 0
         model.set_backbone_trainable(unfrozen)
         optimizer = build_optimizer(model, cfg)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max(epochs, 1))
-        for stage_epoch in range(epochs):
+        for stage_epoch in range(completed_stage_epochs, epochs):
             global_epoch += 1
             loader, sampler = create_train_loader(train_records, cfg, stage, stage_epoch)
             sampler.set_epoch(global_epoch)

@@ -50,6 +50,11 @@ def main() -> None:
     data_bundle = output / "viscaner-dinov3-data"
     weights_bundle = output / "viscaner-dinov3-vitb16-weights"
     code_bundle = output / "viscaner-dinov3-code"
+    # These are generated staging directories. Recreate them so files removed
+    # or moved between crop statuses cannot survive from an older bundle.
+    for bundle in (data_bundle, weights_bundle, code_bundle):
+        if bundle.exists():
+            shutil.rmtree(bundle)
     data_bundle.mkdir(parents=True, exist_ok=True)
     weights_bundle.mkdir(parents=True, exist_ok=True)
     code_bundle.mkdir(parents=True, exist_ok=True)

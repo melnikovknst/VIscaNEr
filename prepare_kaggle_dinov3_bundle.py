@@ -59,17 +59,11 @@ def main() -> None:
     weights_bundle.mkdir(parents=True, exist_ok=True)
     code_bundle.mkdir(parents=True, exist_ok=True)
 
-    crops_source = project / "datasets/yolo_label_detector/crops"
-    # Keep the full crop result on Kaggle. The retrieval index still decides
-    # which statuses are safe for single-target training; ambiguous pairs are
-    # retained separately for the upcoming two-candidate reranker.
-    for status in (
-        "successful",
-        "low_confidence",
-        "failed",
-        "ambiguous",
-        "ambiguous_secondary",
-    ):
+    crops_source = project / "datasets/dinov3_target_crops"
+    # The offline builder accepts only YOLO boxes geometrically aligned with
+    # the generator-tracked target bottle. Rejected rows remain in metadata;
+    # only identity-safe successful crops are needed by DINO.
+    for status in ("successful",):
         files = sorted((crops_source / status).glob("*"))
         for source in tqdm(files, desc=f"bundle {status}"):
             if source.is_file():
@@ -90,6 +84,7 @@ def main() -> None:
     link_or_copy(project / "models/dinov3/config.json", weights_bundle / "config.json")
 
     for relative in (
+        Path("build_target_aligned_crops.py"),
         Path("dinov3_retrieval.py"),
         Path("train_dinov3_retrieval.py"),
         Path("train_dinov3_retrieval.ipynb"),

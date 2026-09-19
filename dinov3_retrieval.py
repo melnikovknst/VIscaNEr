@@ -45,9 +45,9 @@ SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 class PipelineConfig:
     project_root: str
     weights_path: str = "models/dinov3/model.safetensors"
-    crops_metadata_path: str = "datasets/yolo_label_detector/crops/crops_metadata.csv"
+    crops_metadata_path: str = "datasets/dinov3_target_crops/crops_metadata.csv"
     bottle_manifest_path: str = "datasets/bottle_images_45k/bottle_images_manifest.csv"
-    crops_root: str = "datasets/yolo_label_detector/crops"
+    crops_root: str = "datasets/dinov3_target_crops"
     refs_root: str = "datasets/wine-scanner/data/refs/rgb"
     index_path: str = "datasets/dinov3_retrieval/index.csv"
     split_summary_path: str = "datasets/dinov3_retrieval/split_summary.json"
@@ -177,7 +177,13 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
     if manifest["source_path"].duplicated().any():
         raise ValueError("Bottle manifest contains duplicate source_path rows")
 
-    crops = metadata.merge(
+    # New target-aligned crop metadata carries the identity explicitly. Keep
+    # the original manifest as the source of truth and verify that the builder
+    # did not associate a crop with a different wine. Older crop metadata did
+    # not contain ``wine_slug`` and remains supported by the same code path.
+    metadata_identity = metadata.get("wine_slug")
+    metadata_for_merge = metadata.drop(columns=["wine_slug"], errors="ignore")
+    crops = metadata_for_merge.merge(
         manifest[["source_path", "wine_slug"]],
         on="source_path",
         how="left",
@@ -186,6 +192,16 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
     if crops["wine_slug"].isna().any():
         examples = crops.loc[crops["wine_slug"].isna(), "source_path"].head(5).tolist()
         raise ValueError(f"Some crops cannot be mapped to an identity: {examples}")
+    if metadata_identity is not None:
+        expected = metadata_identity.astype(str).reset_index(drop=True)
+        actual = crops["wine_slug"].astype(str).reset_index(drop=True)
+        mismatch = expected.ne(actual)
+        if mismatch.any():
+            examples = crops.loc[mismatch, ["source_path", "wine_slug"]].head(5).to_dict("records")
+            raise ValueError(
+                "Crop metadata identities disagree with the bottle manifest. "
+                f"Examples: {examples}"
+            )
 
     refs = _reference_lookup(refs_root)
     identities = sorted(crops["wine_slug"].astype(str).unique())

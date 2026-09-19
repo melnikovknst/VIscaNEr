@@ -46,6 +46,21 @@ METADATA_COLUMNS = [
     "center_score",
     "size_score",
     "edge_clearance_score",
+    "crosshair_x",
+    "crosshair_y",
+    "crosshair_inside",
+    "crosshair_distance",
+    "is_ambiguous",
+    "ambiguity_reason",
+    "secondary_crop_path",
+    "secondary_confidence",
+    "secondary_x1",
+    "secondary_y1",
+    "secondary_x2",
+    "secondary_y2",
+    "secondary_selection_score",
+    "secondary_crosshair_inside",
+    "secondary_crosshair_distance",
 ]
 
 
@@ -96,12 +111,14 @@ def extract_target_detection(
     image_width: int,
     image_height: int,
     candidate_confidence: float,
+    crosshair_x: float,
+    crosshair_y: float,
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
-    """Rank label detections by how likely they are to be the photographed bottle.
+    """Rank labels by proximity to the user's crosshair.
 
-    Organiser guidance says that, when several bottles are visible, the target is
-    the central fully-visible bottle.  Detector confidence therefore remains a
-    quality signal but must not decide the target on its own.
+    The product UI asks the user to place a central crosshair over the desired
+    label. A box containing that point always outranks boxes that do not. Other
+    signals only break ties or provide a fallback when the user misses.
     """
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
@@ -110,8 +127,8 @@ def extract_target_detection(
     confidence = boxes.conf.detach().cpu().numpy()
     classes = boxes.cls.detach().cpu().numpy().astype(int)
     candidates: list[dict[str, Any]] = []
-    target_x, target_y = 0.50, 0.55
-    sigma_x, sigma_y = 0.22, 0.32
+    sigma_x, sigma_y = 0.24, 0.34
+    crosshair_sigma = 0.16
 
     for coordinates, score, class_id in zip(xyxy, confidence, classes):
         confidence_value = float(score)
@@ -126,20 +143,31 @@ def extract_target_detection(
         center_x = ((x1 + x2) * 0.5) / image_width
         center_y = ((y1 + y2) * 0.5) / image_height
         normalized_distance = (
-            ((center_x - target_x) / sigma_x) ** 2
-            + ((center_y - target_y) / sigma_y) ** 2
+            ((center_x - crosshair_x) / sigma_x) ** 2
+            + ((center_y - crosshair_y) / sigma_y) ** 2
         )
         center_score = math.exp(-0.5 * normalized_distance)
+
+        normalized_x1 = x1 / image_width
+        normalized_y1 = y1 / image_height
+        normalized_x2 = x2 / image_width
+        normalized_y2 = y2 / image_height
+        distance_x = max(normalized_x1 - crosshair_x, 0.0, crosshair_x - normalized_x2)
+        distance_y = max(normalized_y1 - crosshair_y, 0.0, crosshair_y - normalized_y2)
+        crosshair_distance = math.hypot(distance_x, distance_y)
+        crosshair_inside = crosshair_distance <= 1e-9
+        crosshair_score = math.exp(-0.5 * (crosshair_distance / crosshair_sigma) ** 2)
 
         area_ratio = (width * height) / float(image_width * image_height)
         size_score = min(1.0, math.sqrt(max(area_ratio, 0.0)) / 0.35)
         edge_clearance = min(center_x, 1.0 - center_x, center_y, 1.0 - center_y)
         edge_clearance_score = min(1.0, max(0.0, edge_clearance / 0.5))
         selection_score = (
-            0.60 * center_score
-            + 0.15 * size_score
-            + 0.15 * confidence_value
-            + 0.10 * edge_clearance_score
+            0.58 * crosshair_score
+            + 0.20 * center_score
+            + 0.08 * size_score
+            + 0.08 * confidence_value
+            + 0.06 * edge_clearance_score
         )
         candidates.append(
             {
@@ -149,11 +177,76 @@ def extract_target_detection(
                 "center_score": center_score,
                 "size_score": size_score,
                 "edge_clearance_score": edge_clearance_score,
+                "crosshair_score": crosshair_score,
+                "crosshair_inside": crosshair_inside,
+                "crosshair_distance": crosshair_distance,
             }
         )
 
-    candidates.sort(key=lambda item: item["selection_score"], reverse=True)
+    candidates.sort(
+        key=lambda item: (
+            bool(item["crosshair_inside"]),
+            item["selection_score"],
+            item["confidence"],
+        ),
+        reverse=True,
+    )
     return (candidates[0] if candidates else None), candidates
+
+
+def box_iou(
+    first: tuple[float, float, float, float],
+    second: tuple[float, float, float, float],
+) -> float:
+    ax1, ay1, ax2, ay2 = first
+    bx1, by1, bx2, by2 = second
+    intersection_width = max(0.0, min(ax2, bx2) - max(ax1, bx1))
+    intersection_height = max(0.0, min(ay2, by2) - max(ay1, by1))
+    intersection = intersection_width * intersection_height
+    first_area = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    second_area = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    union = first_area + second_area - intersection
+    return intersection / union if union > 0 else 0.0
+
+
+def ambiguous_secondary_candidate(
+    candidates: list[dict[str, Any]],
+    ambiguity_margin: float,
+    ambiguity_distance_margin: float,
+    ambiguity_max_distance: float,
+    ambiguity_min_secondary_confidence: float,
+    ambiguity_min_secondary_score: float,
+) -> tuple[dict[str, Any] | None, str]:
+    """Return a second label only when crosshair targeting is genuinely ambiguous."""
+    if len(candidates) < 2:
+        return None, "single_candidate"
+
+    primary, secondary = candidates[:2]
+    if secondary["confidence"] < ambiguity_min_secondary_confidence:
+        return None, "secondary_low_confidence"
+    if secondary["selection_score"] < ambiguity_min_secondary_score:
+        return None, "secondary_low_target_score"
+    if box_iou(primary["box"], secondary["box"]) >= 0.50:
+        return None, "duplicate_overlap"
+
+    primary_inside = bool(primary["crosshair_inside"])
+    secondary_inside = bool(secondary["crosshair_inside"])
+    if primary_inside:
+        if secondary_inside:
+            return secondary, "crosshair_inside_two_boxes"
+        return None, "clear_crosshair_hit"
+
+    # The crosshair missed every label. Return two only if both nearest labels
+    # are plausible and almost equally close to the target point.
+    if secondary["crosshair_distance"] > ambiguity_max_distance:
+        return None, "secondary_too_far_from_crosshair"
+    distance_margin = secondary["crosshair_distance"] - primary["crosshair_distance"]
+    score_margin = primary["selection_score"] - secondary["selection_score"]
+    close_by_distance = distance_margin <= ambiguity_distance_margin
+    close_by_score = score_margin <= ambiguity_margin and distance_margin <= 2 * ambiguity_distance_margin
+    if close_by_distance or close_by_score:
+        return secondary, "crosshair_between_two_labels"
+    return None, "clear_nearest_label"
 
 
 def padded_box(
@@ -179,16 +272,20 @@ def write_debug(
     confidence: float | None,
     box: tuple[int, int, int, int] | None,
     candidates: list[dict[str, Any]] | None = None,
+    secondary_box: tuple[int, int, int, int] | None = None,
+    ambiguity_reason: str = "",
+    crosshair_x: float = 0.5,
+    crosshair_y: float = 0.5,
 ) -> None:
     debug = image.copy()
     color = (45, 170, 45) if status == "successful" else (30, 100, 240)
-    for candidate in candidates or []:
+    for rank, candidate in enumerate(candidates or [], start=1):
         raw_x1, raw_y1, raw_x2, raw_y2 = candidate["box"]
         candidate_box = tuple(int(round(value)) for value in (raw_x1, raw_y1, raw_x2, raw_y2))
         cx1, cy1, cx2, cy2 = candidate_box
         cv2.rectangle(debug, (cx1, cy1), (cx2, cy2), (0, 165, 255), 2)
         candidate_text = (
-            f"conf={candidate['confidence']:.2f} target={candidate['selection_score']:.2f}"
+            f"#{rank} conf={candidate['confidence']:.2f} target={candidate['selection_score']:.2f}"
         )
         cv2.putText(
             debug,
@@ -199,12 +296,45 @@ def write_debug(
             (0, 120, 255),
             1,
         )
+    crosshair_pixel_x = int(round(crosshair_x * image.shape[1]))
+    crosshair_pixel_y = int(round(crosshair_y * image.shape[0]))
+    cv2.drawMarker(
+        debug,
+        (crosshair_pixel_x, crosshair_pixel_y),
+        (255, 80, 30),
+        markerType=cv2.MARKER_CROSS,
+        markerSize=34,
+        thickness=2,
+    )
     if box is not None:
         x1, y1, x2, y2 = box
         cv2.rectangle(debug, (x1, y1), (x2, y2), color, 3)
         text = f"SELECTED {confidence:.3f}" if confidence is not None else "SELECTED"
         cv2.putText(debug, text, (x1, max(24, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+    if secondary_box is not None:
+        x1, y1, x2, y2 = secondary_box
+        secondary_color = (210, 60, 210)
+        cv2.rectangle(debug, (x1, y1), (x2, y2), secondary_color, 3)
+        cv2.putText(
+            debug,
+            "SECONDARY",
+            (x1, min(image.shape[0] - 8, y2 + 22)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.65,
+            secondary_color,
+            2,
+        )
     cv2.putText(debug, status, (12, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+    if ambiguity_reason:
+        cv2.putText(
+            debug,
+            ambiguity_reason,
+            (12, 58),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            color,
+            2,
+        )
     cv2.imwrite(str(destination), debug, [cv2.IMWRITE_JPEG_QUALITY, 90])
 
 
@@ -229,6 +359,13 @@ def run_crop(
     imgsz: int,
     save_debug_successful: bool,
     candidate_confidence: float,
+    crosshair_x: float,
+    crosshair_y: float,
+    ambiguity_margin: float,
+    ambiguity_distance_margin: float,
+    ambiguity_max_distance: float,
+    ambiguity_min_secondary_confidence: float,
+    ambiguity_min_secondary_score: float,
     limit: int | None,
 ) -> dict[str, Any]:
     if not input_dir.is_dir():
@@ -239,11 +376,30 @@ def run_crop(
         raise ValueError("Require 0 <= low_confidence_threshold <= confidence_threshold <= 1")
     if not (0 <= candidate_confidence <= 1):
         raise ValueError("candidate_confidence must be in the range 0..1")
+    if not (0 <= crosshair_x <= 1 and 0 <= crosshair_y <= 1):
+        raise ValueError("crosshair coordinates must be normalized to 0..1")
+    if min(
+        ambiguity_margin,
+        ambiguity_distance_margin,
+        ambiguity_max_distance,
+        ambiguity_min_secondary_confidence,
+        ambiguity_min_secondary_score,
+    ) < 0:
+        raise ValueError("ambiguity thresholds must be non-negative")
 
     successful_dir = output_root / "successful"
     low_confidence_dir = output_root / "low_confidence"
     failed_dir = output_root / "failed"
-    for directory in (successful_dir, low_confidence_dir, failed_dir, debug_dir):
+    ambiguous_dir = output_root / "ambiguous"
+    ambiguous_secondary_dir = output_root / "ambiguous_secondary"
+    for directory in (
+        successful_dir,
+        low_confidence_dir,
+        failed_dir,
+        ambiguous_dir,
+        ambiguous_secondary_dir,
+        debug_dir,
+    ):
         directory.mkdir(parents=True, exist_ok=True)
 
     metadata_path = output_root / "crops_metadata.csv"
@@ -292,12 +448,30 @@ def run_crop(
             image_width=image_width,
             image_height=image_height,
             candidate_confidence=candidate_confidence,
+            crosshair_x=crosshair_x,
+            crosshair_y=crosshair_y,
+        )
+        secondary, ambiguity_reason = ambiguous_secondary_candidate(
+            candidates,
+            ambiguity_margin=ambiguity_margin,
+            ambiguity_distance_margin=ambiguity_distance_margin,
+            ambiguity_max_distance=ambiguity_max_distance,
+            ambiguity_min_secondary_confidence=ambiguity_min_secondary_confidence,
+            ambiguity_min_secondary_score=ambiguity_min_secondary_score,
         )
         confidence = selected["confidence"] if selected is not None else None
         raw_box = selected["box"] if selected is not None else None
         crop_box = padded_box(raw_box, image_width, image_height, padding) if raw_box is not None else None
+        secondary_raw_box = secondary["box"] if secondary is not None else None
+        secondary_crop_box = (
+            padded_box(secondary_raw_box, image_width, image_height, padding)
+            if secondary_raw_box is not None
+            else None
+        )
 
-        if confidence is not None and confidence >= confidence_threshold:
+        if secondary is not None and confidence is not None and confidence >= low_confidence_threshold:
+            status = "ambiguous"
+        elif confidence is not None and confidence >= confidence_threshold:
             status = "successful"
         elif confidence is not None and confidence >= low_confidence_threshold:
             status = "low_confidence"
@@ -305,20 +479,41 @@ def run_crop(
             status = "failed"
 
         crop_path: Path
-        if status in {"successful", "low_confidence"} and crop_box is not None:
+        secondary_crop_path: Path | None = None
+        if status in {"successful", "low_confidence", "ambiguous"} and crop_box is not None:
             x1, y1, x2, y2 = crop_box
             crop = image[y1:y2, x1:x2]
             if crop.size == 0:
                 raise ValueError("Empty crop after boundary clamping")
-            destination_dir = successful_dir if status == "successful" else low_confidence_dir
+            destination_dir = {
+                "successful": successful_dir,
+                "low_confidence": low_confidence_dir,
+                "ambiguous": ambiguous_dir,
+            }[status]
             crop_path = unique_output_path(destination_dir, input_path, ".jpg")
             if not cv2.imwrite(str(crop_path), crop, [cv2.IMWRITE_JPEG_QUALITY, 95]):
                 raise IOError(f"Could not write crop: {crop_path}")
+            if status == "ambiguous" and secondary_crop_box is not None:
+                sx1, sy1, sx2, sy2 = secondary_crop_box
+                secondary_crop = image[sy1:sy2, sx1:sx2]
+                if secondary_crop.size == 0:
+                    raise ValueError("Empty secondary crop after boundary clamping")
+                secondary_crop_path = unique_output_path(
+                    ambiguous_secondary_dir,
+                    input_path,
+                    ".jpg",
+                )
+                if not cv2.imwrite(
+                    str(secondary_crop_path),
+                    secondary_crop,
+                    [cv2.IMWRITE_JPEG_QUALITY, 95],
+                ):
+                    raise IOError(f"Could not write secondary crop: {secondary_crop_path}")
         else:
             crop_path = unique_output_path(failed_dir, input_path, input_path.suffix.lower())
             shutil.copy2(input_path, crop_path)
 
-        if save_debug_successful or len(candidates) > 1 or status in {"low_confidence", "failed"}:
+        if save_debug_successful or status in {"ambiguous", "low_confidence", "failed"}:
             write_debug(
                 image,
                 unique_output_path(debug_dir, input_path, ".jpg"),
@@ -326,6 +521,10 @@ def run_crop(
                 confidence,
                 crop_box,
                 candidates,
+                secondary_box=secondary_crop_box,
+                ambiguity_reason=ambiguity_reason if status == "ambiguous" else "",
+                crosshair_x=crosshair_x,
+                crosshair_y=crosshair_y,
             )
 
         x1, y1, x2, y2 = crop_box if crop_box is not None else (None, None, None, None)
@@ -333,6 +532,9 @@ def run_crop(
             selected["selection_score"] - candidates[1]["selection_score"]
             if selected is not None and len(candidates) > 1
             else None
+        )
+        sx1, sy1, sx2, sy2 = (
+            secondary_crop_box if secondary_crop_box is not None else (None, None, None, None)
         )
         writer.writerow(
             {
@@ -356,6 +558,33 @@ def run_crop(
                 "edge_clearance_score": (
                     "" if selected is None else f"{selected['edge_clearance_score']:.8f}"
                 ),
+                "crosshair_x": f"{crosshair_x:.8f}",
+                "crosshair_y": f"{crosshair_y:.8f}",
+                "crosshair_inside": "" if selected is None else int(selected["crosshair_inside"]),
+                "crosshair_distance": (
+                    "" if selected is None else f"{selected['crosshair_distance']:.8f}"
+                ),
+                "is_ambiguous": int(status == "ambiguous"),
+                "ambiguity_reason": ambiguity_reason,
+                "secondary_crop_path": (
+                    "" if secondary_crop_path is None else str(secondary_crop_path.resolve())
+                ),
+                "secondary_confidence": (
+                    "" if secondary is None else f"{secondary['confidence']:.8f}"
+                ),
+                "secondary_x1": "" if sx1 is None else sx1,
+                "secondary_y1": "" if sy1 is None else sy1,
+                "secondary_x2": "" if sx2 is None else sx2,
+                "secondary_y2": "" if sy2 is None else sy2,
+                "secondary_selection_score": (
+                    "" if secondary is None else f"{secondary['selection_score']:.8f}"
+                ),
+                "secondary_crosshair_inside": (
+                    "" if secondary is None else int(secondary["crosshair_inside"])
+                ),
+                "secondary_crosshair_distance": (
+                    "" if secondary is None else f"{secondary['crosshair_distance']:.8f}"
+                ),
             }
         )
         metadata_handle.flush()
@@ -378,6 +607,8 @@ def run_crop(
                 "failed",
                 None,
                 None,
+                crosshair_x=crosshair_x,
+                crosshair_y=crosshair_y,
             )
         writer.writerow(
             {
@@ -399,6 +630,21 @@ def run_crop(
                 "center_score": "",
                 "size_score": "",
                 "edge_clearance_score": "",
+                "crosshair_x": f"{crosshair_x:.8f}",
+                "crosshair_y": f"{crosshair_y:.8f}",
+                "crosshair_inside": "",
+                "crosshair_distance": "",
+                "is_ambiguous": 0,
+                "ambiguity_reason": "processing_failure",
+                "secondary_crop_path": "",
+                "secondary_confidence": "",
+                "secondary_x1": "",
+                "secondary_y1": "",
+                "secondary_x2": "",
+                "secondary_y2": "",
+                "secondary_selection_score": "",
+                "secondary_crosshair_inside": "",
+                "secondary_crosshair_distance": "",
             }
         )
         metadata_handle.flush()
@@ -467,6 +713,7 @@ def run_crop(
         "successful": int(status_counts.get("successful", 0)),
         "low_confidence": int(status_counts.get("low_confidence", 0)),
         "failed": int(status_counts.get("failed", 0)),
+        "ambiguous": int(status_counts.get("ambiguous", 0)),
         "average_confidence": float(confidences.mean()) if not confidences.empty else None,
         "multiple_detection_images": int((detection_counts > 1).sum()),
         "low_selection_margin_images": int((selection_margins < 0.05).sum()),
@@ -478,6 +725,14 @@ def run_crop(
         "elapsed_seconds": elapsed_seconds,
         "images_per_second": (new_rows / elapsed_seconds) if elapsed_seconds > 0 else None,
         "metadata_csv": str((metadata_path if metadata_path.exists() else partial_path).resolve()),
+        "crosshair": {"x": crosshair_x, "y": crosshair_y},
+        "ambiguity_thresholds": {
+            "score_margin": ambiguity_margin,
+            "distance_margin": ambiguity_distance_margin,
+            "max_distance": ambiguity_max_distance,
+            "min_secondary_confidence": ambiguity_min_secondary_confidence,
+            "min_secondary_score": ambiguity_min_secondary_score,
+        },
     }
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2, ensure_ascii=False))
@@ -503,6 +758,36 @@ def parse_args() -> argparse.Namespace:
         default=0.10,
         help="Minimum YOLO confidence for a box to enter target selection",
     )
+    parser.add_argument("--crosshair-x", type=float, default=0.50)
+    parser.add_argument("--crosshair-y", type=float, default=0.50)
+    parser.add_argument(
+        "--ambiguity-margin",
+        type=float,
+        default=0.08,
+        help="Maximum target-score gap for a secondary candidate",
+    )
+    parser.add_argument(
+        "--ambiguity-distance-margin",
+        type=float,
+        default=0.035,
+        help="Maximum normalized crosshair-distance gap between two candidates",
+    )
+    parser.add_argument(
+        "--ambiguity-max-distance",
+        type=float,
+        default=0.18,
+        help="Maximum normalized distance from crosshair to the secondary label",
+    )
+    parser.add_argument(
+        "--ambiguity-min-secondary-confidence",
+        type=float,
+        default=0.25,
+    )
+    parser.add_argument(
+        "--ambiguity-min-secondary-score",
+        type=float,
+        default=0.40,
+    )
     parser.add_argument("--limit", type=int, default=None, help="Optional smoke-test limit")
     return parser.parse_args()
 
@@ -523,6 +808,13 @@ if __name__ == "__main__":
             imgsz=arguments.imgsz,
             save_debug_successful=arguments.save_debug_successful,
             candidate_confidence=arguments.candidate_confidence,
+            crosshair_x=arguments.crosshair_x,
+            crosshair_y=arguments.crosshair_y,
+            ambiguity_margin=arguments.ambiguity_margin,
+            ambiguity_distance_margin=arguments.ambiguity_distance_margin,
+            ambiguity_max_distance=arguments.ambiguity_max_distance,
+            ambiguity_min_secondary_confidence=arguments.ambiguity_min_secondary_confidence,
+            ambiguity_min_secondary_score=arguments.ambiguity_min_secondary_score,
             limit=arguments.limit,
         )
     except KeyboardInterrupt:

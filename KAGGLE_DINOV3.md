@@ -18,7 +18,8 @@ python prepare_kaggle_dinov3_bundle.py --kaggle-username YOUR_KAGGLE_USERNAME
 
 Скрипт создаст `kaggle_upload/` с тремя наборами:
 
-- `viscaner-dinov3-data` — 44k успешных/low-confidence кропов, reference images и CSV;
+- `viscaner-dinov3-data` — полный результат кропа: обычные, low-confidence,
+  failed и неоднозначные primary/secondary-кандидаты, reference images и CSV;
 - `viscaner-dinov3-vitb16-weights` — локальный `model.safetensors`;
 - `viscaner-dinov3-code` — notebook, CLI, config и Python-модуль.
 

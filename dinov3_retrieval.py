@@ -77,6 +77,8 @@ class PipelineConfig:
     num_workers: int = 4
     eval_batch_size: int = 64
     patience: int = 5
+    early_stopping_split: str = "val_unseen"
+    early_stopping_metric: str = "recall_at_1"
     device: str = "auto"
     amp: bool = True
 
@@ -716,7 +718,7 @@ def retrieval_metrics(
     query_labels: torch.Tensor,
     gallery_embeddings: torch.Tensor,
     gallery_labels: torch.Tensor,
-    ks: Sequence[int] = (1, 5, 10),
+    ks: Sequence[int] = (1, 2, 5, 10),
     chunk_size: int = 512,
 ) -> tuple[dict[str, float], torch.Tensor]:
     if len(torch.unique(gallery_labels)) != len(gallery_labels):
@@ -736,6 +738,10 @@ def retrieval_metrics(
         ranks.append((similarities > target_scores[:, None]).sum(dim=1) + 1)
     rank_tensor = torch.cat(ranks).float()
     metrics = {f"recall_at_{k}": float((rank_tensor <= k).float().mean()) for k in ks}
+    # Retrieval Top-1 accuracy is exactly Recall@1 when every query has one
+    # correct gallery identity. Keep the explicit alias in every validation
+    # and final metrics payload so downstream reports do not have to infer it.
+    metrics["accuracy"] = metrics["recall_at_1"]
     metrics.update(
         {
             "mrr": float((1.0 / rank_tensor).mean()),
@@ -937,16 +943,20 @@ def train_pipeline(
     else:
         history: list[dict[str, Any]] = []
     global_epoch = int(resume_payload.get("epoch", 0)) if resume_payload else 0
-    best_recall = -1.0
+    best_monitor = -1.0
     best_path = Path(cfg.models_dir) / "best.pt"
     if resume_payload is not None and best_path.is_file():
         best_payload = torch.load(best_path, map_location="cpu", weights_only=False)
-        best_recall = float(
-            best_payload.get("metrics", {}).get("val_seen", {}).get("recall_at_1", -1.0)
+        best_monitor = float(
+            best_payload.get("metrics", {})
+            .get(cfg.early_stopping_split, {})
+            .get(cfg.early_stopping_metric, -1.0)
         )
     elif resume_payload is not None:
-        best_recall = float(
-            resume_payload.get("metrics", {}).get("val_seen", {}).get("recall_at_1", -1.0)
+        best_monitor = float(
+            resume_payload.get("metrics", {})
+            .get(cfg.early_stopping_split, {})
+            .get(cfg.early_stopping_metric, -1.0)
         )
 
     for stage, epochs, unfrozen in (
@@ -987,12 +997,28 @@ def train_pipeline(
                 val_metrics, _ = evaluate_splits(
                     model, index, cfg, device, splits=("val_seen", "val_unseen")
                 )
-            monitor = val_metrics.get("val_seen", {}).get("recall_at_1", -train_metrics["loss"])
+            if quick_smoke:
+                monitor = -train_metrics["loss"]
+            else:
+                monitored_split = val_metrics.get(cfg.early_stopping_split)
+                if monitored_split is None:
+                    raise ValueError(
+                        f"Early-stopping split is unavailable: {cfg.early_stopping_split}"
+                    )
+                if cfg.early_stopping_metric not in monitored_split:
+                    raise ValueError(
+                        "Early-stopping metric is unavailable: "
+                        f"{cfg.early_stopping_split}.{cfg.early_stopping_metric}"
+                    )
+                monitor = float(monitored_split[cfg.early_stopping_metric])
             row = {
                 "epoch": global_epoch,
                 "stage": stage,
                 "stage_epoch": stage_epoch + 1,
                 "elapsed_seconds": time.perf_counter() - started,
+                "early_stopping_split": cfg.early_stopping_split,
+                "early_stopping_metric": cfg.early_stopping_metric,
+                "early_stopping_value": monitor,
                 **train_metrics,
             }
             for split, values in val_metrics.items():
@@ -1000,8 +1026,8 @@ def train_pipeline(
             history.append(row)
             pd.DataFrame(history).to_csv(run_dir / "history.csv", index=False)
             _save_checkpoint(Path(cfg.models_dir) / "last.pt", model, cfg, global_epoch, stage, val_metrics)
-            if monitor > best_recall:
-                best_recall = monitor
+            if monitor > best_monitor:
+                best_monitor = monitor
                 stage_epochs_without_improvement = 0
                 _save_checkpoint(Path(cfg.models_dir) / "best.pt", model, cfg, global_epoch, stage, val_metrics)
             else:
@@ -1066,7 +1092,13 @@ def plot_training_history(history_path: str | Path, output_path: str | Path) -> 
             axes[0].plot(history["epoch"], history[column], marker="o", label=column)
     axes[0].set(title="Training losses", xlabel="Epoch", ylabel="Loss")
     axes[0].legend()
-    for column in ("val_seen_recall_at_1", "val_unseen_recall_at_1", "val_seen_recall_at_5"):
+    for column in (
+        "val_seen_recall_at_1",
+        "val_seen_recall_at_2",
+        "val_unseen_recall_at_1",
+        "val_unseen_recall_at_2",
+        "val_seen_recall_at_5",
+    ):
         if column in history:
             axes[1].plot(history["epoch"], history[column], marker="o", label=column)
     axes[1].set(title="Retrieval validation", xlabel="Epoch", ylabel="Recall")

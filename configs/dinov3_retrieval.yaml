@@ -42,6 +42,8 @@ supcon_temperature: 0.07
 ce_temperature: 0.07
 ce_weight: 0.5
 patience: 6
+early_stopping_split: val_unseen
+early_stopping_metric: recall_at_1
 
 # Runtime. `auto` selects CUDA, then MPS, then CPU.
 device: auto

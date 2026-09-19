@@ -18,8 +18,8 @@ python prepare_kaggle_dinov3_bundle.py --kaggle-username YOUR_KAGGLE_USERNAME
 
 Скрипт создаст `kaggle_upload/` с тремя наборами:
 
-- `viscaner-dinov3-data` — полный результат кропа: обычные, low-confidence,
-  failed и неоднозначные primary/secondary-кандидаты, reference images и CSV;
+- `viscaner-dinov3-data` — generator-target-aligned кропы: YOLO bbox принимается
+  только внутри точно отслеженной целевой бутылки; также reference images и CSV;
 - `viscaner-dinov3-vitb16-weights` — локальный `model.safetensors`;
 - `viscaner-dinov3-code` — notebook, CLI, config и Python-модуль.
 
@@ -45,15 +45,13 @@ kaggle datasets create -p kaggle_upload/viscaner-dinov3-code -r zip
 
 ```bash
 kaggle datasets version -p kaggle_upload/viscaner-dinov3-data \
-  -m "Central-target crop selector; rebuilt 45k crops" -r zip -d
+  -m "Replace crops with generator-target-aligned DINO dataset" -r zip
 
 kaggle datasets version -p kaggle_upload/viscaner-dinov3-code \
-  -m "Add validation-only command for rebuilt crops" -r zip -d
+  -m "Add generator-target-aligned crop builder and DINO paths" -r zip
 ```
 
-Флаг `-d` удаляет старые версии соответствующего Kaggle Dataset после загрузки
-новой. Dataset с базовыми DINOv3-весами не изменился, повторно загружать его не
-нужно.
+Dataset с базовыми DINOv3-весами не изменился, повторно загружать его не нужно.
 
 ## 2. Создать Kaggle Notebook
 

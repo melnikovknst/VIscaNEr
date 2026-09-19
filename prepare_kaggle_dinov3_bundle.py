@@ -60,7 +60,16 @@ def main() -> None:
     code_bundle.mkdir(parents=True, exist_ok=True)
 
     crops_source = project / "datasets/yolo_label_detector/crops"
-    for status in ("successful", "low_confidence"):
+    # Keep the full crop result on Kaggle. The retrieval index still decides
+    # which statuses are safe for single-target training; ambiguous pairs are
+    # retained separately for the upcoming two-candidate reranker.
+    for status in (
+        "successful",
+        "low_confidence",
+        "failed",
+        "ambiguous",
+        "ambiguous_secondary",
+    ):
         files = sorted((crops_source / status).glob("*"))
         for source in tqdm(files, desc=f"bundle {status}"):
             if source.is_file():

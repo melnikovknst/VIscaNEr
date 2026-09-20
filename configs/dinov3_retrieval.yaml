@@ -26,8 +26,16 @@ embedding_dim: 256
 projection_hidden_dim: 512
 
 # Stage 1 trains only the retrieval head. Stage 2 fine-tunes the last blocks.
+# Stage 3 stays disabled here; use dinov3_full_finetune.yaml for the long run.
 stage1_epochs: 5
 stage2_epochs: 30
+stage3_epochs: 0
+stage3_head_lr: 0.0001
+stage3_backbone_lr: 0.000005
+stage3_patience: 12
+stage3_min_epochs: 15
+stage3_warmup_epochs: 3
+max_session_hours: 10.5
 stage1_identities_per_batch: 16
 stage1_images_per_identity: 4
 stage2_identities_per_batch: 8

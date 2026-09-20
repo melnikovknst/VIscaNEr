@@ -63,6 +63,14 @@ class PipelineConfig:
     include_low_confidence_in_train: bool = False
     stage1_epochs: int = 5
     stage2_epochs: int = 12
+    # Optional full-backbone phase. Zero keeps the established two-stage run.
+    stage3_epochs: int = 0
+    stage3_head_lr: float = 1e-4
+    stage3_backbone_lr: float = 5e-6
+    stage3_patience: int = 12
+    stage3_min_epochs: int = 15
+    stage3_warmup_epochs: int = 3
+    max_session_hours: float = 10.5
     stage1_identities_per_batch: int = 16
     stage1_images_per_identity: int = 4
     stage2_identities_per_batch: int = 8
@@ -532,7 +540,14 @@ class DINOv3RetrievalModel(nn.Module):
     def set_backbone_trainable(self, last_n_blocks: int) -> None:
         for parameter in self.backbone.parameters():
             parameter.requires_grad = False
-        if last_n_blocks > 0:
+        if last_n_blocks == -1:
+            for parameter in self.backbone.parameters():
+                parameter.requires_grad = True
+        elif last_n_blocks < -1:
+            raise ValueError(
+                "Use -1 for the full backbone, 0 to freeze it, or a positive block count"
+            )
+        elif last_n_blocks > 0:
             # Transformers releases expose DINOv3 encoder blocks either as
             # ``model.layer`` or directly as ``layer``.
             encoder = getattr(self.backbone, "model", self.backbone)
@@ -890,6 +905,12 @@ def train_pipeline(
     quick_smoke: bool = False,
     resume_checkpoint: str | Path | None = None,
 ) -> dict[str, Any]:
+    if config.stage3_epochs > 0:
+        # Keep the default two-stage trainer compact while making the long,
+        # exactly-resumable full-backbone schedule explicitly opt-in.
+        from full_finetune import train_full_pipeline
+
+        return train_full_pipeline(config, quick_smoke, resume_checkpoint)
     cfg = config.resolved()
     seed_everything(cfg.seed)
     device = choose_device(cfg.device)

@@ -2,7 +2,7 @@
 
 Пайплайн обучает не классификатор «в вакууме», а embedding-модель: YOLO-кроп
 этикетки используется как query, а чистое reference-изображение бутылки — как
-gallery item. Итоговая проверка показывает Recall@1/5/10 отдельно для знакомых
+gallery item. Итоговая проверка показывает Accuracy и Recall@1/2/5/10 отдельно для знакомых
 и полностью отложенных wine identities.
 
 ## 1. Подготовить три приватных Kaggle Dataset
@@ -22,6 +22,10 @@ python prepare_kaggle_dinov3_bundle.py --kaggle-username YOUR_KAGGLE_USERNAME
   только внутри точно отслеженной целевой бутылки; также reference images и CSV;
 - `viscaner-dinov3-vitb16-weights` — локальный `model.safetensors`;
 - `viscaner-dinov3-code` — notebook, CLI, config и Python-модуль.
+
+В code dataset также входят `full_finetune.py`, отдельный полный config и
+`DINOv3-finetuninig.ipynb`. Они не заменяют обычный двухстадийный режим:
+третья стадия включается только config-файлом полного обучения.
 
 Исходники не перемещаются и не удаляются. На том же диске используются hard
 links, поэтому staging-папка почти не занимает дополнительного места.
@@ -52,6 +56,20 @@ kaggle datasets version -p kaggle_upload/viscaner-dinov3-code \
 ```
 
 Dataset с базовыми DINOv3-весами не изменился, повторно загружать его не нужно.
+
+Если изменился только код, не нужно пересобирать десятки тысяч изображений:
+
+```bash
+python prepare_kaggle_dinov3_bundle.py \
+  --kaggle-username YOUR_KAGGLE_USERNAME --code-only
+
+kaggle datasets version -p kaggle_upload/viscaner-dinov3-code \
+  -m "Add resumable full DINOv3 fine-tuning" -r zip
+```
+
+Скрипт bundle автоматически создаёт `code_sha256.json`; full-training notebook
+проверяет по нему, что все скопированные в `/kaggle/working` файлы принадлежат
+одной версии code dataset.
 
 ## 2. Создать Kaggle Notebook
 
@@ -157,6 +175,22 @@ eval_batch_size: 32
 
 Input остаётся 224×224; снижать его не рекомендуется, потому что мелкий текст
 на этикетках важен для различения похожих вин.
+
+### Полная разморозка backbone
+
+Для трёх стадий импортируй из code dataset notebook
+`DINOv3-finetuninig.ipynb` и выполни **Save Version → Save & Run All**. Он сам
+находит datasets независимо от владельца mount path, использует
+`configs/dinov3_full_finetune.yaml` и запускает:
+
+1. heads-only — 5 эпох;
+2. последние 4 блока — 5 эпох;
+3. весь backbone — до 100 эпох с warm-up и cosine decay.
+
+Лучший checkpoint и ранняя остановка выбираются по `val_unseen Recall@1`.
+`best_full.pt` хранит отдельно лучшую модель третьей стадии. При лимите сессии
+`last.pt` содержит optimizer, scheduler, scaler, RNG и точное положение для
+продолжения; notebook явно сообщит `continuation_required: true`.
 
 ## 7. Где результаты
 

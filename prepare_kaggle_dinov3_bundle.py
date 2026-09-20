@@ -8,6 +8,7 @@ volume) and copied only when hard links are unavailable.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -43,6 +44,11 @@ def main() -> None:
     )
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--kaggle-username", required=True)
+    parser.add_argument(
+        "--code-only",
+        action="store_true",
+        help="Rebuild only viscaner-dinov3-code for a lightweight code update",
+    )
     args = parser.parse_args()
 
     project = args.project_root.expanduser().resolve()
@@ -52,65 +58,99 @@ def main() -> None:
     code_bundle = output / "viscaner-dinov3-code"
     # These are generated staging directories. Recreate them so files removed
     # or moved between crop statuses cannot survive from an older bundle.
-    for bundle in (data_bundle, weights_bundle, code_bundle):
+    bundles_to_recreate = (
+        (code_bundle,)
+        if args.code_only
+        else (data_bundle, weights_bundle, code_bundle)
+    )
+    for bundle in bundles_to_recreate:
         if bundle.exists():
             shutil.rmtree(bundle)
-    data_bundle.mkdir(parents=True, exist_ok=True)
-    weights_bundle.mkdir(parents=True, exist_ok=True)
+    if not args.code_only:
+        data_bundle.mkdir(parents=True, exist_ok=True)
+        weights_bundle.mkdir(parents=True, exist_ok=True)
     code_bundle.mkdir(parents=True, exist_ok=True)
 
-    crops_source = project / "datasets/dinov3_target_crops"
-    # The offline builder accepts only YOLO boxes geometrically aligned with
-    # the generator-tracked target bottle. Rejected rows remain in metadata;
-    # only identity-safe successful crops are needed by DINO.
-    for status in ("successful",):
-        files = sorted((crops_source / status).glob("*"))
-        for source in tqdm(files, desc=f"bundle {status}"):
+    if not args.code_only:
+        crops_source = project / "datasets/dinov3_target_crops"
+        # The offline builder accepts only YOLO boxes geometrically aligned with
+        # the generator-tracked target bottle. Rejected rows remain in metadata;
+        # only identity-safe successful crops are needed by DINO.
+        for status in ("successful",):
+            files = sorted((crops_source / status).glob("*"))
+            for source in tqdm(files, desc=f"bundle {status}"):
+                if source.is_file():
+                    link_or_copy(source, data_bundle / "crops" / status / source.name)
+
+        refs_source = project / "datasets/wine-scanner/data/refs/rgb"
+        for source in tqdm(sorted(refs_source.glob("*")), desc="bundle references"):
             if source.is_file():
-                link_or_copy(source, data_bundle / "crops" / status / source.name)
+                link_or_copy(source, data_bundle / "refs" / source.name)
 
-    refs_source = project / "datasets/wine-scanner/data/refs/rgb"
-    for source in tqdm(sorted(refs_source.glob("*")), desc="bundle references"):
-        if source.is_file():
-            link_or_copy(source, data_bundle / "refs" / source.name)
+        for source, relative in (
+            (crops_source / "crops_metadata.csv", Path("crops_metadata.csv")),
+            (
+                project / "datasets/bottle_images_45k/bottle_images_manifest.csv",
+                Path("bottle_images_manifest.csv"),
+            ),
+        ):
+            link_or_copy(source, data_bundle / relative)
 
-    for source, relative in (
-        (crops_source / "crops_metadata.csv", Path("crops_metadata.csv")),
-        (project / "datasets/bottle_images_45k/bottle_images_manifest.csv", Path("bottle_images_manifest.csv")),
-    ):
-        link_or_copy(source, data_bundle / relative)
+        link_or_copy(
+            project / "models/dinov3/model.safetensors",
+            weights_bundle / "model.safetensors",
+        )
+        link_or_copy(
+            project / "models/dinov3/config.json",
+            weights_bundle / "config.json",
+        )
 
-    link_or_copy(project / "models/dinov3/model.safetensors", weights_bundle / "model.safetensors")
-    link_or_copy(project / "models/dinov3/config.json", weights_bundle / "config.json")
-
-    for relative in (
+    code_files = (
         Path("build_target_aligned_crops.py"),
         Path("dinov3_retrieval.py"),
+        Path("full_finetune.py"),
         Path("train_dinov3_retrieval.py"),
         Path("train_dinov3_retrieval.ipynb"),
+        Path("DINOv3-finetuninig.ipynb"),
         Path("validate_dinov3_new_crops.ipynb"),
+        Path("README_FULL_TRAINING.md"),
         Path("requirements.txt"),
         Path("configs/dinov3_retrieval.yaml"),
-    ):
+        Path("configs/dinov3_full_finetune.yaml"),
+    )
+    for relative in code_files:
         link_or_copy(project / relative, code_bundle / relative)
 
-    (data_bundle / "dataset-metadata.json").write_text(
-        json.dumps(
-            kaggle_metadata("VIscaNEr DINOv3 retrieval data", f"{args.kaggle_username}/viscaner-dinov3-data"),
-            indent=2,
-        ),
+    code_checksums = {
+        str(relative): hashlib.sha256((code_bundle / relative).read_bytes()).hexdigest()
+        for relative in code_files
+    }
+    (code_bundle / "code_sha256.json").write_text(
+        json.dumps(code_checksums, indent=2, sort_keys=True),
         encoding="utf-8",
     )
-    (weights_bundle / "dataset-metadata.json").write_text(
-        json.dumps(
-            kaggle_metadata(
-                "VIscaNEr DINOv3 ViT-B16 weights",
-                f"{args.kaggle_username}/viscaner-dinov3-vitb16-weights",
+
+    if not args.code_only:
+        (data_bundle / "dataset-metadata.json").write_text(
+            json.dumps(
+                kaggle_metadata(
+                    "VIscaNEr DINOv3 retrieval data",
+                    f"{args.kaggle_username}/viscaner-dinov3-data",
+                ),
+                indent=2,
             ),
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
+            encoding="utf-8",
+        )
+        (weights_bundle / "dataset-metadata.json").write_text(
+            json.dumps(
+                kaggle_metadata(
+                    "VIscaNEr DINOv3 ViT-B16 weights",
+                    f"{args.kaggle_username}/viscaner-dinov3-vitb16-weights",
+                ),
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
     (code_bundle / "dataset-metadata.json").write_text(
         json.dumps(
             kaggle_metadata("VIscaNEr DINOv3 retrieval code", f"{args.kaggle_username}/viscaner-dinov3-code"),
@@ -118,10 +158,14 @@ def main() -> None:
         ),
         encoding="utf-8",
     )
-    print(f"Data bundle: {data_bundle}")
-    print(f"Weights bundle: {weights_bundle}")
+    if not args.code_only:
+        print(f"Data bundle: {data_bundle}")
+        print(f"Weights bundle: {weights_bundle}")
     print(f"Code bundle: {code_bundle}")
-    print("Upload all three folders as private Kaggle Datasets.")
+    if args.code_only:
+        print("Only the code bundle was rebuilt; data and weights were untouched.")
+    else:
+        print("Upload all three folders as private Kaggle Datasets.")
 
 
 if __name__ == "__main__":

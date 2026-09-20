@@ -376,12 +376,20 @@ def train_full_pipeline(
         report = trainability(model)
         if stage == 3 and report["backbone"]["trainable"] != report["backbone"]["total"]:
             raise RuntimeError("Full training requested but the backbone is still frozen")
+        print("\n" + "#" * 96, flush=True)
         print(
-            json.dumps(
-                {"stage": stage, "max_epochs": epochs, "trainability": report}
-            ),
+            f"STAGE {stage}/3 | max_epochs={epochs} "
+            f"| train_rows={len(train_records)}",
             flush=True,
         )
+        print(
+            "TRAINABLE     | "
+            f"backbone={report['backbone']['trainable']:,}/{report['backbone']['total']:,} "
+            f"| projection={report['projection']['trainable']:,} "
+            f"| classifier={report['classifier']['trainable']:,}",
+            flush=True,
+        )
+        print("#" * 96, flush=True)
 
         stage_cfg = replace(cfg, head_lr=head_lr, backbone_lr=backbone_lr)
         optimizer = base.build_optimizer(model, stage_cfg)
@@ -407,6 +415,19 @@ def train_full_pipeline(
             )
             sampler.set_epoch(global_epoch)
             used_lrs = [float(group["lr"]) for group in optimizer.param_groups]
+            current_backbone_lr = used_lrs[-1] if stage > 1 else 0.0
+            backbone_lr_text = (
+                f"{current_backbone_lr:.3e}"
+                if current_backbone_lr > 0
+                else "frozen"
+            )
+            print(
+                f"\nSTART EPOCH {global_epoch} | stage {stage}/3 "
+                f"| stage_epoch {stage_epoch + 1}/{epochs} "
+                f"| head_lr={used_lrs[0]:.3e} "
+                f"| backbone_lr={backbone_lr_text}",
+                flush=True,
+            )
             train_metrics = base.train_one_epoch(
                 model, loader, optimizer, device, stage_cfg, scaler
             )
@@ -455,7 +476,8 @@ def train_full_pipeline(
                 "monitor_metric": cfg.early_stopping_metric,
                 "monitor_value": monitor,
             }
-            if monitor > best_monitor:
+            global_improved = monitor > best_monitor
+            if global_improved:
                 best_monitor = monitor
                 atomic_save(deployable, models_dir / "best.pt")
             if stage == 3 and monitor > best_full_monitor:
@@ -491,7 +513,15 @@ def train_full_pipeline(
             }
             atomic_save(continuation, models_dir / "last.pt")
             del continuation, deployable
-            print(json.dumps(row, ensure_ascii=False), flush=True)
+            base.print_epoch_report(
+                row,
+                val_metrics,
+                stage_epochs=epochs,
+                best_monitor=best_monitor,
+                improved=global_improved,
+                epochs_without_improvement=no_improvement,
+                total_stages=3,
+            )
 
             if stage == 3 and stage_complete:
                 training_complete = True

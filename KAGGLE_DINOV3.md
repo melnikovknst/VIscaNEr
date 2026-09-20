@@ -24,7 +24,8 @@ python prepare_kaggle_dinov3_bundle.py --kaggle-username YOUR_KAGGLE_USERNAME
 - `viscaner-dinov3-code` — notebook, CLI, config и Python-модуль.
 
 В code dataset также входят `full_finetune.py`, отдельный полный config и
-`DINOv3-finetuninig.ipynb`. Они не заменяют обычный двухстадийный режим:
+ноутбуки из `kaggle_notebooks/`: `DINOv3-finetune.ipynb` для двух стадий и
+`DINOv3-deeptune.ipynb` для полной разморозки. Они не заменяют друг друга:
 третья стадия включается только config-файлом полного обучения.
 
 Исходники не перемещаются и не удаляются. На том же диске используются hard
@@ -179,7 +180,7 @@ Input остаётся 224×224; снижать его не рекомендуе
 ### Полная разморозка backbone
 
 Для трёх стадий импортируй из code dataset notebook
-`DINOv3-finetuninig.ipynb` и выполни **Save Version → Save & Run All**. Он сам
+`kaggle_notebooks/DINOv3-deeptune.ipynb` и выполни **Save Version → Save & Run All**. Он сам
 находит datasets независимо от владельца mount path, использует
 `configs/dinov3_full_finetune.yaml` и запускает:
 

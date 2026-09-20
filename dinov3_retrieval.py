@@ -170,6 +170,12 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
     crops_root = Path(cfg.crops_root)
     refs_root = Path(cfg.refs_root)
 
+    print(
+        f"Preparing retrieval index from {metadata_path} "
+        f"(validate_files={validate_files})",
+        flush=True,
+    )
+
     for required in (metadata_path, manifest_path, crops_root, refs_root, Path(cfg.weights_path)):
         if not required.exists():
             raise FileNotFoundError(f"Required input does not exist: {required}")
@@ -219,6 +225,29 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
     if missing_refs:
         raise ValueError(f"Missing reference images for {len(missing_refs)} identities: {missing_refs[:5]}")
     label_by_slug = {slug: idx for idx, slug in enumerate(identities)}
+    available_crop_names: dict[str, set[str]] = {}
+    if validate_files:
+        statuses = {
+            str(status)
+            for status in crops["status"].dropna().unique()
+            if str(status) in {"successful", "low_confidence"}
+        }
+        for status in sorted(statuses):
+            status_dir = crops_root / status
+            if not status_dir.is_dir():
+                raise FileNotFoundError(f"Crop directory does not exist: {status_dir}")
+            with os.scandir(status_dir) as entries:
+                available_crop_names[status] = {
+                    entry.name for entry in entries if entry.is_file()
+                }
+        print(
+            "Crop inventory loaded: "
+            + ", ".join(
+                f"{status}={len(names)}"
+                for status, names in sorted(available_crop_names.items())
+            ),
+            flush=True,
+        )
     unseen = {
         slug
         for slug in identities
@@ -243,7 +272,7 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
             split_values = ["val_seen"] * n_val + ["train"] * (len(group) - n_val)
         for row, split in zip(group.to_dict("records"), split_values, strict=True):
             path = crops_root / "successful" / Path(str(row["crop_path"])).name
-            if validate_files and not path.is_file():
+            if validate_files and path.name not in available_crop_names["successful"]:
                 broken.append(str(path))
                 continue
             rows.append(
@@ -263,7 +292,7 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
     for row in low.to_dict("records"):
         slug = str(row["wine_slug"])
         path = crops_root / "low_confidence" / Path(str(row["crop_path"])).name
-        if validate_files and not path.is_file():
+        if validate_files and path.name not in available_crop_names["low_confidence"]:
             broken.append(str(path))
             continue
         split = "train" if cfg.include_low_confidence_in_train and slug not in unseen else "val_hard"
@@ -320,6 +349,10 @@ def prepare_retrieval_index(config: PipelineConfig, validate_files: bool = True)
     summary_path = Path(cfg.split_summary_path)
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(
+        f"Retrieval index ready: {len(index)} rows, {len(identities)} identities",
+        flush=True,
+    )
     return index, summary
 
 
@@ -935,7 +968,9 @@ def train_pipeline(
         cfg.eval_batch_size = 8
 
     num_classes = int(index["label_id"].max()) + 1
+    print(f"Loading DINOv3 backbone from {cfg.weights_path}", flush=True)
     backbone = load_local_dinov3_backbone(cfg.weights_path, cfg.image_size)
+    print("DINOv3 backbone loaded", flush=True)
     model = DINOv3RetrievalModel(
         backbone,
         num_classes=num_classes,

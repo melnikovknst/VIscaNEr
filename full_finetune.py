@@ -242,8 +242,13 @@ def train_full_pipeline(
     models_dir.mkdir(parents=True, exist_ok=True)
 
     # Rebuild from current metadata so an old cached split can never be resumed
-    # against different crops without detection.
-    index, split_summary = base.prepare_retrieval_index(cfg)
+    # against different crops without detection. The disposable smoke run skips
+    # the expensive 45k file inventory; the real run validates it once.
+    print("Preparing full-training retrieval index...", flush=True)
+    index, split_summary = base.prepare_retrieval_index(
+        cfg, validate_files=not quick_smoke
+    )
+    print("Full-training retrieval index prepared", flush=True)
     index_sha256 = hashlib.sha256(Path(cfg.index_path).read_bytes()).hexdigest()
     if quick_smoke:
         result = {
@@ -264,6 +269,7 @@ def train_full_pipeline(
             "or pass --resume-checkpoint explicitly"
         )
 
+    print(f"Loading DINOv3 backbone from {cfg.weights_path}", flush=True)
     model = base.DINOv3RetrievalModel(
         base.load_local_dinov3_backbone(cfg.weights_path, cfg.image_size),
         int(index["label_id"].max()) + 1,
@@ -271,6 +277,7 @@ def train_full_pipeline(
         cfg.projection_hidden_dim,
         cfg.ce_temperature,
     ).to(device)
+    print("DINOv3 backbone loaded", flush=True)
     resume_payload: dict[str, Any] | None = None
     history: list[dict[str, Any]] = []
     global_epoch = 0

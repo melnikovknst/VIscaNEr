@@ -34,7 +34,7 @@ Recall@5, Recall@10, MRR и ранги.
 
 ## Kaggle
 
-Импортируй `DINOv3-finetuninig.ipynb` из code dataset, подключи:
+Импортируй `kaggle_notebooks/DINOv3-deeptune.ipynb` из code dataset, подключи:
 
 - `viscaner-dinov3-code`;
 - `viscaner-dinov3-data`;

@@ -31,7 +31,6 @@ from safetensors.torch import load_file
 from torch.utils.data import DataLoader, Dataset, Sampler
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
-from tqdm.auto import tqdm
 from transformers import DINOv3ViTConfig, DINOv3ViTModel
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -702,8 +701,10 @@ def train_one_epoch(
         model.backbone.eval()
     totals = defaultdict(float)
     seen = 0
-    progress = tqdm(loader, desc="train", leave=False)
-    for batch in progress:
+    total_batches = len(loader)
+    progress_interval = max(1, math.ceil(total_batches / 10))
+    print(f"  TRAIN       | 0/{total_batches} batches", flush=True)
+    for batch_index, batch in enumerate(loader, start=1):
         view1 = batch["view1"].to(device, non_blocking=True)
         view2 = batch["view2"].to(device, non_blocking=True)
         labels = batch["label"].to(device, non_blocking=True)
@@ -733,7 +734,13 @@ def train_one_epoch(
         totals["ce_loss"] += float(ce.detach()) * batch_size
         accuracy = (logits1.argmax(dim=1) == labels).float().mean()
         totals["train_accuracy"] += float(accuracy.detach()) * batch_size
-        progress.set_postfix(loss=f"{totals['loss'] / seen:.4f}")
+        if batch_index % progress_interval == 0 or batch_index == total_batches:
+            percent = 100.0 * batch_index / max(total_batches, 1)
+            print(
+                f"  TRAIN {percent:5.1f}% | {batch_index}/{total_batches} batches "
+                f"| loss={totals['loss'] / seen:.4f}",
+                flush=True,
+            )
     return {key: value / max(seen, 1) for key, value in totals.items()}
 
 
@@ -750,7 +757,11 @@ def embed_loader(
     labels: list[torch.Tensor] = []
     paths: list[str] = []
     slugs: list[str] = []
-    for batch in tqdm(loader, desc=desc, leave=False):
+    total_batches = len(loader)
+    progress_interval = max(1, math.ceil(total_batches / 4))
+    label = desc.upper()
+    print(f"  {label:<11} | 0/{total_batches} batches", flush=True)
+    for batch_index, batch in enumerate(loader, start=1):
         images = batch["image"].to(device, non_blocking=True)
         with _autocast_context(device, amp):
             batch_embeddings, _ = model(images)
@@ -758,6 +769,13 @@ def embed_loader(
         labels.append(batch["label"].long().cpu())
         paths.extend(batch["path"])
         slugs.extend(batch["wine_slug"])
+        if batch_index % progress_interval == 0 or batch_index == total_batches:
+            percent = 100.0 * batch_index / max(total_batches, 1)
+            print(
+                f"  {label:<11} | {percent:5.1f}% "
+                f"| {batch_index}/{total_batches} batches",
+                flush=True,
+            )
     return torch.cat(embeddings), torch.cat(labels), paths, slugs
 
 
@@ -799,6 +817,71 @@ def retrieval_metrics(
         }
     )
     return metrics, rank_tensor.long()
+
+
+def print_epoch_report(
+    row: dict[str, Any],
+    val_metrics: dict[str, dict[str, float]],
+    stage_epochs: int,
+    best_monitor: float,
+    improved: bool,
+    epochs_without_improvement: int,
+    total_stages: int = 3,
+) -> None:
+    """Print one stable, human-readable epoch block for notebook logs."""
+
+    separator = "=" * 96
+    stage = int(row["stage"])
+    stage_epoch = int(row["stage_epoch"])
+    print(separator, flush=True)
+    print(
+        f"EPOCH {int(row['epoch'])} | STAGE {stage}/{total_stages} "
+        f"| STAGE EPOCH {stage_epoch}/{stage_epochs} "
+        f"| {float(row['elapsed_seconds']) / 60.0:.1f} min",
+        flush=True,
+    )
+    backbone_lr = float(row.get("backbone_lr", 0.0))
+    backbone_lr_text = f"{backbone_lr:.3e}" if backbone_lr > 0 else "frozen"
+    print(
+        f"LR            | head={float(row.get('head_lr', 0.0)):.3e} "
+        f"| backbone={backbone_lr_text}",
+        flush=True,
+    )
+    print(
+        "TRAIN         | "
+        f"loss={float(row['loss']):.4f} "
+        f"| supcon={float(row['supcon_loss']):.4f} "
+        f"| ce={float(row['ce_loss']):.4f} "
+        f"| accuracy={100.0 * float(row['train_accuracy']):.2f}%",
+        flush=True,
+    )
+    for split in ("val_seen", "val_unseen", "val_hard"):
+        values = val_metrics.get(split)
+        if values is None:
+            continue
+        print(
+            f"{split.upper():<13} | "
+            f"accuracy={100.0 * float(values['accuracy']):.2f}% "
+            f"| R@1={100.0 * float(values['recall_at_1']):.2f}% "
+            f"| R@2={100.0 * float(values['recall_at_2']):.2f}% "
+            f"| R@5={100.0 * float(values['recall_at_5']):.2f}% "
+            f"| R@10={100.0 * float(values['recall_at_10']):.2f}% "
+            f"| MRR={float(values['mrr']):.4f} "
+            f"| median_rank={float(values['median_rank']):.1f} "
+            f"| mean_rank={float(values['mean_rank']):.1f} "
+            f"| queries={int(values['num_queries'])}",
+            flush=True,
+        )
+    monitor_name = f"{row['early_stopping_split']}.{row['early_stopping_metric']}"
+    print(
+        f"MONITOR       | {monitor_name}="
+        f"{100.0 * float(row['early_stopping_value']):.2f}% "
+        f"| best={100.0 * best_monitor:.2f}% "
+        f"| new_best={'yes' if improved else 'no'} "
+        f"| no_improvement={epochs_without_improvement}",
+        flush=True,
+    )
+    print(separator, flush=True)
 
 
 def evaluate_splits(
@@ -1044,6 +1127,7 @@ def train_pipeline(
             global_epoch += 1
             loader, sampler = create_train_loader(train_records, cfg, stage, stage_epoch)
             sampler.set_epoch(global_epoch)
+            used_lrs = [float(group["lr"]) for group in optimizer.param_groups]
             started = time.perf_counter()
             train_metrics = train_one_epoch(model, loader, optimizer, device, cfg, scaler)
             scheduler.step()
@@ -1072,6 +1156,8 @@ def train_pipeline(
                 "stage": stage,
                 "stage_epoch": stage_epoch + 1,
                 "elapsed_seconds": time.perf_counter() - started,
+                "head_lr": used_lrs[0],
+                "backbone_lr": used_lrs[-1] if stage > 1 else 0.0,
                 "early_stopping_split": cfg.early_stopping_split,
                 "early_stopping_metric": cfg.early_stopping_metric,
                 "early_stopping_value": monitor,
@@ -1082,13 +1168,22 @@ def train_pipeline(
             history.append(row)
             pd.DataFrame(history).to_csv(run_dir / "history.csv", index=False)
             _save_checkpoint(Path(cfg.models_dir) / "last.pt", model, cfg, global_epoch, stage, val_metrics)
-            if monitor > best_monitor:
+            improved = monitor > best_monitor
+            if improved:
                 best_monitor = monitor
                 stage_epochs_without_improvement = 0
                 _save_checkpoint(Path(cfg.models_dir) / "best.pt", model, cfg, global_epoch, stage, val_metrics)
             else:
                 stage_epochs_without_improvement += 1
-            print(json.dumps(row, indent=2))
+            print_epoch_report(
+                row,
+                val_metrics,
+                stage_epochs=epochs,
+                best_monitor=best_monitor,
+                improved=improved,
+                epochs_without_improvement=stage_epochs_without_improvement,
+                total_stages=2,
+            )
             if stage_epochs_without_improvement >= cfg.patience:
                 print(f"Early stopping after {cfg.patience} epochs without improvement")
                 break

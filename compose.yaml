@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      VISCANER_MODEL_PROVIDER: ${VISCANER_MODEL_PROVIDER:-demo}
+      VISCANER_REMOTE_URL: ${VISCANER_REMOTE_URL:-http://host.docker.internal:9000/predict}
+      VISCANER_REMOTE_API_KEY: ${VISCANER_REMOTE_API_KEY:-}
+      VISCANER_MIN_SIMILARITY: ${VISCANER_MIN_SIMILARITY:-0.65}
+      VISCANER_MIN_MARGIN: ${VISCANER_MIN_MARGIN:-0.04}
+    volumes:
+      - ./datasets/wine-scanner_code-catalog.zip:/app/datasets/wine-scanner_code-catalog.zip:ro
+      - app-data:/app/backend/data
+volumes:
+  app-data:

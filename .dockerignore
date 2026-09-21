@@ -1,0 +1,14 @@
+.git
+.venv
+.npm-cache
+node_modules
+datasets
+models
+runs
+tmp
+test-results
+dist
+.env
+backend/data
+**/__pycache__
+*.ipynb

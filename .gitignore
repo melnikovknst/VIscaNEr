@@ -29,3 +29,17 @@ runs/**
 kaggle_upload/
 kaggle_recovered/
 /yolo*.pt
+
+# Web app and local runtime state.
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.pytest_cache/
+backend/data/
+tmp/
+.npm-cache/
+test-results/
+playwright-report/

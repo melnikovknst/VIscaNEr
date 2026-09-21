@@ -9,6 +9,9 @@ Pillow>=10.4,<13
 torch>=2.6,<3
 torchvision>=0.21,<1
 ultralytics>=8.3,<9
+pandas>=2.2,<4
+tqdm>=4.66,<5
+jupyterlab>=4,<5
 
 # Only needed to publish the package (step 9 writes the folder either way).
 kaggle>=1.6,<2

@@ -29,6 +29,22 @@ python -m pip install -r bottle_reranker/requirements.txt
 
 The pins match the project `requirements.txt`, so one virtualenv serves both.
 
+## Local YOLO confidence audit
+
+[`YOLO-bottle-confidence-audit.ipynb`](YOLO-bottle-confidence-audit.ipynb)
+checks YOLO11x-seg whole-bottle detections on the local real-photo pool. Start
+Jupyter with the project environment and run it top to bottom:
+
+```bash
+.venv/bin/jupyter lab bottle_reranker/YOLO-bottle-confidence-audit.ipynb
+```
+
+It automatically uses CUDA, Apple MPS, or CPU and writes resumable audit
+artifacts under `bottle_reranker/outputs/` (ignored by Git). This confidence
+audit deliberately picks the highest-confidence bottle; production target
+selection remains label-box anchored and is implemented by the `segment`
+stage below.
+
 ## Run
 
 ```bash

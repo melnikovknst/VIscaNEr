@@ -29,6 +29,7 @@ runs/**
 kaggle_upload/
 kaggle_recovered/
 /yolo*.pt
+bottle_reranker/outputs/
 
 # Web app and local runtime state.
 node_modules/

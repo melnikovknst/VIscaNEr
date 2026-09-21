@@ -1,0 +1,296 @@
+{
+  "stage": "step2_identities",
+  "environment": {
+    "timestamp_utc": "2026-09-21T10:00:36+00:00",
+    "python": "3.13.11",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git_revision": "43be4cd27e88036b0c80c20fac593e828a66d6bf",
+    "packages": {
+      "numpy": "2.5.3",
+      "cv2": "4.14.0",
+      "torch": "missing",
+      "torchvision": "missing",
+      "ultralytics": "missing",
+      "PIL": "12.3.0",
+      "pandas": "missing",
+      "transformers": "missing"
+    }
+  },
+  "config_fingerprint": {
+    "catalog.catalog_csv": "datasets/wine-scanner/data/catalog.csv",
+    "splits.seed": 42,
+    "splits.unseen_identity_fraction": 0.15,
+    "labels.crops_metadata_csv": "datasets/dinov3_target_crops/crops_metadata.csv"
+  },
+  "catalog": {
+    "catalog_csv": "datasets/wine-scanner/data/catalog.csv",
+    "identities": 2103,
+    "identities_with_reference": 2103,
+    "identities_without_reference": [],
+    "distinct_reference_sha256": 2075,
+    "labelling_distinguishes": {
+      "vintage": 101,
+      "volume_token": 6,
+      "packaging_variant": 25,
+      "colour_token": 1693,
+      "sweetness_token": 1697,
+      "note": "Counts of identities whose slug carries the token. The catalog keeps these as separate identities; this stage does not merge them."
+    },
+    "variant_only_identity_groups": {
+      "groups": 51,
+      "identities": 104,
+      "note": "Identities that become identical once vintage, volume and the trailing alcohol figure are stripped. A bottle silhouette cannot separate these; the label text or a vintage reader can.",
+      "examples": [
+        [
+          "aligote-barrel-2024",
+          "aligote-barrel-2025"
+        ],
+        [
+          "amelia",
+          "amelia-2023"
+        ],
+        [
+          "abrau-dyurso-brut-dor-blanc-de-blancs-shardone-beloe-bryut-12",
+          "abrau-dyurso-brut-dor-blanc-de-blancs-shardone-beloe-bryut-125"
+        ],
+        [
+          "abrau-dyurso-brut-dor-blanc-de-noirs-pino-nuar-beloe-bryut-115",
+          "abrau-dyurso-brut-dor-blanc-de-noirs-pino-nuar-beloe-bryut-125"
+        ],
+        [
+          "esse-brut-zero-dosage-shardone-beloe-ekstra-bryut-12",
+          "esse-brut-zero-dosage-shardone-beloe-ekstra-bryut-135"
+        ],
+        [
+          "cabernet-franc-pinot-noir-2021",
+          "cabernet-franc-pinot-noir-2022"
+        ],
+        [
+          "daniel-2021",
+          "daniel-22"
+        ],
+        [
+          "david",
+          "david-2021",
+          "david-2022"
+        ],
+        [
+          "leto-kaberne-fran-rezerv-2020-suhoe-krasnoe",
+          "leto-kaberne-fran-rezerv-2021-suhoe-krasnoe"
+        ],
+        [
+          "leto-risling-2020",
+          "leto-risling-2024"
+        ]
+      ]
+    },
+    "identical_reference_photo": {
+      "groups": 27,
+      "identities": 55,
+      "by_sha256_groups": 27,
+      "note": "Two or more identities share one catalog photograph byte-for-byte. Neither a whole-bottle nor a label encoder can separate them, because the gallery holds the same image under both slugs.",
+      "members": {
+        "i0": [
+          "aligote-barrel-2024",
+          "aligote-barrel-2025"
+        ],
+        "i1": [
+          "agora-yachting-cabernet-sauvignon",
+          "agora-yachting-sauvignon"
+        ],
+        "i10": [
+          "aligote-avtorskoe",
+          "aligote-avtorskoe-vino"
+        ],
+        "i11": [
+          "kuban-vino-aristov-kaberne-sovinon-roze-2020-rozovoe-suhoe-12",
+          "kuban-vino-aristov-kaberne-sovinon-roze-rozovoe-suhoe-12"
+        ],
+        "i12": [
+          "vinodelnya-byurne-byurne-pino-blan-beloe-suhoe-14",
+          "vinodelnya-byurne-vione-beloe-suhoe-135"
+        ],
+        "i13": [
+          "skalistyy-bereg-shyopot-tsvetov-risling-beloe-suhoe-109",
+          "skalistyy-bereg-veter-v-travah-kaberne-fran-krasnoe-suhoe-13"
+        ],
+        "i14": [
+          "oxana-istratova-wine-vione-2023-oranzhevoe-suhoe-119",
+          "oxana-istratova-wine-vione-2024-oranzhevoe-suhoe-13"
+        ],
+        "i15": [
+          "chateau-le-grand-vostock-krasnostop-rezerv-krasnoe-suhoe-145",
+          "shato-ay-danil-grenash-krasnoe-suhoe-12"
+        ],
+        "i16": [
+          "villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12",
+          "villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139"
+        ],
+        "i17": [
+          "kokur-2025",
+          "kokur-suhoe-2025"
+        ],
+        "i18": [
+          "legato-legato-sovinon-blan-beloe-suhoe-125",
+          "legato-legato-sovinon-blan-mtsvane-beloe-suhoe-125"
+        ],
+        "i19": [
+          "novyj-svet-polusladkoe",
+          "novyj-svet-vyderzhannoe-bryut"
+        ],
+        "i2": [
+          "abrau-dyurso-az-abrau-bayanshira-beloe-suhoe-12",
+          "abrau-dyurso-az-abrau-madrasa-krasnoe-suhoe-14"
+        ],
+        "i20": [
+          "sober-bash-puhlyakovskiy-beloe-suhoe-12",
+          "sober-bash-risling-risling-reynskiy-beloe-suhoe-11"
+        ],
+        "i21": [
+          "rebo-rezerv",
+          "sand-zh-oveze-rezerv"
+        ],
+        "i22": [
+          "oxana-istratova-wine-rkatsiteli-2023-oranzhevoe-suhoe-113",
+          "oxana-istratova-wine-rkatsiteli-2024-oranzhevoe-suhoe-12"
+        ],
+        "i23": [
+          "soyuz-vino-soyuz-vino-kaberne-sovinon-beg-in-boks-krasnoe-suhoe-11",
+          "soyuz-vino-soyuz-vino-kaberne-sovinon-polusladkoe-beg-in-boks-krasnoe-12",
+          "soyuz-vino-soyuz-vino-shardone-suhoe-beg-in-boks-beloe-11"
+        ],
+        "i24": [
+          "sober-bash-hihvi-amfora-beloe-suhoe-14",
+          "sober-bash-hihvi-beloe-suhoe-15"
+        ],
+        "i25": [
+          "derbent-vino-endemy-merlo-krasnoe-suhoe-13",
+          "derbent-vino-endemy-saperavi-krasnoe-suhoe-13"
+        ],
+        "i26": [
+          "derbent-vino-endemy-shardone-beloe-bryut-105-125",
+          "derbent-vino-endemy-shardone-beloe-suhoe-13"
+        ],
+        "i3": [
+          "cabernet-franc-pinot-noir-2021",
+          "cabernet-franc-pinot-noir-2022"
+        ],
+        "i4": [
+          "esse-demi-sec-muscat-nectar-muskat-belyy-beloe-ekstra-bryut-115",
+          "esse-muskat-muskat-belyy-beloe-ekstra-bryut-115"
+        ],
+        "i5": [
+          "agrolayn-heritage-dg-skin-contact-red-saperavi-krasnoe-suhoe-13",
+          "agrolayn-heritage-dg-skin-contact-rkatsiteli-rkatsiteli-krasnoe-suhoe-12"
+        ],
+        "i6": [
+          "method-classic-kokur",
+          "pino-nuar-2025"
+        ],
+        "i7": [
+          "agrolayn-mountain-eagle-semillon-semilon-beloe-suhoe-11",
+          "agrolayn-mountain-eagle-traminer-traminer-beloe-suhoe-12"
+        ],
+        "i8": [
+          "belmas-winery-pn-pino-nuar-krasnoe-suhoe-135",
+          "belmas-winery-vi-vione-beloe-suhoe-122"
+        ],
+        "i9": [
+          "belmas-winery-riesling-katya-risling-beloe-suhoe-12",
+          "belmas-winery-syrah-katya-sira-krasnoe-suhoe-125"
+        ]
+      }
+    },
+    "near_duplicate_label_series": {
+      "groups": 228,
+      "identities": 554,
+      "size_distribution": {
+        "2": 167,
+        "3": 40,
+        "4": 11,
+        "5": 7,
+        "6": 1,
+        "7": 1,
+        "8": 1
+      }
+    },
+    "dino_identity_holdout": {
+      "seed": 42,
+      "fraction": 0.15,
+      "unseen_identities": 299,
+      "unseen_percent": 14.22,
+      "near_dup_groups_straddling_holdout": 60,
+      "identities_in_straddling_near_dup_groups": 156,
+      "same_image_groups_straddling_holdout": 5,
+      "note": "Straddling groups are the ones whose natural hard negative lies on the other side of the generalisation holdout. Step 6 drops those pairs rather than leaking a reserved identity."
+    }
+  },
+  "sources": [
+    {
+      "source": "synthetic_45k",
+      "kind": "synthetic_render",
+      "photographic": false,
+      "available": true,
+      "manifest_csv": "datasets/wine-scanner/data/trainset/manifest.csv",
+      "images_root": "datasets/wine-scanner/data/trainset",
+      "rows_in_manifest": 45000,
+      "images_present_on_disk": 45000,
+      "clean_rows": 45000,
+      "review_rows": 0,
+      "review_reason_counts": {},
+      "identities_covered": 2103,
+      "identities_covered_percent": 100.0,
+      "images_per_identity_distribution": {
+        "17": 1164,
+        "33": 554,
+        "18": 385
+      },
+      "provenance_groups": 2103,
+      "exact_duplicate_groups": 0,
+      "exact_duplicate_images": 0,
+      "frames_with_neighbouring_bottles": 41424,
+      "frames_with_neighbouring_bottles_percent": 92.05
+    },
+    {
+      "source": "real_photos_v4",
+      "kind": "real_photo",
+      "photographic": true,
+      "available": true,
+      "manifest_csv": "datasets/real_photos_v4/labels.csv",
+      "images_root": "datasets/real_photos_v4/queries",
+      "rows_in_manifest": 918,
+      "images_present_on_disk": 918,
+      "clean_rows": 906,
+      "review_rows": 12,
+      "review_reason_counts": {
+        "in_catalog!=yes": 12,
+        "missing_slug": 12
+      },
+      "identities_covered": 531,
+      "identities_covered_percent": 25.25,
+      "images_per_identity_distribution": {
+        "1": 286,
+        "3": 130,
+        "2": 115
+      },
+      "provenance_groups": 796,
+      "exact_duplicate_groups": 0,
+      "exact_duplicate_images": 0,
+      "frames_with_neighbouring_bottles": 0,
+      "frames_with_neighbouring_bottles_percent": 0.0
+    }
+  ],
+  "totals": {
+    "manifest_rows": 45918,
+    "clean_rows": 45906,
+    "review_rows": 12,
+    "photographic_clean_rows": 906,
+    "rendered_clean_rows": 45000,
+    "identities_with_a_real_photograph": 531,
+    "identities_with_a_real_photograph_percent": 25.25
+  },
+  "outputs": {
+    "correspondences_csv": "datasets/bottle_reranker/audit/correspondences.csv",
+    "review_queue_csv": "datasets/bottle_reranker/audit/review_queue.csv"
+  }
+}

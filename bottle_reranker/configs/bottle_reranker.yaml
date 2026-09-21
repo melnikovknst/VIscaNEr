@@ -1,0 +1,336 @@
+# Configuration for the bottle-level reranker DATA pipeline.
+#
+# Nothing here trains an encoder. This config drives dataset preparation only:
+# input discovery, identity auditing, bottle segmentation, crop rendering,
+# leakage-free splitting, DINO candidate mining, pair building and packaging.
+#
+# Every path is resolved against `project_root` unless it is absolute.
+# The existing DINOv3 pipeline (dinov3_retrieval.py, full_finetune.py,
+# build_target_aligned_crops.py) and its datasets are READ-ONLY inputs.
+
+# Relative paths are resolved against THIS FILE's directory, so the default
+# points at the repository root (configs/ -> bottle_reranker/ -> repo root).
+project_root: ../..
+
+# ---------------------------------------------------------------- identities
+catalog:
+  # Catalog of wine identities: slug, name, winery, image_sha256,
+  # near_dup_group, same_image_group.
+  catalog_csv: datasets/wine-scanner/data/catalog.csv
+  near_duplicates_json: datasets/wine-scanner/data/near_duplicates.json
+  refs_rgb_root: datasets/wine-scanner/data/refs/rgb      # reference on white, square
+  refs_rgba_root: datasets/wine-scanner/data/refs/rgba    # cut-out reference, alpha
+
+# ------------------------------------------------------------- query sources
+# A source is a pool of query images. `kind` decides how provenance groups are
+# derived for leakage-free splitting, and whether the pool counts as real
+# photography. Sources with `photographic: false` cannot supply independent
+# bottle-shape evidence - see reports/FINDINGS.md.
+sources:
+  - name: synthetic_45k
+    kind: synthetic_render
+    photographic: false
+    enabled: true
+    # The manifest path column already starts with `images/`, so the root is
+    # the trainset directory, not the images directory inside it.
+    images_root: datasets/wine-scanner/data/trainset
+    manifest_csv: datasets/wine-scanner/data/trainset/manifest.csv
+    path_column: path
+    slug_column: slug
+    # Provenance group: every frame of a wine is rendered from that wine's one
+    # reference cut-out, so all of its frames are one shoot in the strongest
+    # sense and the identity IS the provenance group.
+    #
+    # Consequence, stated up front rather than discovered later: because a whole
+    # identity moves as a unit, the train and dev identity sets from this source
+    # are disjoint. dev therefore measures generalisation to unseen identities,
+    # not "same wine, new photo" - this pool contains no independent within-
+    # identity variation to measure that with. See reports/FINDINGS.md.
+    group_columns: [slug]
+    # Optional flat mirror of the same frames (prepare_bottle_images.py).
+    bottle_manifest_csv: datasets/bottle_images_45k/bottle_images_manifest.csv
+
+  - name: real_photos_v4
+    kind: real_photo
+    photographic: true
+    enabled: true
+    images_root: datasets/real_photos_v4/queries
+    manifest_csv: datasets/real_photos_v4/labels.csv
+    path_column: image_path
+    slug_column: slug
+    # One Telegram post is one shooting session: its frames must not be split.
+    group_columns: [source_post]
+    exact_duplicate_column: sha256
+    # Rows with in_catalog != yes have no catalog identity.
+    require_columns:
+      in_catalog: "yes"
+
+# -------------------------------------------------------- chosen label boxes
+# Output of the existing YOLO label detector / target-aligned crop builder.
+# Supplies, per query image, the label box the production scanner chose.
+# Without it step 3 has no anchor for picking the target bottle mask.
+labels:
+  crops_metadata_csv: datasets/dinov3_target_crops/crops_metadata.csv
+  crops_root: datasets/dinov3_target_crops
+  source_path_column: source_path
+  # Box format in crops_metadata: xyxy_abs | xywh_abs | cxcywh_norm | xyxy_norm
+  bbox_format: xyxy_abs
+  bbox_columns: [x1, y1, x2, y2]
+  # Image size the boxes were measured in. When these columns are absent the
+  # pipeline assumes post-EXIF full-resolution pixels and verifies that every
+  # box falls inside the decoded image.
+  bbox_reference_size_columns: [source_width, source_height]
+  status_column: status
+  confidence_column: confidence
+  accepted_statuses: [successful]
+  review_statuses: [low_confidence]
+
+# ------------------------------------------------------ instance segmentation
+segmentation:
+  # Any ultralytics-compatible instance segmentation checkpoint. Pinned by
+  # sha256 in the run record so a rebuild is reproducible.
+  model: yolo11x-seg.pt
+  weights_sha256: null           # recorded by the pipeline on first run
+  # COCO class 39 is "bottle". null keeps every class.
+  keep_class_ids: [39]
+  imgsz: 1024
+  conf: 0.25
+  iou: 0.7
+  max_det: 60
+  retina_masks: true
+  device: auto
+  half: false
+  batch_size: 8
+
+# --------------------------------------------------------- target selection
+# Ordered rules. A bottle mask is never chosen because it is larger or scores
+# higher - only because it geometrically owns the chosen label box.
+target_selection:
+  # Rule 1: masks that contain the label box centre.
+  require_label_centre_inside_mask: true
+  # Rule 2: among those, the largest intersection with the label box. The
+  # winner must also clear these floors.
+  min_label_box_coverage: 0.60   # |mask AND box| / |box|
+  # Rule 3: no confident owner -> flagged, never guessed.
+  # A runner-up this close means the choice is not safe.
+  ambiguous_coverage_margin: 0.15
+  min_mask_area_fraction: 0.002  # of the full frame
+  max_mask_area_fraction: 0.95
+  # Guards against thin shelf-edge segments.
+  min_mask_solidity: 0.55
+
+# ------------------------------------------------------------ crop rendering
+crops:
+  # Padding around the mask contour, as a fraction of the bottle long side.
+  pad_fraction: 0.06
+  # Aspect ratio is preserved. Crops are saved near native resolution so the
+  # encoder input size can be chosen later, at training time.
+  max_long_side: 1024
+  min_long_side: 96              # below this the crop is flagged too_small
+  # Format for the photographic views. Masks are always PNG regardless, because
+  # a lossy mask is a corrupted mask. The sources are already JPEG (the renders
+  # at q90, the references as webp/jpg), so a q95 re-encode adds negligible loss
+  # while keeping the package about eight times smaller - PNG costs 1.4 GB for
+  # the 2103 references alone, which would put the 45k query crops near 30 GB.
+  # Set this to `png` for a lossless build when disk is not a constraint.
+  save_format: jpeg
+  jpeg_quality: 95
+
+  deskew:
+    enabled: true
+    # Principal axis of the mask. Applied only when the mask is clearly
+    # elongated, otherwise the axis direction is noise.
+    min_elongation: 1.8
+    # A larger estimate means a lying bottle or a bad mask: flag, do not rotate.
+    max_abs_angle_deg: 35.0
+    # The principal axis is 180-degree ambiguous. Orientation is resolved by
+    # comparing mask width at both ends - the neck end is the narrow one. The
+    # bottle is flipped only when the narrow end is clearly narrower; below
+    # this ratio the crop keeps its original orientation and is flagged
+    # orientation_uncertain rather than risking an upside-down bottle.
+    min_end_width_ratio: 1.35
+
+  normalized:
+    # "Normalized" is geometry only: deskewed, mask-composited on a neutral
+    # background, aspect-preserving pad to square. Colour is NOT touched -
+    # glass tint and capsule colour are part of the signal being compared.
+    enabled: true
+    background: [128, 128, 128]
+    keep_background_pixels: false
+    pad_to_square: true
+
+  top_part:
+    # Capsule + neck + shoulders, derived from the mask width profile: the
+    # shoulder is where width rises to `shoulder_width_ratio` of the median
+    # body width.
+    shoulder_width_ratio: 0.85
+    # Margin below the detected shoulder, as a fraction of bottle height.
+    below_shoulder_margin: 0.06
+    # Used when the width profile is unusable; the crop is flagged.
+    fallback_top_fraction: 0.38
+    min_height_fraction: 0.12
+
+  quality_flags:
+    # Mask touching the frame border above the shoulder means a cut neck.
+    neck_border_margin_px: 2
+    # Fraction of the top-part box that the mask must actually fill. Measured
+    # over all 2103 catalog references, a healthy capsule+neck+shoulder crop
+    # fills 0.36-0.46 of its box (p1 0.359, median 0.419) - a narrow neck inside
+    # a rectangle simply does not fill more. The floor sits below that range so
+    # it flags genuinely deficient crops (occluded or half-missing necks) rather
+    # than normal bottle geometry.
+    min_top_mask_fill: 0.28
+    # Holes bitten out of the silhouette by neighbours or price tags.
+    max_hole_area_fraction: 0.08
+    min_sharpness_var_laplacian: 25.0
+
+# ------------------------------------------------ catalog reference rendering
+reference_views:
+  # The same whole-bottle and top-part views are rendered for every catalog
+  # reference so query and candidate are directly comparable.
+  source: rgba                   # the rgba cut-out carries an exact alpha mask
+  alpha_threshold: 16
+  # References with a cut neck, poor resolution or an unusable angle are
+  # flagged, not silently used.
+  min_long_side: 320
+  flag_truncated_neck: true
+  flag_low_resolution: true
+  flag_unusual_aspect: true
+  aspect_range: [1.6, 5.0]       # height / width of the bottle silhouette
+
+# -------------------------------------------------------------------- splits
+splits:
+  # The DINO identity holdout is reproduced bit-for-bit so identities reserved
+  # for generalisation never appear in reranker training pairs - not as
+  # anchors, not as positives, not as negatives.
+  seed: 42
+  unseen_identity_fraction: 0.15
+  inherit_dino_holdout: true
+  dino_hash_scheme: sha256_seed_prefixed   # sha256("{seed}:{slug}")[:8] / 2**64
+
+  # Reranker-level split of the remaining (seen) identities' images.
+  train_fraction: 0.80
+  dev_fraction: 0.20             # threshold / epoch / architecture selection
+  # The final test set is never used for any selection decision.
+  test_sources: [real_photos_v4]
+  test_is_holdout_only: true
+
+  near_duplicate_detection:
+    exact_hash: sha256
+    perceptual_hash: phash
+    phash_hamming_threshold: 6
+    # Near-identical images join the same provenance group.
+    group_near_duplicates: true
+    # Only link near-duplicates that belong to the same identity. On the
+    # synthetic renders a 64-bit perceptual hash mostly describes the shared
+    # shelf/photo background, so unrestricted linking chains unrelated wines
+    # together - one run merged 953 images across dozens of identities into a
+    # single group and distorted every split. Genuinely shared shots of two
+    # different wines are already joined by their provenance group.
+    restrict_to_same_identity: true
+
+  # Pairs are dropped rather than relabelled when either identity belongs to
+  # the unseen holdout.
+  drop_pairs_touching_unseen: true
+
+# -------------------------------------------------- DINO candidate extraction
+dino:
+  # Pin exactly what produced the candidate lists. A candidate table without
+  # these three is not interpretable.
+  checkpoint: models/dinov3_retrieval/dinov3_vitb16_wine_retrieval.pt
+  retrieval_config: configs/dinov3_retrieval.yaml
+  index_csv: datasets/dinov3_retrieval/index.csv
+  gallery_version: null          # recorded from the index file sha256
+  preprocessing_id: null         # recorded from the retrieval config
+
+  top_k: 10
+  # Catalog references of test identities may stay in the gallery per the task
+  # protocol; that never licenses training on test query photos.
+  gallery_includes_unseen_references: true
+
+  # Written into the candidate table. These are raw cosine similarities, not
+  # probabilities of being correct.
+  close_call_margin: 0.05        # top1 - top2 below this counts as "close"
+
+# --------------------------------------------------------------- pair mining
+pairs:
+  # A training example is (query bottle view, reference A, reference B, label).
+  # Candidate order is randomised so position never encodes the answer.
+  shuffle_candidate_order: true
+  shuffle_seed: 20260921
+
+  # Starting mix. A starting point for an ablation, not a claim about what is
+  # optimal.
+  negatives_per_positive:
+    dino_competitor: 4           # real top-k rivals of the current DINO
+    moderate: 2                  # same winery / same near-dup series
+    easy: 1                      # random other identity
+  # Confident correct top-1 cases are included on purpose so the reranker
+  # learns to keep a correct answer, not only to flip a wrong one.
+  min_confident_correct_fraction: 0.25
+
+  # When neither candidate is the ground truth the example is labelled
+  # neither_correct. One of them is never promoted to "correct".
+  emit_neither_correct: true
+
+  # Triplets built by injecting the true reference are kept separate from the
+  # organic (top1, top2) pairs the model actually sees at inference.
+  separate_injected_and_organic: true
+
+# --------------------------------------------------------------------- pilot
+pilot:
+  size: 400                      # 300-500 diverse cases before the full run
+  seed: 7
+  # The pilot deliberately over-samples difficulty.
+  strata:
+    hard_pair: 0.30
+    multi_bottle: 0.15
+    tilted: 0.10
+    occluded: 0.10
+    poor_light: 0.10
+    rare_identity: 0.10
+    confident_correct: 0.15
+  contact_sheet_columns: 6
+  render_originals_with_overlay: true
+
+  # Manual verdicts recorded per pilot case.
+  difference_categories:
+    - shape_neck_capsule_glass     # a whole-bottle encoder can see this
+    - label_text_or_vintage        # needs the label / OCR, not the silhouette
+    - no_visible_difference        # nothing distinguishes them in any photo
+    - annotation_or_selection_error
+    - insufficient_photo_quality
+
+# ----------------------------------------------------------------- processing
+runtime:
+  num_workers: 8
+  # Every stage writes a ledger so an interrupted run continues where it
+  # stopped instead of redoing finished work.
+  resume: true
+  ledger_name: _ledger.jsonl
+  log_every: 200
+  fail_fast: false
+
+# -------------------------------------------------------------------- outputs
+output:
+  root: datasets/bottle_reranker
+  reports_root: bottle_reranker/reports
+  manifest_name: bottle_reranker_manifest.csv
+  # Manifest paths are relative to output.root so the package is relocatable.
+  relative_paths: true
+
+# --------------------------------------------------------------------- kaggle
+kaggle:
+  # Read-only inputs owned by the upstream account.
+  source_owner: konstantinmelnikof
+  source_datasets:
+    dinov3_data: viscaner-dinov3-data
+    dinov3_code: viscaner-dinov3-code
+    dinov3_weights: viscaner-dinov3-weights
+  # The working copy this pipeline publishes to.
+  owner: f1amex
+  dataset_slug: viscaner-bottle-reranker-data
+  title: VIscaNEr bottle reranker data
+  private: true
+  licence: other
+  staging_root: kaggle_upload/viscaner-bottle-reranker-data

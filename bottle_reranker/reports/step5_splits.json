@@ -1,0 +1,105 @@
+{
+  "stage": "step5_splits",
+  "environment": {
+    "timestamp_utc": "2026-09-21T10:00:57+00:00",
+    "python": "3.13.11",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git_revision": "43be4cd27e88036b0c80c20fac593e828a66d6bf",
+    "packages": {
+      "numpy": "2.5.3",
+      "cv2": "4.14.0",
+      "torch": "missing",
+      "torchvision": "missing",
+      "ultralytics": "missing",
+      "PIL": "12.3.0",
+      "pandas": "missing",
+      "transformers": "missing"
+    }
+  },
+  "config_fingerprint": {
+    "splits.seed": 42,
+    "splits.unseen_identity_fraction": 0.15,
+    "splits.inherit_dino_holdout": true,
+    "splits.train_fraction": 0.8,
+    "splits.dev_fraction": 0.2,
+    "splits.test_sources": [
+      "real_photos_v4"
+    ],
+    "splits.near_duplicate_detection": {
+      "exact_hash": "sha256",
+      "perceptual_hash": "phash",
+      "phash_hamming_threshold": 6,
+      "group_near_duplicates": true,
+      "restrict_to_same_identity": true
+    }
+  },
+  "grouping": {
+    "images": 45906,
+    "groups": 2892,
+    "exact_duplicate_groups": 0,
+    "near_duplicate_links": 0,
+    "near_duplicate_links_rejected_cross_identity": 0,
+    "near_duplicate_restricted_to_same_identity": true,
+    "perceptual_hash_computed": false
+  },
+  "split_counts": {
+    "holdout_unseen_identity": 6392,
+    "train": 31050,
+    "dev": 7701,
+    "test": 763
+  },
+  "split_percent": {
+    "holdout_unseen_identity": 13.92,
+    "train": 67.64,
+    "dev": 16.78,
+    "test": 1.66
+  },
+  "identities_per_split": {
+    "train": 1442,
+    "dev": 362,
+    "test": 456,
+    "holdout_unseen_identity": 323
+  },
+  "photographic_images_per_split": {
+    "train": 0,
+    "dev": 0,
+    "test": 763,
+    "holdout_unseen_identity": 143
+  },
+  "photographic_share_per_split": {
+    "train": 0.0,
+    "dev": 0.0,
+    "test": 100.0,
+    "holdout_unseen_identity": 2.24
+  },
+  "images_per_source_and_split": {
+    "synthetic_45k/train": 31050,
+    "synthetic_45k/dev": 7701,
+    "synthetic_45k/holdout_unseen_identity": 6249,
+    "real_photos_v4/test": 763,
+    "real_photos_v4/holdout_unseen_identity": 143
+  },
+  "integrity": {
+    "reserved_identities_leaking_into_training": [],
+    "seen_identities_pulled_into_holdout_by_grouping": 24,
+    "seen_identities_pulled_into_holdout_note": "These identities are not reserved, but some of their images shared a provenance group with a reserved identity, so those images were held out with it. They still contribute their other images to training. This is the intended cost of grouping.",
+    "provenance_groups_split_across_parts": 0,
+    "holdout_inherited_from_dino": true,
+    "holdout_hash_scheme": "sha256_seed_prefixed"
+  },
+  "evaluation_status": {
+    "held_out_photographic_test_images": 763,
+    "held_out_photographic_test_identities": 456,
+    "internal_validation_only": [
+      "Any figure computed on the DINO synthetic validation split. That split already selected the current checkpoint, so it is internal validation, not an independent test."
+    ],
+    "note": "The test pool is held out from reranker training and from every selection decision. Two limits keep it from being a general verdict: it covers only the identities that happen to have been photographed, and it is the project-wide scanner check set, so each further use erodes its independence. Fresh sessions collected per the step 8 plan are the durable answer.",
+    "test_sources": [
+      "real_photos_v4"
+    ],
+    "test_is_holdout_only": true
+  },
+  "outputs": {
+    "splits_csv": "datasets/bottle_reranker/audit/splits.csv"
+  }
+}

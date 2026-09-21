@@ -1,0 +1,64 @@
+{
+  "stage": "step9_package",
+  "environment": {
+    "timestamp_utc": "2026-09-21T09:56:54+00:00",
+    "python": "3.13.11",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git_revision": "43be4cd27e88036b0c80c20fac593e828a66d6bf",
+    "packages": {
+      "numpy": "2.5.3",
+      "cv2": "4.14.0",
+      "torch": "missing",
+      "torchvision": "missing",
+      "ultralytics": "missing",
+      "PIL": "12.3.0",
+      "pandas": "missing",
+      "transformers": "missing"
+    }
+  },
+  "config_fingerprint": {
+    "output.root": "datasets/bottle_reranker",
+    "output.manifest_name": "bottle_reranker_manifest.csv",
+    "kaggle.owner": "f1amex",
+    "kaggle.dataset_slug": "viscaner-bottle-reranker-data"
+  },
+  "manifest": {
+    "path": "datasets/bottle_reranker/bottle_reranker_manifest.csv",
+    "rows": 2103,
+    "by_role": {
+      "reference": 2103
+    },
+    "by_split": {
+      "gallery": 2103
+    },
+    "usable_for_training": 2081,
+    "usable_percent": 98.95,
+    "flagged": {
+      "top_part_estimated_no_neck_narrowing": 29,
+      "unusual_aspect": 22,
+      "top_part_estimated_shoulder_too_close_to_top": 9,
+      "orientation_uncertain": 8,
+      "top_part_poorly_covered": 4,
+      "deskew_skipped_elongation_1.06_below_1.8": 3,
+      "deskew_skipped_elongation_1.07_below_1.8": 3,
+      "silhouette_occluded": 2,
+      "deskew_skipped_elongation_1.37_below_1.8": 1,
+      "deskew_skipped_elongation_1.39_below_1.8": 1
+    }
+  },
+  "kaggle": {
+    "staging_root": "kaggle_upload/viscaner-bottle-reranker-data",
+    "dataset_id": "f1amex/viscaner-bottle-reranker-data",
+    "private": true,
+    "source_owner": "konstantinmelnikof",
+    "directories_copied": [
+      "plan",
+      "audit"
+    ],
+    "upload_is_manual": true
+  },
+  "upload_commands": [
+    "kaggle datasets create -p kaggle_upload/viscaner-bottle-reranker-data -r zip   # first publication",
+    "kaggle datasets version -p kaggle_upload/viscaner-bottle-reranker-data -m \"<message>\" -r zip   # later versions"
+  ]
+}

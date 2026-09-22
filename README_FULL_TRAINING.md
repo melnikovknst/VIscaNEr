@@ -1,9 +1,14 @@
-# Полное обучение DINOv3-B/16
+# Полное обучение DINOv3-B
 
-Полный режим использует тот же target-aligned датасет, модель, transforms,
-SupCon + CE loss и retrieval-валидацию, что и основной пайплайн. Отличие —
-третья стадия с разморозкой всего backbone и точное продолжение долгой Kaggle
-сессии.
+`kaggle_notebooks/DINOv3-deeptune.ipynb` поддерживает четыре независимых
+варианта эксперимента: ViT-B/16 или ConvNeXt-B на target-aligned кропах
+этикеток или на кропах бутылок. В первой ячейке выбираются `BACKBONE` и
+`DATASET_KIND`. Для обеих архитектур используются локальные `safetensors`,
+без Hugging Face Hub и сетевой загрузки модели.
+
+Transforms, SupCon + CE loss, retrieval-валидация и правила разбиения общие.
+Третья стадия размораживает весь выбранный backbone и поддерживает точное
+продолжение долгой Kaggle-сессии.
 
 ## Стадии
 
@@ -38,12 +43,16 @@ Recall@5, Recall@10, MRR и ранги.
 
 - `viscaner-dinov3-code`;
 - `viscaner-dinov3-data`;
-- `viscaner-dinov3-vitb16-weights`.
+- `viscaner-bottle-classifier-data`;
+- `viscaner-dinov3-vitb16-weights` — общий weights dataset с
+  `model.safetensors` и `dinov3-convnext-b.safetensors`.
 
-Выбери CUDA GPU и запусти **Save Version → Save & Run All**. Notebook сначала
-проверяет все три стадии на одном batch в отдельной директории, затем при
-`RESUME_CHECKPOINT = None` создаёт новую модель строго из исходного
-`model.safetensors`.
+Выбери `BACKBONE = 'vitb16'` или `'convnextb'`, затем
+`DATASET_KIND = 'labels'` или `'bottles'`. Выбери CUDA GPU и запусти
+**Save Version → Save & Run All**. Notebook сначала проверяет strict load и
+все три стадии на одном batch в отдельной директории, затем при
+`RESUME_CHECKPOINT = None` создаёт новую модель строго из выбранного исходного
+checkpoint.
 
 Для продолжения подключи сохранённый output предыдущего notebook и задай
 полный путь к его `last.pt` в `RESUME_CHECKPOINT`. Рядом с `last.pt` должны

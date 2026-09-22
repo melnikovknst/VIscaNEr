@@ -49,18 +49,21 @@ early stopping on `val_unseen Recall@1`.
   --kaggle-username konstantinmelnikof
 ```
 
-This creates two private-dataset upload directories:
+This creates three private-dataset upload directories:
 
 - `kaggle_upload/viscaner-bottle-classifier-data`;
-- `kaggle_upload/viscaner-bottle-classifier-code`.
+- `kaggle_upload/viscaner-bottle-classifier-code`;
+- `kaggle_upload/viscaner-bottle-classifier-weights`.
 
-Create both private Kaggle datasets once:
+Create all three private Kaggle datasets once:
 
 ```bash
 kaggle datasets create \
   -p kaggle_upload/viscaner-bottle-classifier-data -r zip
 kaggle datasets create \
   -p kaggle_upload/viscaner-bottle-classifier-code -r zip
+kaggle datasets create \
+  -p kaggle_upload/viscaner-bottle-classifier-weights -r zip
 ```
 
 For later code or data refreshes, publish a new version instead:
@@ -72,12 +75,19 @@ kaggle datasets version \
 kaggle datasets version \
   -p kaggle_upload/viscaner-bottle-classifier-code \
   -m "Update DINOv3 bottle classifier code" -r zip
+kaggle datasets version \
+  -p kaggle_upload/viscaner-bottle-classifier-weights \
+  -m "Update local DINOv3 S and S+ weights" -r zip
 ```
 
-The model weights are not stored in Git. Accept the gated model terms on both
-Hugging Face model pages, enable Kaggle Internet and create a private Kaggle
-Secret named `HF_TOKEN`. Each notebook downloads only its own official
-snapshot. An attached offline snapshot is also supported.
+The model weights are not stored in Git. They live locally at:
+
+- `models/bottle_classifier_backbones/model-s.safetensors`;
+- `models/bottle_classifier_backbones/model-s_plus.safetensors`.
+
+The bundle script copies and checksums both files into the private Kaggle
+weights dataset. The training notebooks need neither Internet access nor API
+secrets.
 
 ## Kaggle notebooks
 

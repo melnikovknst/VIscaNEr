@@ -1,7 +1,6 @@
 torch>=2.7
 torchvision>=0.22
 transformers>=5.6,<6
-huggingface_hub>=0.34,<2
 safetensors>=0.5,<1
 pandas>=2.2,<3
 numpy>=1.26,<3

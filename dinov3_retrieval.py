@@ -1,7 +1,7 @@
 """DINOv3 ViT-B/16 metric-learning pipeline for wine-label retrieval.
 
-The module is intentionally independent of Hugging Face Hub at runtime.  It
-constructs the official DINOv3 ViT-B/16 architecture and loads the local
+The module is intentionally independent of external model hubs at runtime. It
+constructs the DINOv3 ViT-B/16 architecture and loads the local
 ``model.safetensors`` checkpoint supplied with the project.
 """
 

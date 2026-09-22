@@ -1,5 +1,5 @@
 project_root: /Users/konstantinmelnikov/Desktop/work/VIscaNEr
-weights_path: models/huggingface/dinov3-vits16plus-pretrain-lvd1689m
+weights_path: models/bottle_classifier_backbones/model-s_plus.safetensors
 crops_metadata_path: datasets/bottle_classifier_crops/training_metadata.csv
 bottle_manifest_path: datasets/bottle_classifier_crops/bottle_images_manifest.csv
 crops_root: datasets/bottle_classifier_crops

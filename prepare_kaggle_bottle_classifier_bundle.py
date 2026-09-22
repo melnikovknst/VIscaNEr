@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare private Kaggle data and code datasets for bottle classifiers."""
+"""Prepare private Kaggle data, code and weights datasets for bottle classifiers."""
 
 from __future__ import annotations
 
@@ -43,7 +43,8 @@ def main() -> None:
     output = (args.output_root or project / "kaggle_upload").expanduser().resolve()
     data_bundle = output / "viscaner-bottle-classifier-data"
     code_bundle = output / "viscaner-bottle-classifier-code"
-    recreate = (code_bundle,) if args.code_only else (data_bundle, code_bundle)
+    weights_bundle = output / "viscaner-bottle-classifier-weights"
+    recreate = (code_bundle,) if args.code_only else (data_bundle, code_bundle, weights_bundle)
     for bundle in recreate:
         if bundle.exists():
             shutil.rmtree(bundle)
@@ -89,7 +90,7 @@ def main() -> None:
         Path("full_finetune.py"),
         Path("train_bottle_classifier.py"),
         Path("bottle_classifier/__init__.py"),
-        Path("bottle_classifier/hf_backbone.py"),
+        Path("bottle_classifier/local_backbone.py"),
         Path("bottle_classifier/requirements.txt"),
         Path("bottle_classifier/README.md"),
         Path("configs/bottle_classifier_vits16.yaml"),
@@ -120,7 +121,42 @@ def main() -> None:
         encoding="utf-8",
     )
     if not args.code_only:
+        weight_files = (
+            project / "models" / "bottle_classifier_backbones" / "model-s.safetensors",
+            project / "models" / "bottle_classifier_backbones" / "model-s_plus.safetensors",
+        )
+        expected_checksums = {
+            "model-s.safetensors": "4610ad75edef83e75afdebf162d148dc628045ea6cbb83d67d4708c709c4f91d",
+            "model-s_plus.safetensors": "208146e499dace99e4c9376ddb8a26f77d64c31c46c4dc4b86ff8bc63b0235e2",
+        }
+        actual_checksums: dict[str, str] = {}
+        for source in weight_files:
+            if not source.is_file():
+                raise FileNotFoundError(source)
+            actual = hashlib.sha256(source.read_bytes()).hexdigest()
+            expected = expected_checksums[source.name]
+            if actual != expected:
+                raise ValueError(
+                    f"Wrong or corrupted {source.name}: expected {expected}, got {actual}"
+                )
+            link_or_copy(source, weights_bundle / source.name)
+            actual_checksums[source.name] = actual
+        (weights_bundle / "weights_sha256.json").write_text(
+            json.dumps(actual_checksums, indent=2, sort_keys=True), encoding="utf-8"
+        )
+        (weights_bundle / "dataset-metadata.json").write_text(
+            json.dumps(
+                metadata(
+                    "VIscaNEr DINOv3 S and S+ local weights",
+                    f"{args.kaggle_username}/viscaner-bottle-classifier-weights",
+                ),
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+    if not args.code_only:
         print(f"Data bundle: {data_bundle}")
+        print(f"Weights bundle: {weights_bundle}")
     print(f"Code bundle: {code_bundle}")
 
 

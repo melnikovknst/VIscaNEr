@@ -13,7 +13,7 @@ import pandas as pd
 import yaml
 
 import dinov3_retrieval as retrieval
-from bottle_classifier import MODEL_VARIANTS, install_huggingface_backbone_loader
+from bottle_classifier import MODEL_VARIANTS, install_local_backbone_loader
 
 
 def load_config(path: str | Path, overrides: dict[str, Any]) -> retrieval.PipelineConfig:
@@ -51,7 +51,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    expected_model_id = install_huggingface_backbone_loader(args.variant)
+    model_spec = install_local_backbone_loader(args.variant)
     overrides = {
         key: getattr(args, key)
         for key in (
@@ -71,15 +71,6 @@ def main() -> None:
         )
     }
     cfg = load_config(args.config, overrides)
-    snapshot = Path(cfg.weights_path)
-    marker_path = snapshot / "viscaner_model_source.json"
-    if marker_path.is_file():
-        marker = json.loads(marker_path.read_text(encoding="utf-8"))
-        if marker.get("model_id") != expected_model_id:
-            raise ValueError(
-                f"Variant {args.variant} expects {expected_model_id}, "
-                f"but snapshot marker says {marker.get('model_id')}"
-            )
 
     prepared_summary: dict[str, Any] | None = None
     if args.command == "prepare":
@@ -93,7 +84,9 @@ def main() -> None:
             resume_checkpoint=args.resume_checkpoint,
         )
         result["variant"] = args.variant
-        result["model_id"] = expected_model_id
+        result["model_name"] = model_spec["display_name"]
+        result["pretrained_weights"] = Path(cfg.weights_path).name
+        result["pretrained_weights_sha256"] = model_spec["sha256"]
         run_summary = Path(cfg.runs_dir) / cfg.run_name / "run_summary.json"
         run_summary.write_text(
             json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"

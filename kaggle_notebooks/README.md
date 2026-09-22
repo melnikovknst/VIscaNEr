@@ -22,12 +22,10 @@ Whole-bottle ambiguity classifiers:
 - `BottleClassifier-DINOv3-ViTS16.ipynb` — DINOv3 ViT-S/16;
 - `BottleClassifier-DINOv3-ViTS16Plus.ipynb` — DINOv3 ViT-S+/16.
 
-Both use the private datasets `viscaner-bottle-classifier-data` and
-`viscaner-bottle-classifier-code`. The official model repositories are gated:
-accept the Meta DINOv3 license on Hugging Face, enable Kaggle Internet and add
-an `HF_TOKEN` Kaggle Secret. Alternatively attach a private Kaggle dataset
-containing the complete Hugging Face snapshot and set
-`OPTIONAL_WEIGHTS_DATASET_SLUG` in the notebook.
+Both use three private datasets: `viscaner-bottle-classifier-data`,
+`viscaner-bottle-classifier-code`, and
+`viscaner-bottle-classifier-weights`. The last dataset contains the two local
+`safetensors` files. Internet access and API secrets are not required.
 
 The notebooks are source artifacts. Local validation checks their JSON and
 Python syntax; real execution requires Kaggle CUDA and the attached datasets.

@@ -1,8 +1,9 @@
-"""DINOv3 ViT-B/16 metric-learning pipeline for wine-label retrieval.
+"""DINOv3 metric-learning pipeline for wine retrieval.
 
 The module is intentionally independent of external model hubs at runtime. It
-constructs the DINOv3 ViT-B/16 architecture and loads the local
-``model.safetensors`` checkpoint supplied with the project.
+constructs a supported DINOv3 architecture and loads a project-local
+``safetensors`` checkpoint. ViT-B/16 remains the default; other local
+backbones can be installed by a task-specific entrypoint before training.
 """
 
 from __future__ import annotations
@@ -548,7 +549,7 @@ def load_local_dinov3_backbone(weights_path: str | Path, image_size: int = 224) 
 class DINOv3RetrievalModel(nn.Module):
     def __init__(
         self,
-        backbone: DINOv3ViTModel,
+        backbone: nn.Module,
         num_classes: int,
         embedding_dim: int = 256,
         projection_hidden_dim: int = 512,
@@ -556,8 +557,18 @@ class DINOv3RetrievalModel(nn.Module):
     ) -> None:
         super().__init__()
         self.backbone = backbone
-        self.num_register_tokens = int(backbone.config.num_register_tokens)
-        feature_dim = int(backbone.config.hidden_size) * 2
+        self.num_register_tokens = int(
+            getattr(backbone.config, "num_register_tokens", 0)
+        )
+        if hasattr(backbone.config, "hidden_size"):
+            feature_width = int(backbone.config.hidden_size)
+        elif hasattr(backbone.config, "hidden_sizes"):
+            feature_width = int(backbone.config.hidden_sizes[-1])
+        else:
+            raise TypeError(
+                "Unsupported DINOv3 backbone config: expected hidden_size or hidden_sizes"
+            )
+        feature_dim = feature_width * 2
         self.projection = nn.Sequential(
             nn.Linear(feature_dim, projection_hidden_dim),
             nn.LayerNorm(projection_hidden_dim),
@@ -580,15 +591,41 @@ class DINOv3RetrievalModel(nn.Module):
                 "Use -1 for the full backbone, 0 to freeze it, or a positive block count"
             )
         elif last_n_blocks > 0:
-            # Transformers releases expose DINOv3 encoder blocks either as
-            # ``model.layer`` or directly as ``layer``.
             encoder = getattr(self.backbone, "model", self.backbone)
-            blocks = encoder.layer
-            for block in blocks[-last_n_blocks:]:
-                for parameter in block.parameters():
+            if hasattr(encoder, "layer"):
+                # DINOv3 ViT: Transformers releases expose blocks either as
+                # ``model.layer`` or directly as ``layer``.
+                blocks = list(encoder.layer)
+                for block in blocks[-last_n_blocks:]:
+                    for parameter in block.parameters():
+                        parameter.requires_grad = True
+                for parameter in self.backbone.norm.parameters():
                     parameter.requires_grad = True
-            for parameter in self.backbone.norm.parameters():
-                parameter.requires_grad = True
+            elif hasattr(encoder, "stages"):
+                # DINOv3 ConvNeXt: count residual blocks across all stages.
+                # If a selected block belongs to a stage, train that stage's
+                # downsampling transition as well so its representation can
+                # adapt coherently.
+                staged_blocks = [
+                    (stage, block)
+                    for stage in encoder.stages
+                    for block in stage.layers
+                ]
+                selected = staged_blocks[-last_n_blocks:]
+                selected_stage_ids = {id(stage) for stage, _ in selected}
+                for stage, block in selected:
+                    for parameter in block.parameters():
+                        parameter.requires_grad = True
+                for stage in encoder.stages:
+                    if id(stage) in selected_stage_ids:
+                        for parameter in stage.downsample_layers.parameters():
+                            parameter.requires_grad = True
+                for parameter in self.backbone.layer_norm.parameters():
+                    parameter.requires_grad = True
+            else:
+                raise TypeError(
+                    "Unsupported DINOv3 backbone: expected ViT layers or ConvNeXt stages"
+                )
         self.backbone_frozen = last_n_blocks == 0
 
     def backbone_features(self, pixel_values: torch.Tensor) -> torch.Tensor:

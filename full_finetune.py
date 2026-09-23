@@ -139,7 +139,9 @@ def smoke_test(
         batch = next(iter(loader))
         optimizer = base.build_optimizer(model, stage_cfg)
         scaler = torch.amp.GradScaler(
-            "cuda", enabled=device.type == "cuda" and cfg.amp
+            "cuda",
+            enabled=device.type == "cuda" and cfg.amp,
+            init_scale=1024.0,
         )
         report = trainability(model)
         if stage == 3 and report["backbone"]["trainable"] != report["backbone"]["total"]:
@@ -398,7 +400,9 @@ def train_full_pipeline(
             optimizer, lambda epoch: lr_factor(epoch, epochs, warmup)
         )
         scaler = torch.amp.GradScaler(
-            "cuda", enabled=device.type == "cuda" and cfg.amp
+            "cuda",
+            enabled=device.type == "cuda" and cfg.amp,
+            init_scale=1024.0,
         )
         if continuing:
             optimizer.load_state_dict(resume_payload["optimizer"])

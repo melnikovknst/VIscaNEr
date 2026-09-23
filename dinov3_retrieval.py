@@ -1112,7 +1112,11 @@ def train_pipeline(
             f"Resuming from {resume_path} "
             f"(epoch={resume_payload.get('epoch')}, stage={resume_payload.get('stage')})"
         )
-    scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda" and cfg.amp))
+    scaler = torch.amp.GradScaler(
+        "cuda",
+        enabled=(device.type == "cuda" and cfg.amp),
+        init_scale=1024.0,
+    )
     history_path = run_dir / "history.csv"
     if resume_payload is not None and history_path.is_file():
         history = pd.read_csv(history_path).to_dict("records")

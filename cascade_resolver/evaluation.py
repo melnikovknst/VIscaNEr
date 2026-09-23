@@ -15,6 +15,7 @@ from PIL import Image, ImageOps
 
 
 METRIC_K = (1, 2, 5, 10)
+TIE_BREAK_EPSILON = 1e-12
 
 
 @torch.inference_mode()
@@ -35,11 +36,19 @@ def rank_primary(
     for start in range(0, len(query_embeddings), batch_size):
         end = min(start + batch_size, len(query_embeddings))
         scores = query_embeddings[start:end] @ gallery_embeddings.T
+        # Float32 models can produce exactly equal similarities for duplicate or
+        # near-duplicate references. Make ranking reproducible: lower gallery
+        # index wins an exact tie. The epsilon is below one float32 ULP here, so
+        # it cannot reorder distinct float32 scores after conversion to float64.
+        tie_break = torch.arange(scores.shape[1], dtype=torch.float64) * TIE_BREAK_EPSILON
+        ranking_scores = scores.to(torch.float64) - tie_break[None, :]
         k = min(top_k, scores.shape[1])
-        top_scores, top_indices = scores.topk(k=k, dim=1, largest=True, sorted=True)
+        _, top_indices = ranking_scores.topk(k=k, dim=1, largest=True, sorted=True)
+        top_scores = scores.gather(1, top_indices)
         batch_true = true_ids[start:end]
         true_scores = scores.gather(1, batch_true[:, None]).squeeze(1)
-        ranks = 1 + (scores > true_scores[:, None]).sum(dim=1)
+        true_ranking_scores = ranking_scores.gather(1, batch_true[:, None]).squeeze(1)
+        ranks = 1 + (ranking_scores > true_ranking_scores[:, None]).sum(dim=1)
         for local_index in range(end - start):
             indices = top_indices[local_index].tolist()
             values = top_scores[local_index].tolist()

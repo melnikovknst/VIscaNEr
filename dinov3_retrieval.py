@@ -837,8 +837,13 @@ def retrieval_metrics(
         labels = query_labels[start : start + chunk_size]
         similarities = query @ gallery_embeddings.T
         target_indices = torch.tensor([gallery_by_label[int(x)] for x in labels], dtype=torch.long)
-        target_scores = similarities[torch.arange(len(similarities)), target_indices]
-        ranks.append((similarities > target_scores[:, None]).sum(dim=1) + 1)
+        # Resolve exact cosine-similarity ties deterministically by gallery
+        # position. Converting float32 scores to float64 before adding the tiny
+        # offset preserves every distinct float32 value.
+        tie_break = torch.arange(len(gallery_embeddings), dtype=torch.float64) * 1e-12
+        ranking_scores = similarities.to(torch.float64) - tie_break[None, :]
+        target_scores = ranking_scores[torch.arange(len(similarities)), target_indices]
+        ranks.append((ranking_scores > target_scores[:, None]).sum(dim=1) + 1)
     rank_tensor = torch.cat(ranks).float()
     metrics = {f"recall_at_{k}": float((rank_tensor <= k).float().mean()) for k in ks}
     # Retrieval Top-1 accuracy is exactly Recall@1 when every query has one

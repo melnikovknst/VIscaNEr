@@ -24,6 +24,7 @@ from cascade_resolver.evaluation import (
     resolve_top_two,
     save_audit_visualizations,
 )
+from cascade_resolver.gate import load_gate_artifact, predict_gate_scores
 from cascade_resolver.modeling import (
     checkpoint_fingerprint,
     choose_device,
@@ -40,6 +41,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", default="configs/dino_cascade.yaml")
     parser.add_argument("--device", choices=("auto", "cpu", "mps", "cuda"))
     parser.add_argument("--ambiguity-margin", type=float)
+    parser.add_argument("--gating-strategy", choices=("learned", "margin"))
+    parser.add_argument("--gate-model-path")
     parser.add_argument("--limit", type=int, help="Deterministic query limit for a smoke run")
     parser.add_argument("--force", action="store_true", help="Ignore embedding caches")
     parser.add_argument("--audit-only", action="store_true", help="Validate data and checkpoints without inference")
@@ -75,6 +78,8 @@ def main() -> None:
     cfg = CascadeConfig.load(args.config).with_overrides(
         device=args.device,
         ambiguity_margin=args.ambiguity_margin,
+        gating_strategy=args.gating_strategy,
+        gate_model_path=args.gate_model_path,
     )
     output_dir = Path(cfg.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -102,9 +107,14 @@ def main() -> None:
     queries = queries.loc[queries["label_crop_available"]].reset_index(drop=True)
     if queries.empty:
         raise RuntimeError("No valid label crops are available for evaluation")
+    gating_text = (
+        f"learned gate, max_margin={cfg.gate_max_margin:.4f}"
+        if cfg.gating_strategy == "learned"
+        else f"margin<={cfg.ambiguity_margin:.5f}"
+    )
     print(
         f"EVALUATION  | queries={len(queries)} / sources={len(inventory)} "
-        f"| margin<={cfg.ambiguity_margin:.4f}",
+        f"| gating={gating_text}",
         flush=True,
     )
 
@@ -165,18 +175,47 @@ def main() -> None:
     )
     predictions = pd.concat([queries.reset_index(drop=True), primary_ranks], axis=1)
     predictions = initialize_final_columns(predictions)
-    predictions["resolver_ambiguous"] = predictions["b_top1_top2_gap"].le(cfg.ambiguity_margin)
+    if cfg.gating_strategy == "learned":
+        gate = load_gate_artifact(cfg.gate_model_path)
+        if float(gate["max_margin"]) != float(cfg.gate_max_margin):
+            raise ValueError(
+                f"Gate artifact max_margin={gate['max_margin']} differs from "
+                f"config gate_max_margin={cfg.gate_max_margin}"
+            )
+        predictions["gate_score"] = predict_gate_scores(gate, predictions)
+        predictions["gate_decision_threshold"] = float(gate["decision_threshold"])
+        predictions["resolver_ambiguous"] = predictions["b_top1_top2_gap"].le(
+            cfg.gate_max_margin
+        )
+        predictions["resolver_gate_selected"] = (
+            predictions["resolver_ambiguous"]
+            & predictions["gate_score"].ge(float(gate["decision_threshold"]))
+        )
+        print(
+            f"GATE        | model={gate.get('model_name', gate['model_type'])} "
+            f"| score_threshold={float(gate['decision_threshold']):.6f} "
+            f"| candidates={int(predictions['resolver_ambiguous'].sum())} "
+            f"| selected={int(predictions['resolver_gate_selected'].sum())}",
+            flush=True,
+        )
+    else:
+        predictions["gate_score"] = pd.NA
+        predictions["gate_decision_threshold"] = pd.NA
+        predictions["resolver_ambiguous"] = predictions["b_top1_top2_gap"].le(
+            cfg.ambiguity_margin
+        )
+        predictions["resolver_gate_selected"] = predictions["resolver_ambiguous"]
     predictions["resolver_missing_bottle_crop"] = (
-        predictions["resolver_ambiguous"] & ~predictions["bottle_crop_available"]
+        predictions["resolver_gate_selected"] & ~predictions["bottle_crop_available"]
     )
     predictions["resolver_invoked"] = (
-        predictions["resolver_ambiguous"] & predictions["bottle_crop_available"]
+        predictions["resolver_gate_selected"] & predictions["bottle_crop_available"]
     )
     invoked_indices = predictions.index[predictions["resolver_invoked"]].tolist()
     print(
         f"DINO-B      | Top-1={predictions['b_true_rank'].eq(1).mean():.4f} "
         f"| Top-2={predictions['b_true_rank'].le(2).mean():.4f} "
-        f"| ambiguous={int(predictions['resolver_ambiguous'].sum())} "
+        f"| candidates={int(predictions['resolver_ambiguous'].sum())} "
         f"| resolver-ready={len(invoked_indices)}",
         flush=True,
     )

@@ -23,6 +23,9 @@ class CascadeConfig:
     label_refs_root: str = "datasets/wine-scanner/data/refs/rgb"
     bottle_refs_root: str = "datasets/bottle_classifier_crops/refs"
     output_dir: str = "runs/dino_cascade"
+    gating_strategy: str = "learned"
+    gate_model_path: str = "models/cascade_gate/dino_s_gate.joblib"
+    gate_max_margin: float = 0.03
     device: str = "auto"
     ambiguity_margin: float = 0.03
     primary_batch_size: int = 24
@@ -69,6 +72,7 @@ class CascadeConfig:
             "label_refs_root",
             "bottle_refs_root",
             "output_dir",
+            "gate_model_path",
         }
         for key in path_fields:
             value = Path(str(payload[key])).expanduser()
@@ -77,6 +81,10 @@ class CascadeConfig:
             payload[key] = str(value.resolve())
         if not 0.0 <= float(payload["ambiguity_margin"]) <= 2.0:
             raise ValueError("ambiguity_margin must be in [0, 2]")
+        if str(payload["gating_strategy"]) not in {"learned", "margin"}:
+            raise ValueError("gating_strategy must be 'learned' or 'margin'")
+        if not 0.0 <= float(payload["gate_max_margin"]) <= 2.0:
+            raise ValueError("gate_max_margin must be in [0, 2]")
         if int(payload["top_k"]) < 10:
             raise ValueError("top_k must be at least 10 for Recall@10")
         return CascadeConfig(**payload)

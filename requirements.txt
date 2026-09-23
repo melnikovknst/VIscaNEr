@@ -22,3 +22,6 @@ ipython>=8.27,<10
 nbformat>=5.10,<6
 nbclient>=0.10,<1
 ipywidgets>=8.1,<9
+
+# Lightweight regression checks for the retrieval and cascade logic.
+pytest>=8.3,<10

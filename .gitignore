@@ -25,6 +25,12 @@ datasets/**/*
 # Large generated checkpoints, experiment outputs, and Kaggle staging folders.
 models/**/*.pt
 models/**/*.safetensors
+# Final fine-tuned checkpoints used by the local cascade are versioned through
+# Git LFS. Other generated checkpoints remain ignored.
+!models/trained_checkpoints/
+!models/trained_checkpoints/*.pt
+!models/trained_checkpoints/*.json
+!models/trained_checkpoints/*.md
 runs/**
 kaggle_upload/
 kaggle_recovered/

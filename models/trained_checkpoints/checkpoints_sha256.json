@@ -1,0 +1,12 @@
+{
+  "dinov3_vitb16_labels_best_full.pt": {
+    "sha256": "92388ea75c4648584187ac57c4d9d511b99df545f61c4e62df1454045a4cd560",
+    "bytes": 348546935,
+    "role": "Primary label-crop DINOv3-B/16 retrieval checkpoint"
+  },
+  "dinov3_vits16_bottles_best_full.pt": {
+    "sha256": "8ff9ba049f996802a203ed3a59120f355229cb4f3d8eee8647a31aea6080ca04",
+    "bytes": 90729131,
+    "role": "Conditional whole-bottle DINOv3-S/16 Top-2 resolver checkpoint"
+  }
+}

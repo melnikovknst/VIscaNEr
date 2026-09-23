@@ -15,9 +15,16 @@ label_refs_root: datasets/wine-scanner/data/refs/rgb
 bottle_refs_root: datasets/bottle_classifier_crops/refs
 output_dir: runs/dino_cascade
 
+# The learned gate was trained on train, selected on val_seen, and is evaluated
+# on val_unseen. It predicts expected DINO-S utility before DINO-S is called.
+gating_strategy: learned
+gate_model_path: models/cascade_gate/dino_s_gate.joblib
+gate_max_margin: 0.03
+
 # Raw cosine-similarity gap between the DINO-B Top-1 and Top-2 references.
-# DINO-S is called only when gap <= this threshold and a bottle crop exists.
-ambiguity_margin: 0.03
+# Used only when gating_strategy=margin. Selected on val_seen by
+# tune_cascade_threshold.py; val_unseen remains evaluation-only.
+ambiguity_margin: 0.01525
 
 device: auto
 # Conservative defaults for a 24 GB Apple Silicon Mac. Increase if desired.

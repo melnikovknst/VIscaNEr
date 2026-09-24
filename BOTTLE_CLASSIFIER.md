@@ -8,28 +8,47 @@ ranking is ambiguous and a complete target bottle is visible.
 
 The builder uses `models/bottle_reranker/best_bottle_detector.pt`. It does not
 select the highest-confidence bottle blindly: a candidate must own the
-geometrically validated target-label centre. Ambiguous, partial and failed
-cases are recorded but excluded from training.
+geometrically validated target-label centre. If the selected YOLO detection has
+confidence below `0.75`, its bounding box is not trusted and the original image
+is saved as the classifier input. At `0.75` and above, the padded YOLO crop is
+saved. Ambiguous target ownership and high-confidence partial bottles remain
+audit-only and are excluded from training.
 
 ```bash
 cd /Users/konstantinmelnikov/Desktop/work/VIscaNEr
-.venv/bin/python build_bottle_classifier_dataset.py --overwrite --batch-size 4
+.venv/bin/python build_bottle_classifier_dataset.py \
+  --overwrite \
+  --batch-size 4 \
+  --crop-confidence-threshold 0.75
 ```
+
+The same destructive rebuild is available as a local notebook:
+`bottle_reranker/Build-bottle-classifier-dataset.ipynb`. Run all four cells
+from top to bottom; it always invokes the project's `.venv` interpreter.
 
 Outputs:
 
 - `datasets/bottle_classifier_crops/` — crops, references and audit metadata;
 - `datasets/bottle_classifier_crops/training_metadata.csv` — only identities
-  with at least four complete, unambiguous crops;
+  with at least four unambiguous inputs across trusted crops and original-image
+  fallbacks;
 - `datasets/bottle_classifier_crops.zip` — self-contained Git-LFS archive.
 
-The current complete build audited 41,527 source images and produced 14,657
-high-confidence complete crops, 554 low-confidence hard cases, 1,659 ambiguous
-cases, 22,023 partial bottles and 2,634 failures. The train/evaluation metadata
-contains 14,505 real crops and a complete 2,103-identity reference gallery.
+`crops_metadata.csv` records `image_mode=yolo_crop` or
+`image_mode=original_image` for every saved input. Low-confidence original
+frames are stored under `low_confidence/` and are included in
+`training_metadata.csv`.
 
-An interrupted build can continue with `--resume`. Never use `partial` or
-`ambiguous` rows as positive classifier training examples.
+The previous pre-fallback build audited 41,527 source images and produced
+14,657 high-confidence complete crops, 554 low-confidence hard cases, 1,659
+ambiguous cases, 22,023 partial bottles and 2,634 failures. Running the command
+above replaces those outputs and writes the new policy counts to
+`build_summary.json`.
+
+An interrupted build can continue with `--resume` only when its metadata was
+created by the same code version. For a threshold change, use `--overwrite`.
+Never use `partial` or `ambiguous` rows as positive classifier training
+examples.
 
 ## Models
 
@@ -80,14 +99,15 @@ kaggle datasets version \
   -m "Update local DINOv3 S and S+ weights" -r zip
 ```
 
-The model weights are not stored in Git. They live locally at:
+The model weights are versioned in Git LFS and live at:
 
 - `models/bottle_classifier_backbones/model-s.safetensors`;
 - `models/bottle_classifier_backbones/model-s_plus.safetensors`.
 
 The bundle script copies and checksums both files into the private Kaggle
-weights dataset. The training notebooks need neither Internet access nor API
-secrets.
+weights dataset. Their repository-wide checksums are also recorded in
+`models/weights_sha256.json`. The training notebooks need neither Internet
+access nor API secrets.
 
 ## Kaggle notebooks
 

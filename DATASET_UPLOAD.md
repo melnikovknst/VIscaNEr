@@ -1,8 +1,9 @@
 # Uploading a large dataset
 
-Large dataset files in this repository are stored with Git LFS. Put the dataset
-inside `data/` or `datasets/`; every file below either directory is tracked by
-LFS automatically.
+Large dataset files and model weights in this repository are stored with Git
+LFS. Put dataset archives inside `data/` or `datasets/`; model weights belong
+under `models/`. Common weight formats such as `.pt`, `.pth`, `.safetensors`,
+`.onnx`, `.ckpt` and `.gguf` are routed through LFS automatically.
 
 ## One-time setup
 
@@ -25,13 +26,14 @@ git clone https://github.com/melnikovknst/VIscaNEr.git
 cd VIscaNEr
 ```
 
-## Upload the dataset
+## Upload datasets or weights
 
-Copy the files into `data/` (or `datasets/`) and use the normal Git workflow:
+Copy dataset archives into `data/` or `datasets/`, and weights into `models/`,
+then use the normal Git workflow:
 
 ```bash
-git add data/
-git commit -m "Add dataset via Git LFS"
+git add datasets/ models/
+git commit -m "Add datasets and model weights via Git LFS"
 git push origin main
 ```
 

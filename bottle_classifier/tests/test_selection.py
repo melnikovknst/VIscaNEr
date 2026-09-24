@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import torch
 
-from build_bottle_classifier_dataset import select_target_bottle
+from build_bottle_classifier_dataset import choose_output_policy, select_target_bottle
 
 
 def result(boxes, confidences):
@@ -79,3 +79,36 @@ def test_duplicate_boxes_do_not_create_false_ambiguity():
     assert selected is not None
     assert context["eligible"] == 2
     assert not context["ambiguous"]
+
+
+def test_low_confidence_uses_original_and_remains_trainable():
+    status, image_mode = choose_output_policy(
+        0.7499,
+        ambiguous=False,
+        vertically_truncated=True,
+        crop_confidence_threshold=0.75,
+    )
+    assert status == "low_confidence"
+    assert image_mode == "original_image"
+
+
+def test_threshold_is_inclusive_for_yolo_crop():
+    status, image_mode = choose_output_policy(
+        0.75,
+        ambiguous=False,
+        vertically_truncated=False,
+        crop_confidence_threshold=0.75,
+    )
+    assert status == "successful"
+    assert image_mode == "yolo_crop"
+
+
+def test_ambiguous_owner_is_never_admitted_to_training():
+    status, image_mode = choose_output_policy(
+        0.40,
+        ambiguous=True,
+        vertically_truncated=False,
+        crop_confidence_threshold=0.75,
+    )
+    assert status == "ambiguous"
+    assert image_mode == "original_image"

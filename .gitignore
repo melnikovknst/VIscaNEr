@@ -22,18 +22,13 @@ datasets/**/*
 !datasets/**/*.tar.bz2
 !datasets/**/*.tar.xz
 
-# Large generated checkpoints, experiment outputs, and Kaggle staging folders.
-models/**/*.pt
-models/**/*.safetensors
-# Final fine-tuned checkpoints used by the local cascade are versioned through
-# Git LFS. Other generated checkpoints remain ignored.
-!models/trained_checkpoints/
-!models/trained_checkpoints/*.pt
-!models/trained_checkpoints/*.json
-!models/trained_checkpoints/*.md
+# Model weights under models/ are versioned through Git LFS. Experiment runs
+# and temporary Kaggle staging folders remain local.
 runs/**
 kaggle_upload/
 kaggle_recovered/
+# Ultralytics may auto-download duplicate base weights into the repository
+# root. Canonical copies belong under models/ and are tracked through LFS.
 /yolo*.pt
 bottle_reranker/outputs/
 

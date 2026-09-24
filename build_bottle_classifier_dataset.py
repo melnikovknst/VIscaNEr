@@ -44,6 +44,7 @@ METADATA_COLUMNS = [
     "wine_slug",
     "crop_path",
     "status",
+    "image_mode",
     "confidence",
     "bottle_x1",
     "bottle_y1",
@@ -67,6 +68,28 @@ METADATA_COLUMNS = [
     "image_height",
     "reject_reason",
 ]
+
+
+def choose_output_policy(
+    confidence: float,
+    *,
+    ambiguous: bool,
+    vertically_truncated: bool,
+    crop_confidence_threshold: float,
+) -> tuple[str, str]:
+    """Choose whether to save a trusted YOLO crop or the complete source image."""
+    image_mode = (
+        "original_image"
+        if confidence < crop_confidence_threshold
+        else "yolo_crop"
+    )
+    if ambiguous:
+        return "ambiguous", image_mode
+    if image_mode == "original_image":
+        return "low_confidence", image_mode
+    if vertically_truncated:
+        return "partial", image_mode
+    return "successful", image_mode
 
 
 def choose_device(requested: str) -> tuple[str | int, str]:
@@ -350,7 +373,12 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     existing_source = partial_path if partial_path.exists() else metadata_path
     if existing_source.exists():
         with existing_source.open(newline="", encoding="utf-8") as handle:
-            existing = list(csv.DictReader(handle))
+            reader = csv.DictReader(handle)
+            if reader.fieldnames != METADATA_COLUMNS:
+                raise RuntimeError(
+                    "Existing metadata uses an older schema; regenerate with --overwrite"
+                )
+            existing = list(reader)
         if not args.resume and not args.overwrite:
             raise RuntimeError(
                 f"Output already contains {len(existing)} rows; use --resume or --overwrite"
@@ -464,38 +492,39 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                     progress.update(1)
                     continue
 
+                raw_x1, raw_y1, raw_x2, raw_y2 = selected["box"]
+                vertically_truncated = int(raw_y1 <= 1.0 or raw_y2 >= height - 1.0)
+                status, image_mode = choose_output_policy(
+                    selected["confidence"],
+                    ambiguous=context["ambiguous"],
+                    vertically_truncated=bool(vertically_truncated),
+                    crop_confidence_threshold=args.crop_confidence_threshold,
+                )
                 crop_box = padded_box(selected["box"], width, height, args.padding)
                 x1, y1, x2, y2 = crop_box
-                crop = image[y1:y2, x1:x2]
-                if crop.size == 0:
+                output_image = image if image_mode == "original_image" else image[y1:y2, x1:x2]
+                if output_image.size == 0:
                     persist({**common, "status": "failed", "reject_reason": "empty_crop"})
                     counters["failed"] += 1
                     progress.update(1)
                     continue
 
-                raw_x1, raw_y1, raw_x2, raw_y2 = selected["box"]
-                vertically_truncated = int(raw_y1 <= 1.0 or raw_y2 >= height - 1.0)
-                if context["ambiguous"]:
-                    status = "ambiguous"
-                elif vertically_truncated:
-                    # A resolver cannot use capsule/base evidence when either
-                    # end of the bottle is outside the frame. Keep for audit,
-                    # but never admit it to classifier training.
-                    status = "partial"
-                elif selected["confidence"] < args.success_confidence:
-                    status = "low_confidence"
-                else:
-                    status = "successful"
                 crop_filename = Path(record["merged_filename"]).with_suffix(".jpg").name
                 crop_path = args.output_root / status / crop_filename
-                if not cv2.imwrite(str(crop_path), crop, [cv2.IMWRITE_JPEG_QUALITY, args.jpeg_quality]):
-                    raise IOError(f"Could not write crop: {crop_path}")
+                merged_source = Path(record["merged_path"])
+                if image_mode == "original_image" and merged_source.suffix.lower() in {".jpg", ".jpeg"}:
+                    shutil.copy2(merged_source, crop_path)
+                elif not cv2.imwrite(
+                    str(crop_path), output_image, [cv2.IMWRITE_JPEG_QUALITY, args.jpeg_quality]
+                ):
+                    raise IOError(f"Could not write classifier input: {crop_path}")
                 touches_frame = int(x1 <= 1 or y1 <= 1 or x2 >= width - 1 or y2 >= height - 1)
                 persist(
                     {
                         **common,
                         "crop_path": str(crop_path.resolve()),
                         "status": status,
+                        "image_mode": image_mode,
                         "confidence": f"{selected['confidence']:.8f}",
                         "bottle_x1": x1,
                         "bottle_y1": y1,
@@ -519,6 +548,8 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                             if status == "ambiguous"
                             else "bottle_top_or_bottom_outside_frame"
                             if status == "partial"
+                            else "low_detector_confidence_original_fallback"
+                            if image_mode == "original_image"
                             else ""
                         ),
                     }
@@ -532,7 +563,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                             selected,
                             debug_root / status / crop_filename,
                             (
-                                f"{status} conf={selected['confidence']:.2f} "
+                                f"{status}/{image_mode} conf={selected['confidence']:.2f} "
                                 f"coverage={selected['label_coverage']:.2f} "
                                 f"margin={selected['score_margin']:.2f}"
                             ),
@@ -552,6 +583,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     if complete:
         partial_path.replace(metadata_path)
     status_counts = metadata["status"].value_counts().astype(int).to_dict()
+    image_mode_counts = metadata["image_mode"].value_counts().astype(int).to_dict()
 
     refs_destination = args.output_root / "refs"
     refs_destination.mkdir(exist_ok=True)
@@ -562,9 +594,14 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
 
     successful_rows = metadata[metadata["status"].eq("successful")]
     represented = set(successful_rows["wine_slug"])
-    successful_per_identity = successful_rows.groupby("wine_slug").size()
+    trainable_candidates = metadata[
+        metadata["status"].isin(["successful", "low_confidence"])
+    ]
+    trainable_per_identity = trainable_candidates.groupby("wine_slug").size()
     training_identities = set(
-        successful_per_identity[successful_per_identity.ge(args.min_successful_per_identity)].index.astype(str)
+        trainable_per_identity[
+            trainable_per_identity.ge(args.min_trainable_per_identity)
+        ].index.astype(str)
     )
     trainable_rows = metadata[
         metadata["wine_slug"].isin(training_identities)
@@ -619,12 +656,13 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
         "rows": int(len(metadata)),
         "expected_rows": int(expected_rows),
         "status_counts": status_counts,
+        "image_mode_counts": image_mode_counts,
         "successful_rate": float(status_counts.get("successful", 0) / max(len(metadata), 1)),
         "successful_identities": len(represented),
         "training_identities": len(training_identities),
         "training_rows": int(len(training_metadata)),
         "gallery_identities": int(training_metadata["wine_slug"].nunique()),
-        "min_successful_per_training_identity": args.min_successful_per_identity,
+        "min_trainable_rows_per_identity": args.min_trainable_per_identity,
         "catalog_identities": len(manifest_identities),
         "identities_without_successful_crop": sorted(manifest_identities - represented),
         "identities_without_training_coverage": sorted(manifest_identities - training_identities),
@@ -638,7 +676,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
         "images_per_second": len(jobs) / elapsed if elapsed > 0 else None,
         "thresholds": {
             "minimum_confidence": args.minimum_confidence,
-            "success_confidence": args.success_confidence,
+            "crop_confidence_threshold": args.crop_confidence_threshold,
             "minimum_label_coverage": args.minimum_label_coverage,
             "ambiguity_margin": args.ambiguity_margin,
             "duplicate_iou": args.duplicate_iou,
@@ -668,7 +706,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--imgsz", type=int, default=768)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--minimum-confidence", type=float, default=0.05)
-    parser.add_argument("--success-confidence", type=float, default=0.25)
+    parser.add_argument(
+        "--crop-confidence-threshold",
+        "--success-confidence",
+        dest="crop_confidence_threshold",
+        type=float,
+        default=0.75,
+        help=(
+            "Use the original source image below this detector confidence; "
+            "--success-confidence remains as a backwards-compatible alias"
+        ),
+    )
     parser.add_argument("--minimum-label-coverage", type=float, default=0.01)
     parser.add_argument("--ambiguity-margin", type=float, default=0.12)
     parser.add_argument("--duplicate-iou", type=float, default=0.80)
@@ -676,7 +724,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-det", type=int, default=60)
     parser.add_argument("--padding", type=float, default=0.06)
     parser.add_argument("--jpeg-quality", type=int, default=95)
-    parser.add_argument("--min-successful-per-identity", type=int, default=4)
+    parser.add_argument(
+        "--min-trainable-per-identity",
+        "--min-successful-per-identity",
+        dest="min_trainable_per_identity",
+        type=int,
+        default=4,
+        help=(
+            "Minimum combined yolo_crop/original_image rows per identity; "
+            "--min-successful-per-identity remains as a compatibility alias"
+        ),
+    )
     parser.add_argument("--half", action="store_true")
     parser.add_argument("--cache-clear-interval", type=int, default=8)
     parser.add_argument("--audit-images", type=int, default=100)
@@ -693,14 +751,16 @@ def parse_args() -> argparse.Namespace:
         parser.error("--resume and --overwrite are mutually exclusive")
     if args.limit is not None and args.sample is not None:
         parser.error("--limit and --sample are mutually exclusive")
-    if not 0 <= args.minimum_confidence <= args.success_confidence <= 1:
-        parser.error("Require 0 <= minimum-confidence <= success-confidence <= 1")
+    if not 0 <= args.minimum_confidence <= args.crop_confidence_threshold <= 1:
+        parser.error(
+            "Require 0 <= minimum-confidence <= crop-confidence-threshold <= 1"
+        )
     if not 0 <= args.minimum_label_coverage <= 1:
         parser.error("--minimum-label-coverage must be within 0..1")
     if args.batch_size < 1 or args.cache_clear_interval < 1:
         parser.error("Batch size and cache-clear interval must be positive")
-    if args.min_successful_per_identity < 4:
-        parser.error("--min-successful-per-identity must be at least 4 for a 2-val/2-train split")
+    if args.min_trainable_per_identity < 4:
+        parser.error("--min-trainable-per-identity must be at least 4 for a 2-val/2-train split")
     return args
 
 

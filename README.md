@@ -51,11 +51,11 @@ npm.cmd run build
 
 ```dotenv
 VISCANER_MODEL_PROVIDER=local
-VISCANER_CHECKPOINT_PATH=models/dinov3_retrieval/best.pt
+VISCANER_CHECKPOINT_PATH=models/trained_checkpoints/dinov3_vitb16_labels_best_full.pt
 VISCANER_GALLERY_PATH=runs/dinov3_retrieval/gallery_embeddings.pt
 VISCANER_DEVICE=auto
 # Необязательный YOLO: класс должен называться label.
-# VISCANER_DETECTOR_PATH=models/yolo/best.pt
+# VISCANER_DETECTOR_PATH=models/yolo_label_detector/best.pt
 ```
 
 Потребуются **`best.pt` и галерея, построенная именно этой версией checkpoint**. Используются существующие `DINOv3RetrievalModel`, `build_transforms` и `normalize_retrieval_checkpoint_state_dict` из `dinov3_retrieval.py`. Исходный `model.safetensors` отдельно не требуется: обученный `best.pt` содержит backbone. Абсолютные пути Kaggle/Mac из checkpoint не используются.

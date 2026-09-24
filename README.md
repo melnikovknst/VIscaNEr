@@ -4,6 +4,68 @@
 
 Каталог и 2103 фотографии настоящие. Пользовательский интерфейс показывает сканер, каталог и карточки без технических статусов и демонстрационных сценариев. Распознавание требует весов или API коллег. До подключения провайдера загрузка возвращает понятное сообщение о временной недоступности и предлагает поиск по каталогу; случайные результаты, фиктивные проценты точности и рейтинги не используются.
 
+## Актуальный ML pipeline
+
+Финальный pipeline состоит ровно из двух моделей:
+
+```text
+фотография пользователя
+  → YOLO11n: находит целевую бутылку целиком
+  → DINOv3 ViT-B/16: сопоставляет изображение с gallery из 2103 вин
+  → top-k wine_slug и cosine similarity
+```
+
+Каскада, DINO-S и дополнительного reranker в актуальном inference нет.
+
+Пользователь наводит центральное перекрестье на этикетку нужной бутылки. Среди
+YOLO-детекций выбирается бутылка, содержащая перекрестье; если таких нет —
+ближайшая к нему. Дальше применяется та же политика, на которой собран новый
+датасет целых бутылок:
+
+- YOLO confidence `>= 0.75` — в DINO передаётся crop бутылки с padding `6%`;
+- YOLO confidence `< 0.75` — в DINO передаётся исходная фотография целиком;
+- если YOLO ничего не нашёл — исходная фотография также передаётся целиком;
+- DINO получает square-padded изображение `224×224`, строит нормализованный
+  embedding и ранжирует эталоны по cosine similarity.
+
+Используемые файлы:
+
+- inference entrypoint: `infer_wine.py`;
+- DINO architecture/transforms: `dinov3_retrieval.py`;
+- локальные backbone loaders: `deeptune_backbones.py`;
+- YOLO бутылок: `models/bottle_reranker/best_bottle_detector.pt`;
+- исходный DINOv3-B backbone: `models/dinov3/model.safetensors`;
+- обученный DINOv3-B: `models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt`;
+- gallery: `datasets/bottle_classifier_crops/refs/`, автоматически извлекается
+  из `datasets/bottle_classifier_crops.zip`, если директории ещё нет.
+
+После клонирования нужно получить LFS-файлы и установить inference-зависимости:
+
+```bash
+git lfs pull
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-inference.txt
+```
+
+Один снимок:
+
+```bash
+.venv/bin/python infer_wine.py /path/to/photo.jpg --top-k 5
+```
+
+Целая директория с сохранением JSON:
+
+```bash
+.venv/bin/python infer_wine.py /path/to/photos \
+  --top-k 5 \
+  --output runs/inference/predictions.json
+```
+
+На первом запуске DINO один раз строит gallery embeddings и сохраняет cache в
+`runs/inference/dinov3_vitb16_bottles_gallery.pt`. Последующие запуски используют
+готовый cache. `device=auto` выбирает CUDA, затем MPS, затем CPU. Значение
+`similarity` — cosine similarity, а не вероятность.
+
 ## Быстрый запуск
 
 Нужны Python 3.11–3.13 и Node.js 22.12+ (проверено на Python 3.13 и Node 24). Выполняйте команды из корня репозитория.
@@ -51,14 +113,18 @@ npm.cmd run build
 
 ```dotenv
 VISCANER_MODEL_PROVIDER=local
-VISCANER_CHECKPOINT_PATH=models/trained_checkpoints/dinov3_vitb16_labels_best_full.pt
-VISCANER_GALLERY_PATH=runs/dinov3_retrieval/gallery_embeddings.pt
+VISCANER_CHECKPOINT_PATH=models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt
+VISCANER_GALLERY_PATH=runs/inference/dinov3_vitb16_bottles_gallery.pt
 VISCANER_DEVICE=auto
-# Необязательный YOLO: класс должен называться label.
-# VISCANER_DETECTOR_PATH=models/yolo_label_detector/best.pt
+VISCANER_DETECTOR_PATH=models/bottle_reranker/best_bottle_detector.pt
 ```
 
-Потребуются **`best.pt` и галерея, построенная именно этой версией checkpoint**. Используются существующие `DINOv3RetrievalModel`, `build_transforms` и `normalize_retrieval_checkpoint_state_dict` из `dinov3_retrieval.py`. Исходный `model.safetensors` отдельно не требуется: обученный `best.pt` содержит backbone. Абсолютные пути Kaggle/Mac из checkpoint не используются.
+Потребуются обученный checkpoint и gallery, построенная именно этой версией
+модели. Gallery cache автоматически создаётся первым запуском `infer_wine.py`.
+Web-provider использует тот же full-bottle YOLO, центральное перекрестье,
+fallback `< 0.75` и DINOv3-B, что и основной CLI. Исходный
+`model.safetensors` backend-провайдеру отдельно не требуется: обученный
+checkpoint содержит backbone.
 
 Форматы из текущего обучения:
 
@@ -66,7 +132,10 @@ VISCANER_DEVICE=auto
 - `gallery_embeddings.pt`: `embeddings` `[N,D]`, `wine_slugs` `[N]`; `labels` и `paths` могут присутствовать. Одна строка на уникальный slug, все slug должны существовать в каталоге.
 - `DEVICE=auto` выбирает CUDA, затем MPS, затем CPU. Можно указать `cpu` или `cuda:0`.
 
-Модель загружается и прогревается один раз при старте. Без YOLO подавайте крупный снимок одной этикетки: модель обучена на кропах. При наличии YOLO выбирается этикетка, ближайшая к центру фото. После замены весов перезапустите backend. `/api/health` покажет ошибку загрузки, а каталог останется доступен.
+Модель загружается и прогревается один раз при старте. YOLO выбирает целевую
+бутылку по центральному перекрестью; уверенный box кропается, а при confidence
+ниже `0.75` используется исходное фото. После замены весов перезапустите
+backend. `/api/health` покажет ошибку загрузки, а каталог останется доступен.
 
 ### Вариант B — HTTP API коллег
 

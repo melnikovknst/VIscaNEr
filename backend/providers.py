@@ -98,17 +98,34 @@ class LocalProvider:
 
     def predict(self, image: Image.Image) -> Prediction:
         if self.detector is not None:
-            detection = self.detector.predict(image, verbose=False, conf=0.25)[0]
-            boxes = [b for b in detection.boxes if detection.names[int(b.cls.item())] == "label"]
-            if not boxes:
-                return Prediction(model_version=self.version, abstain=True)
-            # The scanner asks for a single, centered label; select the closest
-            # detected label to image center if shelf neighbours are visible.
-            def center_distance(box):
-                x1, y1, x2, y2 = box.xyxy[0].tolist()
-                return ((x1 + x2) / 2 - image.width / 2) ** 2 + ((y1 + y2) / 2 - image.height / 2) ** 2
-            x1, y1, x2, y2 = min(boxes, key=center_distance).xyxy[0].tolist()
-            image = image.crop((max(0, int(x1)), max(0, int(y1)), min(image.width, int(x2)), min(image.height, int(y2))))
+            from infer_wine import crop_with_policy, select_target_detection
+
+            detector_device = (
+                self.device.index if self.device.type == "cuda" and self.device.index is not None
+                else 0 if self.device.type == "cuda"
+                else self.device.type
+            )
+            detection = self.detector.predict(
+                image,
+                verbose=False,
+                conf=0.05,
+                imgsz=768,
+                device=detector_device,
+            )[0]
+            selected, _ = select_target_detection(
+                detection,
+                image_width=image.width,
+                image_height=image.height,
+                candidate_confidence=0.05,
+                crosshair_x=0.5,
+                crosshair_y=0.5,
+            )
+            image, _, _, _ = crop_with_policy(
+                image,
+                selected,
+                confidence_threshold=0.75,
+                padding=0.06,
+            )
         with self.torch.inference_mode():
             embedding, _ = self.model(self.transform(image).unsqueeze(0).to(self.device))
             scores, indices = (embedding @ self.embeddings.T).squeeze(0).topk(min(5, len(self.slugs)))

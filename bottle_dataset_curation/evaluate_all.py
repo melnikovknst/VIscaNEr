@@ -68,12 +68,21 @@ def _rank_all(
         stop = min(start + chunk_size, len(rows))
         query = F.normalize(embeddings[start:stop].float(), dim=1)
         similarities = query @ gallery_embeddings.T
-        values, indices = similarities.topk(effective_k, dim=1)
+        # Match the deterministic tie policy used by training evaluation.
+        # Many catalogue references are visually identical and can produce
+        # bit-exact cosine ties. Raw ``topk``/``argsort`` can otherwise choose
+        # different identities while also reporting an inconsistent rank.
+        tie_break = torch.arange(
+            len(gallery_slugs), dtype=torch.float64
+        ) * 1e-12
+        ranking_scores = similarities.to(torch.float64) - tie_break[None, :]
+        _, indices = ranking_scores.topk(effective_k, dim=1)
+        values = similarities.gather(1, indices)
         for offset, (_, row) in enumerate(rows.iloc[start:stop].iterrows()):
             true_slug = str(row["wine_slug"])
             target = slug_to_gallery[true_slug]
-            ranking = torch.argsort(similarities[offset], descending=True)
-            rank = int((ranking == target).nonzero(as_tuple=False)[0, 0]) + 1
+            target_score = ranking_scores[offset, target]
+            rank = int((ranking_scores[offset] > target_score).sum()) + 1
             record: dict[str, object] = {
                 "split": str(row["split"]),
                 "query_path": str(row["image_path"]),

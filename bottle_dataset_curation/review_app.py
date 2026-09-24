@@ -4,9 +4,16 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
 
 import pandas as pd
 import streamlit as st
+
+# Streamlit executes this file as a script, so the repository root is not
+# guaranteed to be on sys.path even when the command is run from that root.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from bottle_dataset_curation.paths import DEFAULT_OUTPUT_DIR
 

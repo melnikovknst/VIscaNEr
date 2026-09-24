@@ -39,11 +39,11 @@ Outputs:
 frames are stored under `low_confidence/` and are included in
 `training_metadata.csv`.
 
-The previous pre-fallback build audited 41,527 source images and produced
-14,657 high-confidence complete crops, 554 low-confidence hard cases, 1,659
-ambiguous cases, 22,023 partial bottles and 2,634 failures. Running the command
-above replaces those outputs and writes the new policy counts to
-`build_summary.json`.
+The current fallback build audited 41,527 source images. It saved 30,702 YOLO
+crops and 8,191 original-image fallbacks; 2,634 images had no usable detection.
+The training metadata contains 20,776 real inputs across 2,072 trainable
+identities, plus 31 gallery-only placeholders so that all 2,103 reference wines
+remain represented.
 
 An interrupted build can continue with `--resume` only when its metadata was
 created by the same code version. For a threshold change, use `--overwrite`.

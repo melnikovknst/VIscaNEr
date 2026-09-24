@@ -24,5 +24,8 @@ nbformat>=5.10,<6
 nbclient>=0.10,<1
 ipywidgets>=8.1,<9
 
+# Local browser UI for fast, persistent dataset curation decisions.
+streamlit>=1.49,<2
+
 # Lightweight regression checks for the retrieval and cascade logic.
 pytest>=8.3,<10

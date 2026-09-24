@@ -98,7 +98,7 @@ class LocalProvider:
 
     def predict(self, image: Image.Image) -> Prediction:
         if self.detector is not None:
-            from infer_wine import crop_with_policy, select_target_detection
+            from infer_wine import crop_with_policy, select_target_detections
 
             detector_device = (
                 self.device.index if self.device.type == "cuda" and self.device.index is not None
@@ -112,23 +112,33 @@ class LocalProvider:
                 imgsz=768,
                 device=detector_device,
             )[0]
-            selected, _ = select_target_detection(
+            selected, _, _ = select_target_detections(
                 detection,
                 image_width=image.width,
                 image_height=image.height,
                 candidate_confidence=0.05,
                 crosshair_x=0.5,
                 crosshair_y=0.5,
+                ambiguity_confidence=0.75,
             )
-            image, _, _, _ = crop_with_policy(
-                image,
-                selected,
-                confidence_threshold=0.75,
-                padding=0.06,
-            )
+            selected_for_inference = selected or [None]
+            model_inputs = [
+                crop_with_policy(
+                    image,
+                    candidate,
+                    confidence_threshold=0.75,
+                    padding=0.06,
+                )[0]
+                for candidate in selected_for_inference
+            ]
+        else:
+            model_inputs = [image]
         with self.torch.inference_mode():
-            embedding, _ = self.model(self.transform(image).unsqueeze(0).to(self.device))
-            scores, indices = (embedding @ self.embeddings.T).squeeze(0).topk(min(5, len(self.slugs)))
+            pixels = self.torch.stack([self.transform(item) for item in model_inputs]).to(self.device)
+            embeddings, _ = self.model(pixels)
+            similarities_by_bottle = embeddings @ self.embeddings.T
+            similarities, _ = similarities_by_bottle.max(dim=0)
+            scores, indices = similarities.topk(min(5, len(self.slugs)))
         return Prediction(model_version=self.version, candidates=[
             Candidate(slug=self.slugs[i], similarity=max(-1.0, min(1.0, float(score))))
             for score, i in zip(scores.cpu().tolist(), indices.cpu().tolist())])

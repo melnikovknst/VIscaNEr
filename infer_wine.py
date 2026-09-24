@@ -40,24 +40,41 @@ DEFAULT_DATASET_ZIP = PROJECT_ROOT / "datasets" / "bottle_classifier_crops.zip"
 DEFAULT_GALLERY_CACHE = (
     PROJECT_ROOT / "runs" / "inference" / "dinov3_vitb16_bottles_gallery.pt"
 )
+DEFAULT_AMBIGUITY_MARGIN = 0.06
+DEFAULT_DUPLICATE_IOU = 0.80
 
 
 def log(message: str) -> None:
     print(message, file=sys.stderr, flush=True)
 
 
-def select_target_detection(
+def box_iou(first: tuple[float, float, float, float], second: tuple[float, float, float, float]) -> float:
+    x1 = max(first[0], second[0])
+    y1 = max(first[1], second[1])
+    x2 = min(first[2], second[2])
+    y2 = min(first[3], second[3])
+    intersection = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+    first_area = max(0.0, first[2] - first[0]) * max(0.0, first[3] - first[1])
+    second_area = max(0.0, second[2] - second[0]) * max(0.0, second[3] - second[1])
+    union = first_area + second_area - intersection
+    return intersection / union if union > 0 else 0.0
+
+
+def select_target_detections(
     result: Any,
     image_width: int,
     image_height: int,
     candidate_confidence: float,
     crosshair_x: float,
     crosshair_y: float,
-) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
-    """Select the bottle under the product UI crosshair."""
+    ambiguity_confidence: float,
+    ambiguity_margin: float = DEFAULT_AMBIGUITY_MARGIN,
+    duplicate_iou: float = DEFAULT_DUPLICATE_IOU,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    """Select one central bottle, or two when the crosshair target is ambiguous."""
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
-        return None, []
+        return [], [], {"ambiguous": False, "score_gap": None, "pair_iou": None}
     coordinates = boxes.xyxy.detach().float().cpu().numpy()
     confidences = boxes.conf.detach().float().cpu().numpy()
     classes = boxes.cls.detach().long().cpu().numpy()
@@ -92,6 +109,7 @@ def select_target_detection(
         crosshair_distance = math.hypot(distance_x, distance_y)
         crosshair_inside = crosshair_distance <= 1e-9
         crosshair_score = math.exp(-0.5 * (crosshair_distance / crosshair_sigma) ** 2)
+        target_score = 0.70 * crosshair_score + 0.30 * center_score
         area_ratio = width * height / float(image_width * image_height)
         size_score = min(1.0, math.sqrt(max(area_ratio, 0.0)) / 0.35)
         edge_clearance = min(center_x, 1 - center_x, center_y, 1 - center_y)
@@ -108,6 +126,7 @@ def select_target_detection(
                 "confidence": confidence,
                 "box": (x1, y1, x2, y2),
                 "selection_score": selection_score,
+                "target_score": target_score,
                 "crosshair_inside": crosshair_inside,
                 "crosshair_distance": crosshair_distance,
             }
@@ -115,12 +134,64 @@ def select_target_detection(
     candidates.sort(
         key=lambda item: (
             bool(item["crosshair_inside"]),
+            item["target_score"],
             item["selection_score"],
             item["confidence"],
         ),
         reverse=True,
     )
-    return (candidates[0] if candidates else None), candidates
+    if not candidates:
+        return [], [], {"ambiguous": False, "score_gap": None, "pair_iou": None}
+
+    selected = [candidates[0]]
+    score_gap: float | None = None
+    pair_iou: float | None = None
+    ambiguous = False
+    if len(candidates) >= 2:
+        first, second = candidates[:2]
+        score_gap = abs(float(first["target_score"]) - float(second["target_score"]))
+        pair_iou = box_iou(first["box"], second["box"])
+        same_crosshair_relation = bool(first["crosshair_inside"]) == bool(
+            second["crosshair_inside"]
+        )
+        both_reliable = min(first["confidence"], second["confidence"]) >= ambiguity_confidence
+        ambiguous = (
+            same_crosshair_relation
+            and both_reliable
+            and score_gap <= ambiguity_margin
+            and pair_iou < duplicate_iou
+        )
+        if ambiguous:
+            selected.append(second)
+
+    return selected, candidates, {
+        "ambiguous": ambiguous,
+        "score_gap": score_gap,
+        "pair_iou": pair_iou,
+        "ambiguity_margin": ambiguity_margin,
+        "duplicate_iou": duplicate_iou,
+    }
+
+
+def select_target_detection(
+    result: Any,
+    image_width: int,
+    image_height: int,
+    candidate_confidence: float,
+    crosshair_x: float,
+    crosshair_y: float,
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    """Backward-compatible single-target selection helper."""
+    selected, candidates, _ = select_target_detections(
+        result=result,
+        image_width=image_width,
+        image_height=image_height,
+        candidate_confidence=candidate_confidence,
+        crosshair_x=crosshair_x,
+        crosshair_y=crosshair_y,
+        ambiguity_confidence=1.01,
+    )
+    return (selected[0] if selected else None), candidates
 
 
 def existing_images(path: Path) -> list[Path]:
@@ -297,6 +368,13 @@ def synchronize(device: torch.device) -> None:
         torch.mps.synchronize()
 
 
+def fuse_gallery_similarities(similarities: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    """Fuse one or two bottle views by the best similarity for every wine."""
+    if similarities.ndim != 2 or similarities.shape[0] not in {1, 2}:
+        raise ValueError("Expected similarities with shape [1|2, num_wines]")
+    return similarities.max(dim=0)
+
+
 def predict_one(
     path: Path,
     detector: YOLO,
@@ -312,6 +390,8 @@ def predict_one(
     crosshair_x: float,
     crosshair_y: float,
     yolo_imgsz: int,
+    ambiguity_margin: float,
+    duplicate_iou: float,
 ) -> dict[str, Any]:
     started = time.perf_counter()
     image = open_rgb(path)
@@ -332,40 +412,69 @@ def predict_one(
     )[0]
     synchronize(device)
     detection_ms = (time.perf_counter() - detection_started) * 1000
-    selected, candidates = select_target_detection(
+    selected, candidates, selection_context = select_target_detections(
         result,
         image_width=image.width,
         image_height=image.height,
         candidate_confidence=candidate_confidence,
         crosshair_x=crosshair_x,
         crosshair_y=crosshair_y,
+        ambiguity_confidence=confidence_threshold,
+        ambiguity_margin=ambiguity_margin,
+        duplicate_iou=duplicate_iou,
     )
-    model_input, image_mode, box, yolo_confidence = crop_with_policy(
-        image, selected, confidence_threshold, padding
-    )
+    selected_for_inference: list[dict[str, Any] | None] = selected or [None]
+    prepared_inputs = [
+        crop_with_policy(image, candidate, confidence_threshold, padding)
+        for candidate in selected_for_inference
+    ]
 
     dino_started = time.perf_counter()
-    pixels = transform(model_input).unsqueeze(0).to(device)
+    pixels = torch.stack([transform(prepared[0]) for prepared in prepared_inputs]).to(device)
     with torch.inference_mode(), autocast_context(device):
-        query_embedding, _ = model(pixels)
-    query_embedding = F.normalize(query_embedding.float(), dim=1)
-    similarities = (query_embedding @ gallery_embeddings.T).squeeze(0)
+        query_embeddings, _ = model(pixels)
+    query_embeddings = F.normalize(query_embeddings.float(), dim=1)
+    similarities_by_bottle = query_embeddings @ gallery_embeddings.T
+    similarities, winning_bottles = fuse_gallery_similarities(similarities_by_bottle)
     effective_top_k = min(top_k, len(gallery_slugs))
     scores, indices = torch.topk(similarities, effective_top_k)
     synchronize(device)
     dino_ms = (time.perf_counter() - dino_started) * 1000
     predictions = [
-        {"rank": rank, "wine_slug": gallery_slugs[index], "similarity": float(score)}
+        {
+            "rank": rank,
+            "wine_slug": gallery_slugs[index],
+            "similarity": float(score),
+            "source_bottle": int(winning_bottles[index].item()) + 1,
+            "similarities_by_bottle": [
+                float(value) for value in similarities_by_bottle[:, index].cpu().tolist()
+            ],
+        }
         for rank, (score, index) in enumerate(
             zip(scores.cpu().tolist(), indices.cpu().tolist(), strict=True), start=1
         )
     ]
+    input_metadata = [
+        {
+            "bottle": index,
+            "image_mode": prepared[1],
+            "yolo_box": prepared[2],
+            "yolo_confidence": prepared[3],
+        }
+        for index, prepared in enumerate(prepared_inputs, start=1)
+    ]
+    primary = input_metadata[0]
     return {
         "source": str(path),
-        "image_mode": image_mode,
-        "yolo_confidence": yolo_confidence,
-        "yolo_box": box,
+        "selection_mode": (
+            "ambiguous_center_pair" if selection_context["ambiguous"] else "single_center_bottle"
+        ),
+        "image_mode": primary["image_mode"],
+        "yolo_confidence": primary["yolo_confidence"],
+        "yolo_box": primary["yolo_box"],
         "yolo_candidates": len(candidates),
+        "dino_inputs": input_metadata,
+        "selection_context": selection_context,
         "crosshair": {"x": crosshair_x, "y": crosshair_y},
         "predictions": predictions,
         "latency_ms": {
@@ -395,6 +504,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--padding", type=float, default=0.06)
     parser.add_argument("--crosshair-x", type=float, default=0.50)
     parser.add_argument("--crosshair-y", type=float, default=0.50)
+    parser.add_argument("--ambiguity-margin", type=float, default=DEFAULT_AMBIGUITY_MARGIN)
+    parser.add_argument("--duplicate-iou", type=float, default=DEFAULT_DUPLICATE_IOU)
     parser.add_argument("--output", type=Path, help="Optional JSON output path")
     args = parser.parse_args()
     if args.top_k < 1 or args.gallery_batch_size < 1:
@@ -405,6 +516,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("Crosshair coordinates must be within 0..1")
     if args.padding < 0:
         parser.error("--padding cannot be negative")
+    if args.ambiguity_margin < 0 or not 0 <= args.duplicate_iou <= 1:
+        parser.error("Require ambiguity-margin >= 0 and duplicate-iou within 0..1")
     return args
 
 
@@ -462,6 +575,8 @@ def main() -> None:
             crosshair_x=args.crosshair_x,
             crosshair_y=args.crosshair_y,
             yolo_imgsz=args.yolo_imgsz,
+            ambiguity_margin=args.ambiguity_margin,
+            duplicate_iou=args.duplicate_iou,
         )
         for path in tqdm(inputs, desc="Inference", unit="image", file=sys.stderr)
     ]

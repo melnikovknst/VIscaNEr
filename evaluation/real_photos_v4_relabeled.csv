@@ -1,0 +1,919 @@
+query_id,image_path,original_slug,original_in_catalog,status,scored,in_catalog,accepted_slugs,reviewer,note
+q-0001,q-0001.jpg,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-144,yes,keep,True,True,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-144,claude,"стенд Усадьба Мезыбь, слева «Старая дорога на Джанхот»"
+q-0002,q-0002.jpg,kuban-vino-aristov-8-roze-07-merlo-rozovoe-suhoe-8,yes,multi,True,True,aristov-anima-millesimato-beloe-bryut;kuban-vino-aristov-8-roze-07-merlo-rozovoe-suhoe-8,user,"пользователь: угадала левую, в разметке правая"
+q-0003,q-0003.jpg,usadba-mezyb-mezyb-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-14,yes,keep,True,True,usadba-mezyb-mezyb-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0004,q-0004.jpg,toile-de-vin-cabernet-sauvignon,yes,keep,True,True,toile-de-vin-cabernet-sauvignon,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0005,q-0005.jpg,,no,keep,True,False,,claude,«ДВА СЕРДЦА ПТИ МАНСЕНГ» - в каталоге нет (проверено)
+q-0006,q-0006.jpg,gunko-winery-saperavi-gunko-winery-krasnoe-suhoe-135,yes,keep,True,True,gunko-winery-saperavi-gunko-winery-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0007,q-0007.jpg,novyy-svet-dom-shampanskih-vin-igristoe-vino-vyderzhannoe-bryut-rozovoe-novyy-svet-pino-nuar-125,yes,remove,False,,,user,пользователь: удалить
+q-0008,q-0008.jpg,vinodelnya-uzunov-rash-rezerv-risling-reynskiy-beloe-suhoe-127,yes,fix,True,True,vinodelnya-uzunov-nrav-rezerv-krasnostop-zolotovskiy-krasnoe-suhoe-139,user+claude,на этикетке «НРАВ РЕЗЕРВ»: модель права (разметка: РАШ Резерв)
+q-0009,q-0009.jpg,vinogradniki-gay-kodzora-rose-de-gai-kodzor-grenash-rozovoe-suhoe-125,yes,remove,False,,,claude,"меню ужина Гай-Кодзор и салфетка, бутылки нет"
+q-0010,q-0010.jpg,solnechnaya-dolina-muskatnoe-festivalnoe-muskat-belyy-rozovoe-sladkoe-16,yes,wrong_unknown,True,True,,user,"пользователь: Солнечная долина, но не Мускатное Фестивальное"
+q-0011,q-0011.jpg,vinodelnya-batrak-shpinel-kaberne-sovinon-rozovoe-suhoe-12,yes,keep,True,True,vinodelnya-batrak-shpinel-kaberne-sovinon-rozovoe-suhoe-12,claude,«ШПИНЕЛЬ» Батрак
+q-0012,q-0012.jpg,lorio-shardone,yes,keep,True,True,lorio-shardone,claude,«LORIOT ШАРДОНЕ 2024»
+q-0013,q-0013.jpg,chateau-tamagne-nature-vert,yes,keep,True,True,chateau-tamagne-nature-vert,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0014,q-0014.jpg,shato-pino-gravitatsiya-kaberne-sovinon-merlo-krasnoe-suhoe-135,yes,keep,True,True,shato-pino-gravitatsiya-kaberne-sovinon-merlo-krasnoe-suhoe-135,claude,"серия Шато Пино с улиткой, надпись не читается; разметка в топ-2 модели, опровергнуть нечем"
+q-0015,q-0015.jpg,villa-sofiya-risling-beloe-suhoe-12,yes,keep,True,True,villa-sofiya-risling-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0016,q-0016.jpg,vinogradniki-gay-kodzora-gewurztraminer-de-gai-kodzor-gevyurtstraminer-beloe-polusuhoe-135,yes,keep,True,True,vinogradniki-gay-kodzora-gewurztraminer-de-gai-kodzor-gevyurtstraminer-beloe-polusuhoe-135,claude,"на этикетке «Gewurztraminer de Gaï-Kodzor 2022»: разметка верна, модель ошиблась (пользователь склонялся к ответу модели по цвету надписи)"
+q-0017,q-0017.jpg,vinodelnya-batrak-prikumskoe-sonnenschein-shardone-beloe-suhoe-12,yes,not_in_catalog,True,False,,claude,«Виталий Батрак Adrett BRILLANZ KLASSIK» - в каталоге нет
+q-0018,q-0018.jpg,gunko-winery-malbek-krasnoe-suhoe-14,yes,fix,True,True,gunko-winery-krasnye-gliny-kaberne-fran-krasnoe-suhoe-14,claude,"на этикетке рукописное «Красные глины, Gunko Winery»"
+q-0019,q-0019.jpg,andryus-yutsis-organik-risling-beloe-suhoe-115,yes,keep,True,True,andryus-yutsis-organik-risling-beloe-suhoe-115,claude,"бутылки Andryus Yutsis с бирками, сорт не читается"
+q-0020,q-0020.jpg,agora-winery-cuvee-pino-gridzhio-shardone-bryut-beloe-125,yes,keep,True,True,agora-winery-cuvee-pino-gridzhio-shardone-bryut-beloe-125,claude,«AGORA CUVÉE BLANC BRUT Pinot Grigio Chardonnay»
+q-0021,q-0021.jpg,chateau-tamagne-nature-orange,yes,keep,True,True,chateau-tamagne-nature-orange,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0022,q-0022.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-pino-nuar-krasnoe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-pino-nuar-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0023,q-0023.jpg,zhemchuzhnaya-9-pino-gri-pino-nuar,yes,fix,True,True,zhemchuzhnaya-9-muskat-rozovyj-pino-gri,claude,«ЖЕМЧУЖНАЯ 9 МУСКАТ РОЗОВЫЙ ПИНО ГРИ 2024»
+q-0024,q-0024.jpg,shato-ay-danil-grenash-krasnoe-suhoe-12,yes,keep,True,True,shato-ay-danil-grenash-krasnoe-suhoe-12,claude,«ГРЕНАШ» Ай-Даниль
+q-0025,q-0025.jpg,aromatnoe-shenen-blan-beloe-suhoe-13,yes,not_in_catalog,True,False,,claude,«Ароматное ШАРДОНЕ 2024 Резерв» - в каталоге нет (как q-0090)
+q-0026,q-0026.jpg,tempelhof-winery-pino-nuar-krasnoe-suhoe-125,yes,fix,True,True,tempelhof-winery-risling-risling-reynskiy-beloe-suhoe-115,claude,"«Tempelhof Riesling 2024», не Пино Нуар"
+q-0027,q-0027.jpg,sober-bash-kaberne-fran-rozovoe-suhoe-12,yes,keep,True,True,sober-bash-kaberne-fran-rozovoe-suhoe-12,user,"пользователь: разметка похожа больше, чем ответ модели"
+q-0028,q-0028.jpg,solnechnaya-dolina-meganom-kyuve-shardone-beloe-bryut-11,yes,keep,True,True,solnechnaya-dolina-meganom-kyuve-shardone-beloe-bryut-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0029,q-0029.jpg,shato-ay-danil-grenash-krasnoe-suhoe-12,yes,keep,True,True,shato-ay-danil-grenash-krasnoe-suhoe-12,claude,«ГРЕНАШ» (Шато Ай-Даниль)
+q-0030,q-0030.jpg,vinodelnya-uzunov-bunt-tsitronnyy-magaracha-beloe-suhoe-132,yes,keep,True,True,vinodelnya-uzunov-bunt-tsitronnyy-magaracha-beloe-suhoe-132,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0031,q-0031.jpg,pino-glyu-2025,yes,keep,True,True,pino-glyu-2025,user,пользователь: выбрала другую бутылку
+q-0032,q-0032.jpg,zhemchuzhnaya-9-czitron-shardone-1,yes,keep,True,True,zhemchuzhnaya-9-czitron-shardone-1,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0033,q-0033.jpg,roze-malbek,yes,remove,False,,,user,пользователь: удалить
+q-0034,q-0034.jpg,sober-bash-trezvaya-golova-sibirkovyypino-gri-beloe-suhoe-11,yes,keep,True,True,sober-bash-trezvaya-golova-sibirkovyypino-gri-beloe-suhoe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0035,q-0035.jpg,denisov-winery-petnat-saperavi-severnyy-rozovoe-ekstra-bryut-105,yes,remove,False,,,claude,"розыгрыш, люди у стола, бутылка не читается"
+q-0036,q-0036.jpg,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14,yes,keep,True,True,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0037,q-0037.jpg,vinodelnya-krinitsa-risling-beloe-suhoe-13,yes,multi,True,True,vinodelnya-krinitsa-risling-beloe-suhoe-13;vinodelnya-krinitsa-aroma-pti-mansen-beloe-sladkoe-137,claude,две Криницы: высокая рислинговая бутылка и «AROMA 2020»
+q-0038,q-0038.jpg,fanagoriya-pelle-calda-saperavi-krasnoe-suhoe-155,yes,keep,True,True,fanagoriya-pelle-calda-saperavi-krasnoe-suhoe-155,user,пользователь: честно плохой ответ
+q-0039,q-0039.jpg,usadba-divnomorskoe-solnechnyy-veter-shardone-beloe-suhoe-125,yes,wrong_unknown,True,True,,user,"пользователь: и модель, и разметка неверны"
+q-0040,q-0040.jpg,vinodelnya-krinitsa-vione-beloe-suhoe-133,yes,fix,True,True,vinodelnya-krinitsa-rivazh-kaberne-sovinon-krasnoe-suhoe-13,claude,"«КРИНИЦА RIVAGE 2021», не Вионье"
+q-0041,q-0041.jpg,belmas-winery-malbec-katya-belmas-malbek-rozovoe-suhoe-11,yes,not_in_catalog,True,False,,claude,«Katya САНДЖОВЕЗЕ РОЗЕ Севастополь» - в каталоге нет
+q-0042,q-0042.jpg,kuban-vino-aristov-8-roze-07-merlo-rozovoe-suhoe-8,yes,wrong_unknown,True,True,,claude,"розовое с фиолетовой цветочной этикеткой - не Аристов 8 (другой дизайн), вино не опознано"
+q-0043,q-0043.jpg,magnatum-cuvee-m-blanc-de-blancs,yes,wrong_unknown,True,True,,user,"пользователь: и модель, и разметка неверны"
+q-0044,q-0044.jpg,pino-glyu-2025,yes,keep,True,True,pino-glyu-2025,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0045,q-0045.jpg,usadba-mezyb-shishka-merlo-vione-rozovoe-suhoe-125,yes,keep,True,True,usadba-mezyb-shishka-merlo-vione-rozovoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0046,q-0046.jpg,aratti-kaberne-po-belomu,yes,not_in_catalog,True,False,,claude,«АРАТТИ МУСКАТ РОЗОВЫЙ 2022» - в каталоге нет (не Каберне по-белому)
+q-0047,q-0047.jpg,risling-2024,yes,fix,True,True,method-classic-kokur,claude,"в руке «KOKUR METHOD CLASSIC 2024» Мельниковых, не Рислинг"
+q-0048,q-0048.jpg,vinodelnya-raevskoe-glou-krasnoe-merlo-suhoe-14,yes,keep,True,True,vinodelnya-raevskoe-glou-krasnoe-merlo-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0049,q-0049.jpg,domaine-lipko-sauvignon-blanc-domaine-lipko-sovinon-blan-beloe-suhoe-118,yes,not_in_catalog,True,False,,claude,«DOMAINE LIPKO CABERNET FRANC» - в каталоге нет
+q-0050,q-0050.jpg,belbek-semilon-rezerv-beloe-suhoe-127,yes,keep,True,True,belbek-semilon-rezerv-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0051,q-0051.jpg,sober-bash-grani-plechistik-krasnoe-suhoe-12,yes,keep,True,True,sober-bash-grani-plechistik-krasnoe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0052,q-0052.jpg,zhemchuzhnaya-9-aligote-czitron,yes,keep,True,True,zhemchuzhnaya-9-aligote-czitron,claude,«ЖЕМЧУЖНАЯ 9 АЛИГОТЕ ЦИТРОН белое сухое 2024»
+q-0053,q-0053.jpg,aromatnoe-malbek-rezerv-krasnoe-suhoe-125,yes,keep,True,True,aromatnoe-malbek-rezerv-krasnoe-suhoe-125,claude,"«Ароматное, МАЛЬБЕК 2023, РЕЗЕРВ»"
+q-0054,q-0054.jpg,vinodelnya-uzunov-krasa-kaberne-sovinon-krasnoe-suhoe-125,yes,keep,True,True,vinodelnya-uzunov-krasa-kaberne-sovinon-krasnoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0055,q-0055.jpg,sary-pandas-vyderzhannoe,yes,keep,True,True,sary-pandas-vyderzhannoe,claude,"«Солнечная Долина, Сары Пандас 2009»"
+q-0056,q-0056.jpg,belmas-winery-sauvignon-blanc-katya-belmas-sovinon-blan-beloe-suhoe-115,yes,multi,True,True,belmas-winery-sauvignon-blanc-katya-belmas-sovinon-blan-beloe-suhoe-115;belmas-winery-sauvignon-blanc-katya-sovinon-blan-beloe-suhoe-115,claude,«Katya SAUVIGNON BLANC»; две карточки
+q-0057,q-0057.jpg,inkermanskiy-zmv-inkerman-rozovoe-polusladkoe-rkatsiteli-12,yes,remove,False,,,claude,"гроздья винограда, бутылки нет"
+q-0058,q-0058.jpg,vermentino-viognier-2022,yes,keep,True,True,vermentino-viognier-2022,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0059,q-0059.jpg,domaine-de-la-vivandiere-senso-roze-rozovoe-suhoe-126,yes,keep,True,True,domaine-de-la-vivandiere-senso-roze-rozovoe-suhoe-126,claude,«CINSAULT VIVANDIÈRE Né en Crimée 2024» = Сенсо розе (как q-0078)
+q-0060,q-0060.jpg,vinogradniki-gay-kodzora-muscat-de-gai-kodzor-sladkiy-muskat-aleksandriyskiy-beloe-sladkoe-14,yes,remove,False,,,user,пользователь: удалить
+q-0061,q-0061.jpg,aratti-kaberne-sovinon-2021-krasnoe-suhoe,yes,fix,True,True,zhemchuzhnaya-9-merlo-kaberne-sovinon,user,пользователь: верно модель предсказала; принят ответ модели
+q-0062,q-0062.jpg,loco-cimbali-loco-cimbali-red-kaberne-sovinon-krasnoe-suhoe-135,yes,keep,True,True,loco-cimbali-loco-cimbali-red-kaberne-sovinon-krasnoe-suhoe-135,claude,«LOCO CIMBALI CABERNET SAUVIGNON Reserve» = Loco Cimbali Red
+q-0063,q-0063.jpg,,no,keep,True,False,,claude,«WINEPARK РОЗЕ КАБЕРНЕ ФРАН 2022» - в каталоге нет (проверено)
+q-0064,q-0064.jpg,glera-manno,yes,keep,True,True,glera-manno,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0065,q-0065.jpg,vinodelnya-krinitsa-risling-beloe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-risling-beloe-suhoe-13,claude,"«Криница, RIESLING 2022»"
+q-0066,q-0066.jpg,margarita,yes,keep,True,True,margarita,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0067,q-0067.jpg,uppa-winery-nebbiolo-krasnoe-suhoe-14,yes,not_in_catalog,True,False,,claude,«PAVEL SHVETS RIESLING OAK Cler Nummulite 2023» - рислинга Uppa в каталоге нет
+q-0068,q-0068.jpg,b-yu-rne-pino-gri-pozdnij-sbor-sladkoe-beloe,yes,keep,True,True,b-yu-rne-pino-gri-pozdnij-sbor-sladkoe-beloe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0069,q-0069.jpg,shato-pino-petnat-oranzh-vione-beloe-ekstra-bryut-11,yes,keep,True,True,shato-pino-petnat-oranzh-vione-beloe-ekstra-bryut-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0070,q-0070.jpg,sober-bash-risling-risling-reynskiy-beloe-suhoe-12,yes,keep,True,True,sober-bash-risling-risling-reynskiy-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0071,q-0071.jpg,gavras-areni-krasnoe-suhoe-13,yes,keep,True,True,gavras-areni-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0072,q-0072.jpg,vinogradniki-gay-kodzora-malbec-de-gai-kodzor-malbek-krasnoe-suhoe-135,yes,fix,True,True,vinogradniki-gay-kodzora-semillion-de-gai-kodzor-semilon-beloe-sladkoe-12,claude,"«Semillon de GAÏ-KODZOR 2023», не Malbec"
+q-0073,q-0073.jpg,vinodelnya-pokrovskaya-pokrovskoe-sladkoe-krasnoe-kaberne-sovinon-13,yes,keep,True,True,vinodelnya-pokrovskaya-pokrovskoe-sladkoe-krasnoe-kaberne-sovinon-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0074,q-0074.jpg,polusladkoe-krasnoe-zb-vajn-frizzante,yes,wrong_unknown,True,True,,user,"пользователь: и модель, и разметка неверны"
+q-0075,q-0075.jpg,zmv-koktebel-madera-albilo-beloe-sladkoe-19,yes,keep,True,True,zmv-koktebel-madera-albilo-beloe-sladkoe-19,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0076,q-0076.jpg,chateau-tamagne-nature-vert,yes,keep,True,True,chateau-tamagne-nature-vert,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0077,q-0077.jpg,vinodelnya-uzunov-aligote-beloe-suhoe-127,yes,keep,True,True,vinodelnya-uzunov-aligote-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0078,q-0078.jpg,domaine-de-la-vivandiere-malbec-vivandiere-roze-malbek-rozovoe-suhoe-125,yes,fix,True,True,domaine-de-la-vivandiere-senso-roze-rozovoe-suhoe-126,claude,на этикетке «CINSAULT Vivandière» = Сенсо розе
+q-0079,q-0079.jpg,shato-taman-polusladkoe,yes,multi,True,True,shato-taman-bryut;shato-taman-bryut-1,claude,"«CHATEAU TAMAGNE BRUT» новогодний дизайн, не полусладкое"
+q-0080,q-0080.jpg,vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138,yes,keep,True,True,vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0081,q-0081.jpg,chateau-tamagne-nature-orange,yes,keep,True,True,chateau-tamagne-nature-orange,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0082,q-0082.jpg,pino-nuar-dzhavaga,yes,keep,True,True,pino-nuar-dzhavaga,claude,"«Галицкий & Галицкий, ПИНО НУАР, склон Джавага 2022»"
+q-0083,q-0083.jpg,loco-cimbali-loco-cimbali-red-kaberne-sovinon-krasnoe-suhoe-135,yes,keep,True,True,loco-cimbali-loco-cimbali-red-kaberne-sovinon-krasnoe-suhoe-135,claude,"Loco Cimbali 2023, ч/б фото, сорт не читается"
+q-0084,q-0084.jpg,muskatnoe-shato-taman,yes,fix,True,True,krasnostop-shato-taman,claude,"«CHATEAU TAMAGNE KRASNOSTOP 2025» игристое, не Мускатное"
+q-0085,q-0085.jpg,perovskih_blan_de_noir,yes,keep,True,True,perovskih_blan_de_noir,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0086,q-0086.jpg,ballet-blanc,yes,keep,True,True,ballet-blanc,user,пользователь: честный промах
+q-0087,q-0087.jpg,tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,yes,keep,True,True,tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0088,q-0088.jpg,fanagoriya-brule-sauvignon-blanc-brut-sovinon-blan-beloe-bryut-12,yes,keep,True,True,fanagoriya-brule-sauvignon-blanc-brut-sovinon-blan-beloe-bryut-12,user,пользователь: честный промах
+q-0089,q-0089.jpg,vinogradniki-gay-kodzora-viognier-de-ga-kodzor-vione-beloe-suhoe-125,yes,keep,True,True,vinogradniki-gay-kodzora-viognier-de-ga-kodzor-vione-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0090,q-0090.jpg,aromatnoe-shenen-blan-beloe-suhoe-13,yes,not_in_catalog,True,False,,claude,две бутылки «Ароматное ШАРДОНЕ 2024 Резерв» - в каталоге нет (не Шенен Блан)
+q-0091,q-0091.jpg,alma-valley-sovinon-blan-beloe-suhoe-14,yes,keep,True,True,alma-valley-sovinon-blan-beloe-suhoe-14,claude,Alma Valley SAUVIGNON BLANC 2022
+q-0092,q-0092.jpg,,no,keep,True,False,,claude,«KAFFA СИРА 2023» - Сиры KAFFA в каталоге нет (проверено)
+q-0093,q-0093.jpg,belbek-roze-sira-rozovoe-suhoe-125,yes,keep,True,True,belbek-roze-sira-rozovoe-suhoe-125,user,пользователь: промах детектора этикетки
+q-0094,q-0094.jpg,valeriy-zaharin-aligote-avtorskoe-valeriy-zaharin-beloe-bryut-115,yes,keep,True,True,valeriy-zaharin-aligote-avtorskoe-valeriy-zaharin-beloe-bryut-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0095,q-0095.jpg,vinodelnya-pokrovskaya-ryzhest-rkatsiteli-beloe-suhoe-11,yes,keep,True,True,vinodelnya-pokrovskaya-ryzhest-rkatsiteli-beloe-suhoe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0096,q-0096.jpg,tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,yes,keep,True,True,tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0097,q-0097.jpg,mons-albus-rkatsiteli-beloe-suhoe-124,yes,not_in_catalog,True,False,,user+claude,сильванер: в каталоге нет ни одного сильванера
+q-0098,q-0098.jpg,vinodelnya-zhakov-logovo-saperavi-krasnoe-suhoe-126,yes,keep,True,True,vinodelnya-zhakov-logovo-saperavi-krasnoe-suhoe-126,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0099,q-0099.jpg,nosorog-night,yes,remove,False,,,user,пользователь: удалить
+q-0100,q-0100.jpg,fanagoriya-cru-lermont-chardonnay-shardone-beloe-suhoe-14,yes,keep,True,True,fanagoriya-cru-lermont-chardonnay-shardone-beloe-suhoe-14,claude,Fanagoria Cru Lermont CHARDONNAY 2024
+q-0101,q-0101.jpg,roze-malbek,yes,keep,True,True,roze-malbek,claude,LEFKADIA MALBEC 2023
+q-0102,q-0102.jpg,sober-bash-grani-plechistik-krasnoe-suhoe-12,yes,fix,True,True,sober-bash-krasnostop-amfora-krasnostop-zolotovskiy-krasnoe-suhoe-13,claude,«СОБЕР БАШ КРАСНОСТОП АМФОРА 2021»
+q-0103,q-0103.jpg,b-yu-rne-vinisa-zh-suhoe-rozovoe,yes,keep,True,True,b-yu-rne-vinisa-zh-suhoe-rozovoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0104,q-0104.jpg,lefkadiya-krasnoe,yes,not_in_catalog,True,False,,claude,"«LEFKADIA ROUSSANNE 2023» (белое) - в каталоге нет, не Лефкадия Красное"
+q-0105,q-0105.jpg,kaberne-sovinon-1,yes,fix,True,True,risling,user+claude,"на этикетке «Галицкий & Галицкий, РИСЛИНГ»; детектор взял ведёрко"
+q-0106,q-0106.jpg,millstream-av-igristoe-molodoe-suhoe-beloe,yes,keep,True,True,millstream-av-igristoe-molodoe-suhoe-beloe,claude,MILLSTREAM AV игристое молодое сухое белое
+q-0107,q-0107.jpg,uppa-winery-gevyurtstraminer-muskat-beloe-suhoe-14,yes,multi,True,True,uppa-winery-pavel-shvets-cabernet-sauvignon-merlot-kaberne-sovinon-krasnoe-suhoe-14;uppa-winery-nebbiolo-krasnoe-suhoe-14,claude,три красных «PAVEL SHVETS» - не Гевюрцтраминер; сорт мелко
+q-0108,q-0108.jpg,loco-cimbali-kuprin-bastardo-magarachskiy-krasnoe-suhoe-138,yes,remove,False,,,user,пользователь: удалить
+q-0109,q-0109.jpg,inkermanskiy-zmv-inkerman-rozovoe-polusladkoe-rkatsiteli-12,yes,remove,False,,,user,пользователь: удалить
+q-0110,q-0110.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-polusladkoe-roze-shardone-rozovoe-115,yes,multi,True,True,novyj-svet-polusladkoe;novyj-svet-vyderzhannoe-bryut,claude,"три бутылки: две «выдержанное 2022 полусладкое», одна «выдержанное 2022 брют», все белые"
+q-0111,q-0111.jpg,vinodelnya-batrak-perfekt-klassik-saperavi-krasnoe-suhoe-135,yes,fix,True,True,vinodelnya-batrak-perfekt-klassik-pino-nuar-krasnoe-suhoe-12,claude,"«Виталий Батрак Пино Нуар PERFEKT KLASSIK», не Саперави"
+q-0112,q-0112.jpg,bakla-vines-kangun-beloe-suhoe-12,yes,keep,True,True,bakla-vines-kangun-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0113,q-0113.jpg,vinodelnya-marchenko-gechei-zamatosh-beloe-suhoe-135,yes,keep,True,True,vinodelnya-marchenko-gechei-zamatosh-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0114,q-0114.jpg,dubinin-winery-pino-nuar-bryut-roze-rozovoe-ekstra-bryut-125,yes,keep,True,True,dubinin-winery-pino-nuar-bryut-roze-rozovoe-ekstra-bryut-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0115,q-0115.jpg,chateau-le-grand-vostock-kyuve-karsov-rezerv-shardone-beloe-suhoe-14,yes,multi,True,True,chateau-le-grand-vostock-kyuve-karsov-rezerv-shardone-beloe-suhoe-14;chteau-le-grand-vostock-cuvee-karsov-reserve-shardone-beloe-suhoe-14,claude,«Château Le Grand Vostock Cuvée Karsov RESERVE»; две карточки
+q-0116,q-0116.jpg,domaine-de-la-vivandiere-malbec-vivandiere-roze-malbek-rozovoe-suhoe-125,yes,keep,True,True,domaine-de-la-vivandiere-malbec-vivandiere-roze-malbek-rozovoe-suhoe-125,user,пользователь: честный промах
+q-0117,q-0117.jpg,chateau-le-grand-vostock-kyuve-karsov-rezerv-shardone-beloe-suhoe-14,yes,keep,True,True,chateau-le-grand-vostock-kyuve-karsov-rezerv-shardone-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0118,q-0118.jpg,ferrum-winery-saperavi-saperavi-krasnoe-suhoe-12,yes,keep,True,True,ferrum-winery-saperavi-saperavi-krasnoe-suhoe-12,claude,"Ferrum, рулон этикеток и бутылка; сорт не читается - опровергнуть нечем"
+q-0119,q-0119.jpg,agora-vintage-blanc-de-noirs-extra-brut,yes,multi,True,True,agora-vintage-blanc-de-blancs-extra-brut;agora-vintage-blanc-de-noirs-extra-brut,claude,две бутылки: BLANC DE BLANC и BLANC DE NOIRS
+q-0120,q-0120.jpg,shato-pino-gravitatsiya-kaberne-sovinon-merlo-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,claude,"Шато Пино «Розовенькое», «Красненькое», «Беленькое» - в каталоге нет"
+q-0121,q-0121.jpg,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-144,yes,fix,True,True,usadba-mezyb-usadba-mezyb-shardone-beloe-suhoe-125,claude,"«Maison DELLOS Усадьба МЕЗЫБЬ ШАРДОНЕ 2024», не Джанхот"
+q-0122,q-0122.jpg,vinodelnya-marchenko-svezhiy-veter-mtsvane-mtsvane-kahetinskiy-beloe-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0123,q-0123.jpg,denisov-winery-risling-beloe-suhoe-115,yes,remove,False,,,user,пользователь: удалить
+q-0124,q-0124.jpg,belbek-belbek-kaberne-fran-krasnoe-suhoe-13,yes,multi,True,True,belbek-belbek-kaberne-fran-krasnoe-suhoe-13;belbek-kaberne-fran-krasnoe-suhoe-134,claude,«Бельбек КАБЕРНЕ ФРАН»; две карточки
+q-0125,q-0125.jpg,belbek-belbek-risling-beloe-suhoe-128,yes,keep,True,True,belbek-belbek-risling-beloe-suhoe-128,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0126,q-0126.jpg,perovskih_semilion_reserv,yes,keep,True,True,perovskih_semilion_reserv,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0127,q-0127.jpg,ferrum-winery-saperavi-saperavi-krasnoe-suhoe-12,yes,fix,True,True,ferrum-winery-pinot-noir-pino-nuar-rozovoe-suhoe-13,claude,на передней бутылке «PINOT NOIR» Ferrum; вторая - Chardonnay (нет в каталоге)
+q-0128,q-0128.jpg,vinodelnya-uzunov-sovinon-kukuoba-sovinon-blan-beloe-ekstra-bryut-12,yes,keep,True,True,vinodelnya-uzunov-sovinon-kukuoba-sovinon-blan-beloe-ekstra-bryut-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0129,q-0129.jpg,sary-pandas-vyderzhannoe,yes,keep,True,True,sary-pandas-vyderzhannoe,claude,"«Солнечная Долина» с янтарным вином, как q-0236 (Сары Пандас)"
+q-0130,q-0130.jpg,usadba-perovskih-kaberne-fran-1890-krasnoe-suhoe-13,yes,not_in_catalog,True,False,,claude,"«Усадьба Перовских 1890 ПИНО НУАР» - в каталоге 1890 только Каберне Фран и Каберне-Мерло; модель и разметка совпали, но обе неверны"
+q-0131,q-0131.jpg,domaine-de-la-vivandiere-alkomishka-malbek-krasnoe-suhoe-123,yes,keep,True,True,domaine-de-la-vivandiere-alkomishka-malbek-krasnoe-suhoe-123,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0132,q-0132.jpg,petrouchka,yes,keep,True,True,petrouchka,claude,«Галицкий и Галицкий PETROUCHKA Красная горка 2023»
+q-0133,q-0133.jpg,belbek-belbek-sira-krasnoe-suhoe-132,yes,multi,True,True,belbek-sira-rezerv-krasnoe-suhoe-132;belbek-belbek-sira-krasnoe-suhoe-132;belbek-belbek-risling-beloe-suhoe-128;belbek-belbek-risling-rezerv-beloe-suhoe-13,claude,"три бутылки Бельбек: Мальбек 2022 (нет в каталоге), Рислинг 2019, Сира (резерв?) 2022 - мелкий шрифт не читается"
+q-0134,q-0134.jpg,millstream-cellar-blanc-de-blanc-ekstra-bryut-beloe,yes,remove,False,,,user,пользователь: удалить
+q-0135,q-0135.jpg,vibes-pinot-grigio-2021,yes,multi,True,True,vibes-silvaner-silvaner-beloe-suhoe-125;vibes-silvaner-2022,claude,«VIBES Silvaner 2021» - в каталоге Silvaner другого винтажа с другой картинкой
+q-0136,q-0136.jpg,david-2021,yes,multi,True,True,david;david-2021,claude,две бутылки «David SAPERAVI»: 2020 и 2021
+q-0137,q-0137.jpg,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,yes,keep,True,True,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,claude,«Muscat GAÏ-KODZOR»
+q-0138,q-0138.jpg,perovskih_kokur_orange,yes,keep,True,True,perovskih_kokur_orange,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0139,q-0139.jpg,silvaner-pet-nat-2022,yes,remove,False,,,user,пользователь: удалить
+q-0140,q-0140.jpg,loco-cimbali-pino-blan-beloe-suhoe-13,yes,keep,True,True,loco-cimbali-pino-blan-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0141,q-0141.jpg,kaberne-sovinon-appasimento,yes,keep,True,True,kaberne-sovinon-appasimento,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0142,q-0142.jpg,villa-urkusta-kaberne-sovinon-rezerva-krasnoe-suhoe-15,yes,keep,True,True,villa-urkusta-kaberne-sovinon-rezerva-krasnoe-suhoe-15,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0143,q-0143.jpg,vibes-riesling-silvaner-2022,yes,keep,True,True,vibes-riesling-silvaner-2022,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0144,q-0144.jpg,shato-ay-danil-byanko-da-sole-muskat-belyy-beloe-polusladkoe-13,yes,not_in_catalog,True,False,,claude,"«РОССО ДА СОЛЕ» - в каталоге нет, не Бьянко да Соле"
+q-0145,q-0145.jpg,valeriy-zaharin-avtohtonnoe-vino-kryma-ot-valeriya-zaharina-bastardo-kefesiya-bastardo-magarachskiy-krasnoe-suhoe-115,yes,unsure,False,,,claude,"пост «Лаймовый сорбет», бутылка «…РИСЛИНГ» в тени, производитель не читается"
+q-0146,q-0146.jpg,relikta-relikta-merlo-kaberne-sovinon-krasnoe-suhoe-135,yes,keep,True,True,relikta-relikta-merlo-kaberne-sovinon-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0147,q-0147.jpg,vinodelnya-vedernikov-vedernikov-pet-nat-platovskiy-aligote-bryut-beloe-suhoe-10,yes,unsure,False,,,claude,"наливают розовое, этикетка не видна"
+q-0148,q-0148.jpg,vinodelnya-batrak-prikumskoe-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-135,yes,multi,True,True,vinodelnya-batrak-prikumskoe-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-135;vinodelnya-batrak-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-14,claude,«Виталий Батрак Vitale Kraft»; две карточки
+q-0149,q-0149.jpg,massandra-muskat-belyy-yuzhnoberezhnyy-beloe-sladkoe-16,yes,fix,True,True,massandra-heres,claude,"на этикетке «ХЕРЕС МАССАНДРА», не Мускат Белый Южнобережный"
+q-0150,q-0150.jpg,vinodelnya-batrak-perfekt-klassik-kaberne-sovinon-krasnoe-suhoe-135,yes,wrong_unknown,True,True,,user,пользователь: детектор этикетки + разметка неверна
+q-0151,q-0151.jpg,agrolayn-mountain-eagle-white-blend-vione-beloe-suhoe-115,yes,keep,True,True,agrolayn-mountain-eagle-white-blend-vione-beloe-suhoe-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0152,q-0152.jpg,vinodelnya-marko-dikiy-sovinon-sovinon-blan-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-dikiy-sovinon-sovinon-blan-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0153,q-0153.jpg,toile-de-vin-merlot,yes,keep,True,True,toile-de-vin-merlot,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0154,q-0154.jpg,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,yes,keep,True,True,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0155,q-0155.jpg,belbek-aligote-beloe-suhoe-125,yes,keep,True,True,belbek-aligote-beloe-suhoe-125,claude,"бутылка Бельбек с вертикальной этикеткой, надпись не читается; опровергнуть нечем"
+q-0156,q-0156.jpg,novyy-svet-dom-shampanskih-vin-pino-nuar-polusuhoe-rozovoe-135,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-pino-nuar-polusuhoe-rozovoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0157,q-0157.jpg,perovskih_semilion_reserv,yes,keep,True,True,perovskih_semilion_reserv,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0158,q-0158.jpg,domaine-de-la-vivandiere-tsimlyanskiy-chyornyy-ctes-du-don-tsimlyanskiy-chernyy-rozovoe-suhoe-134,yes,keep,True,True,domaine-de-la-vivandiere-tsimlyanskiy-chyornyy-ctes-du-don-tsimlyanskiy-chernyy-rozovoe-suhoe-134,user,"пользователь: два вина, разметка верна для правой"
+q-0159,q-0159.jpg,mancopia-risling,yes,keep,True,True,mancopia-risling,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0160,q-0160.jpg,agora-yachting-merlot,yes,keep,True,True,agora-yachting-merlot,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0161,q-0161.jpg,massandra-portveyn-krasnyy-livadiya-kaberne-sovinon-krasnoe-sladkoe-185,yes,keep,True,True,massandra-portveyn-krasnyy-livadiya-kaberne-sovinon-krasnoe-sladkoe-185,claude,«МАССАНДРА ПОРТВЕЙН КРАСНЫЙ ЛИВАДИЯ»
+q-0162,q-0162.jpg,sober-bash-saperavi-amfora-krasnoe-suhoe-14,yes,fix,True,True,sober-bash-rkatsiteli-beloe-suhoe-14,claude,"«СОБЕР БАШ РКАЦИТЕЛИ 2022», не Саперави Амфора"
+q-0163,q-0163.jpg,cloudy-winery-krash-super-bryut-shardone-beloe-ekstra-bryut-85,yes,keep,True,True,cloudy-winery-krash-super-bryut-shardone-beloe-ekstra-bryut-85,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0164,q-0164.jpg,method-classic-kokur,yes,fix,True,True,pino-nuar-2025,claude,"две розовые «ДВА БРАТА ПИНО НУАР», не Кокур Method Classic"
+q-0165,q-0165.jpg,aristov-anima-millesimato-beloe-bryut,yes,multi,True,True,aristov-anima-millesimato;aristov-anima-millesimato-beloe-bryut,claude,коробка: «ANIMA MILLESIMATO BRUT ROSE 2025» и тёмная Anima
+q-0166,q-0166.jpg,agora-winery-cuvee-pino-nuar-shardone-bryut-rozovoe-125,yes,keep,True,True,agora-winery-cuvee-pino-nuar-shardone-bryut-rozovoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0167,q-0167.jpg,gunko-winery-bryut-roze-pino-nuar-rozovoe-12,yes,keep,True,True,gunko-winery-bryut-roze-pino-nuar-rozovoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0168,q-0168.jpg,shato-ay-danil-skarlatto-da-sole-saperavi-krasnoe-polusladkoe-13,yes,not_in_catalog,True,False,,claude,"«РОССО ДА СОЛЕ 2023» Шато Ай-Даниль, розовое - в каталоге нет"
+q-0169,q-0169.jpg,fanagoriya-q-blanc-sovinon-blan-beloe-suhoe-14,yes,keep,True,True,fanagoriya-q-blanc-sovinon-blan-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0170,q-0170.jpg,monte-garu-beloe-bryut,yes,multi,True,True,igristoe-vino-bryut-beloe-di-kaspiko-blan-de-blan-di-caspico-blanc-de-blancs;igristoe-vino-bryut-rozovoe-di-kaspiko-blan-de-nuar-di-caspico-blanc-de-noirs,claude,"две «DI CASPICO»: BLANC DE NOIRS и BLANC DE BLANCS, не Monte Garu"
+q-0171,q-0171.jpg,relikta-relikta-petnat-antey-magarachskiy-rozovoe-ekstra-bryut-11,yes,keep,True,True,relikta-relikta-petnat-antey-magarachskiy-rozovoe-ekstra-bryut-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0172,q-0172.jpg,gunko-winery-kaberne-fran-gunko-winery-krasnoe-suhoe-135,yes,fix,True,True,gunko-winery-sovinon-blan-gunko-winery-beloe-suhoe-135,claude,обе бутылки «Gunko Winery Совиньон Блан»
+q-0173,q-0173.jpg,legato-legato-saperavi-krasnoe-suhoe-14,yes,fix,True,True,legato-legato-kaberne-fran-krasnoe-suhoe-14,claude,"«LeGATO Cabernet Franc 2020», не Саперави"
+q-0174,q-0174.jpg,sober-bash-rkatsiteli-beloe-suhoe-14,yes,keep,True,True,sober-bash-rkatsiteli-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0175,q-0175.jpg,vinodelnya-myshako-risling-mode-kabinett-beloe-polusuhoe-126,yes,fix,True,True,vinodelnya-myshako-sovinon-blan-mode-petnat-beloe-bryut-12,user+claude,совиньон блан = 2-й ответ модели
+q-0176,q-0176.jpg,novyj-svet-blan-de-nuar,yes,fix,True,True,novyj-svet-shardone,user+claude,"на этикетке «Новый Свет, ШАРДОНЕ 2019»"
+q-0177,q-0177.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-kyuve-ekstra-bryut-shardone-beloe-135,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-novyy-svet-kyuve-ekstra-bryut-shardone-beloe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0178,q-0178.jpg,vinogradniki-gay-kodzora-terroir-blanc-de-ga-kodzor-semilon-beloe-suhoe-13,yes,keep,True,True,vinogradniki-gay-kodzora-terroir-blanc-de-ga-kodzor-semilon-beloe-suhoe-13,user,пользователь: честный промах
+q-0179,q-0179.jpg,sosedi-aligote-shardone-2025,yes,keep,True,True,sosedi-aligote-shardone-2025,user,"пользователь: выбрала левую, которой мб нет"
+q-0180,q-0180.jpg,sacrum-bryut-rozovoe,yes,keep,True,True,sacrum-bryut-rozovoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0181,q-0181.jpg,potenczial-2026,yes,keep,True,True,potenczial-2026,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0182,q-0182.jpg,perovskih_rose,yes,keep,True,True,perovskih_rose,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0183,q-0183.jpg,vinodelnya-pokrovskaya-marinka-marinovskiy-rozovoe-suhoe-123,yes,keep,True,True,vinodelnya-pokrovskaya-marinka-marinovskiy-rozovoe-suhoe-123,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0184,q-0184.jpg,uppa-winery-pavel-shvets-cabernet-sauvignon-merlot-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,uppa-winery-pavel-shvets-cabernet-sauvignon-merlot-kaberne-sovinon-krasnoe-suhoe-14,user,пользователь: честный промах
+q-0185,q-0185.jpg,aristov-anima-millesimato,yes,keep,True,True,aristov-anima-millesimato,user,пользователь: честный промах
+q-0186,q-0186.jpg,aratti-risling-beloe-polusuhoe,yes,remove,False,,,user,пользователь: удалить
+q-0187,q-0187.jpg,kaberne-sovinon-1,yes,fix,True,True,nebbiolo,claude,"«Галицкий и Галицкий NEBBIOLO Красная горка 2021», не Каберне"
+q-0188,q-0188.jpg,belbek-roze-sira-rozovoe-suhoe-125,yes,unsure,False,,,claude,"ряд Бельбек с оранжевой этикеткой, вино янтарное; Розе Сира или Мускат Оранж - не прочесть"
+q-0189,q-0189.jpg,vibes-montepulchano-kaberne-fran-pti-verdo,yes,multi,True,True,vibes-montepulchano-kaberne-fran-pti-verdo;vibes-montepulciano-cabernet-franc-petit-verdot-montepulchano-krasnoe-suhoe-125,claude,"одна этикетка VIBES Montepulciano, в каталоге две карточки этого вина"
+q-0190,q-0190.jpg,shato-ay-danil-tramonto-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,shato-ay-danil-tramonto-kaberne-sovinon-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0191,q-0191.jpg,vinodelnya-marko-assamblyazh-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,vinodelnya-marko-assamblyazh-kaberne-sovinon-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0192,q-0192.jpg,vina-arpachina-arpachino-tsimlyanskiy-chernyy-rozovoe-ekstra-bryut-13,yes,multi,True,True,vina-arpachina-arpachino-inohodets-puhlyakovskiy-beloe-ekstra-bryut-125;vina-arpachina-arpachino-inohodets-sibirkovyy-beloe-ekstra-bryut-125;vina-arpachina-arpachino-inohodets-kumshatskiy-beloe-ekstra-bryut-125;vina-arpachina-arpachino-inohodets-aligote-beloe-ekstra-bryut-125;vina-arpachina-arpachino-aligote-ekstra-bryut-beloe-115,claude,"«АРПАЧИНО … экстра брют» с лошадью, вино в бокалах белое - не розовый Цимлянский; сорт не читается"
+q-0193,q-0193.jpg,vinodelnya-uzunov-mono-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-139,yes,keep,True,True,vinodelnya-uzunov-mono-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-139,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0194,q-0194.jpg,green-cape-risling,yes,keep,True,True,green-cape-risling,claude,"ведро с Green Cape Мысхако, сорт не читается; опровергнуть нечем"
+q-0195,q-0195.jpg,balaklava-muskat,yes,fix,True,True,balaklava-bryut-rezerv,claude,«БАЛАКЛАВА RESERVE Brut»
+q-0196,q-0196.jpg,zakat-denisov-vajneri,yes,multi,True,True,zakat-denisov-vajneri;znoj-denisov-vajneri,user,"пользователь: левую угадала, в разметке правая"
+q-0197,q-0197.jpg,vibes-vermentino-viognier-barrel-fermented-vermentino-beloe-suhoe-115,yes,keep,True,True,vibes-vermentino-viognier-barrel-fermented-vermentino-beloe-suhoe-115,claude,"VIBES в корзине, сорт не читается"
+q-0198,q-0198.jpg,vinodelnya-bratev-melnikovyh-kaberne-sovinon-kaberne-fran-dva-brata-krasnoe-suhoe-145,yes,not_in_catalog,True,False,,user+claude,Кокур 2024 на фото; в каталоге этот кокур только 2025
+q-0199,q-0199.jpg,shato-ay-danil-tramonto-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,shato-ay-danil-tramonto-kaberne-sovinon-krasnoe-suhoe-14,claude,«ТРАМОНТО 2019»
+q-0200,q-0200.jpg,zhemchuzhnaya-9-pino-gri-pino-nuar,yes,wrong_unknown,True,True,,user,пользователь: модель и разметка неверны
+q-0201,q-0201.jpg,toile-de-vin-pinot-blanc,yes,keep,True,True,toile-de-vin-pinot-blanc,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0202,q-0202.jpg,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-bryut-rozovoe-novyy-svet-pino-nuar-135,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-bryut-rozovoe-novyy-svet-pino-nuar-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0203,q-0203.jpg,dacha-serdyuka-saperavi-saperavi-severnyy-krasnoe-suhoe-14,yes,remove,False,,,claude,"скульптура русалки, вина нет"
+q-0204,q-0204.jpg,novyj-svet-kaberne-sovinon,yes,multi,True,True,novyj-svet-kaberne-sovinon-polusladkoe;novyy-svet-dom-shampanskih-vin-igristoe-vino-vyderzhannoe-polusladkoe-krasnoe-novyy-svet-kaberne-sovinon-12,claude,«Новый Свет Каберне Совиньон ВЫДЕРЖАННОЕ 2023 ПОЛУСЛАДКОЕ»
+q-0205,q-0205.jpg,vinogradniki-gay-kodzora-semillion-de-gai-kodzor-semilon-beloe-sladkoe-12,yes,remove,False,,,claude,"виноград на лозе, бутылки нет"
+q-0206,q-0206.jpg,villa-di-alma-ekstra-bryut-kokur-beloe-125,yes,keep,True,True,villa-di-alma-ekstra-bryut-kokur-beloe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0207,q-0207.jpg,abrau-dyurso-kaberne-sovinon-krasnoe-suhoe-125,yes,unsure,False,,,claude,"бутылка с гербом и рукописным названием, не прочесть"
+q-0208,q-0208.jpg,abrau-dyurso-brut-dor-blanc-de-blancs-shardone-beloe-bryut-12,yes,keep,True,True,abrau-dyurso-brut-dor-blanc-de-blancs-shardone-beloe-bryut-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0209,q-0209.jpg,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,yes,fix,True,True,vinodelnya-krinitsa-rivazh-kaberne-sovinon-krasnoe-suhoe-13,claude,"«КРИНИЦА RIVAGE», не Коллин"
+q-0210,q-0210.jpg,domaine-lipko-blaufrankisch-domaine-lipko-blaufrankish-krasnoe-suhoe-136,yes,unsure,False,,,claude,"пасхальная корзина с тёмной бутылкой, этикетка не читается"
+q-0211,q-0211.jpg,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0212,q-0212.jpg,vibes-chardonnay-barrel-fermented-shardone-beloe-suhoe-125,yes,multi,True,True,cabernet-franc-pinot-noir-2021;cabernet-franc-pinot-noir-2022;vibes-cabernet-franc-pinot-noir-pino-nuar-krasnoe-suhoe-125,claude,"две красные VIBES с розовой цветочной этикеткой = Cabernet Franc - Pinot Noir, не Chardonnay"
+q-0213,q-0213.jpg,,no,keep,True,False,,claude,«DOMAINE LIPKO SAPERAVI & PINOT NOIR & SYRAH 2020» - в каталоге нет (проверено)
+q-0214,q-0214.jpg,vinodelnya-marchenko-rkatsiteli-beloe-suhoe-135,yes,keep,True,True,vinodelnya-marchenko-rkatsiteli-beloe-suhoe-135,user,пользователь: промах детектора этикетки
+q-0215,q-0215.jpg,perovskih_rose,yes,keep,True,True,perovskih_rose,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0216,q-0216.jpg,shardone-barrel-2023,yes,remove,False,,,user,пользователь: удалить
+q-0217,q-0217.jpg,magnatum-blanc-de-blancs,yes,keep,True,True,magnatum-blanc-de-blancs,claude,«MAGNATUM 2023 BRUT BLANC DE BLANCS Mantra Estate»
+q-0218,q-0218.jpg,zmv-koktebel-blan-aligote-beloe-suhoe-12,yes,keep,True,True,zmv-koktebel-blan-aligote-beloe-suhoe-12,user,пользователь: абрп = модель снова ответила «Розовое полусладкое Абрау» (вино-магнит)
+q-0219,q-0219.jpg,zhemchuzhnaya-9-muskat-rozovyj-pino-gri,yes,keep,True,True,zhemchuzhnaya-9-muskat-rozovyj-pino-gri,claude,витрина АРАТТИ / Жемчужная 9 с розовыми винами; сорт в кадре не читается
+q-0220,q-0220.jpg,vinodelnya-pokrovskaya-marinka-marinovskiy-rozovoe-suhoe-123,yes,keep,True,True,vinodelnya-pokrovskaya-marinka-marinovskiy-rozovoe-suhoe-123,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0221,q-0221.jpg,shato-pino-petnat-pino-gri-rozovoe-ekstra-bryut-11,yes,keep,True,True,shato-pino-petnat-pino-gri-rozovoe-ekstra-bryut-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0222,q-0222.jpg,orlov_merlo,yes,keep,True,True,orlov_merlo,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0223,q-0223.jpg,perovskih_odesskiy_chernyi,yes,not_in_catalog,True,False,,claude,"в рамке «Усадьба Перовских САПЕРАВИ, лимитированная серия» - в каталоге нет (как q-0858)"
+q-0224,q-0224.jpg,kokur-2025,yes,multi,True,True,kokur-2025;kokur-suhoe-2025,claude,«ДВА БРАТА KOKUR 2024»; в каталоге Кокур 2025
+q-0225,q-0225.jpg,b-yu-rne-vinisa-zh-suhoe-rozovoe,yes,keep,True,True,b-yu-rne-vinisa-zh-suhoe-rozovoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0226,q-0226.jpg,vinodelnya-uzunov-roze-ekstra-bryut-kaberne-sovinon-rozovoe-127,yes,keep,True,True,vinodelnya-uzunov-roze-ekstra-bryut-kaberne-sovinon-rozovoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0227,q-0227.jpg,kuban-vino-shato-tamane-delikeyt-roze-2024-bianka-rozovoe-suhoe-95,yes,remove,False,,,user,пользователь: удалить
+q-0228,q-0228.jpg,vinodelnya-marko-risling-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-risling-beloe-suhoe-12,claude,«МАРКО Martinsfeld Kolonie РИСЛИНГ 2025»
+q-0229,q-0229.jpg,abrau-dyurso-victor-dravigny-bryut,yes,keep,True,True,abrau-dyurso-victor-dravigny-bryut,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0230,q-0230.jpg,vinodelnya-berdyaeva-shardone-beloe-suhoe-125,yes,keep,True,True,vinodelnya-berdyaeva-shardone-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0231,q-0231.jpg,domaine-de-la-vivandiere-alkomishka-malbek-krasnoe-suhoe-123,yes,keep,True,True,domaine-de-la-vivandiere-alkomishka-malbek-krasnoe-suhoe-123,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0232,q-0232.jpg,dubinin-winery-saperavi-fresh-krasnoe-suhoe-135,yes,keep,True,True,dubinin-winery-saperavi-fresh-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0233,q-0233.jpg,villa-urkusta-kaberne-sovinon-rezerva-krasnoe-suhoe-15,yes,multi,True,True,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15;villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12;villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139;villa-urkusta-kaberne-sovinon-rezerva-krasnoe-suhoe-15;villa-urkusta-kaberne-sovinon-roze-de-sene-rozovoe-suhoe-13;villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,claude,линейка Villa Urkusta Cabernet Sauvignon (в рамке Clairet); любая - верный ответ
+q-0234,q-0234.jpg,kaberne-avtorskoe-vino,yes,keep,True,True,kaberne-avtorskoe-vino,claude,«МАССАНДРА Авторское вино КАБЕРНЕ 2021»
+q-0235,q-0235.jpg,vinodelnya-batrak-prikumskoe-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-135,yes,fix,True,True,vinodelnya-batrak-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-14,user,пользователь: правильный ответ на 3-м месте
+q-0236,q-0236.jpg,sary-pandas-vyderzhannoe,yes,keep,True,True,sary-pandas-vyderzhannoe,claude,"«Солнечная Долина», мелкая строка под названием - Сары Пандас"
+q-0237,q-0237.jpg,vibes-chardonnay-barrel-fermented-2021,yes,multi,True,True,cabernet-franc-pinot-noir-2021;vibes-chardonnay-barrel-fermented-2021,user,"пользователь: три бутылки, ответ правильный"
+q-0238,q-0238.jpg,stn-winery-cyberpunk-pino-nuar-krasnoe-suhoe-12,yes,unsure,False,,,claude,"фиолетовая этикетка с японскими иероглифами «Cabernet Franc», производитель не опознан"
+q-0239,q-0239.jpg,domaine-de-la-vivandiere-krasnostop-roze-rozovoe-suhoe-134,yes,keep,True,True,domaine-de-la-vivandiere-krasnostop-roze-rozovoe-suhoe-134,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0240,q-0240.jpg,relikta-relikta-antey-magarachskiy-muskat-belyy-rozovoe-polusuhoe-11,yes,keep,True,True,relikta-relikta-antey-magarachskiy-muskat-belyy-rozovoe-polusuhoe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0241,q-0241.jpg,vysokij-bereg-risling-zelenaya-seriya,yes,keep,True,True,vysokij-bereg-risling-zelenaya-seriya,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0242,q-0242.jpg,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-ekstra-bryut-beloe-novyy-svet-kokur-11,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-ekstra-bryut-beloe-novyy-svet-kokur-11,user,пользователь: промах детектора этикетки
+q-0243,q-0243.jpg,vibes-chardonnay-barrel-fermented-2021,yes,keep,True,True,vibes-chardonnay-barrel-fermented-2021,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0244,q-0244.jpg,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,yes,keep,True,True,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,claude,"Покровская «Тихое знание», бежевая этикетка = Ркацители-Шардоне"
+q-0245,q-0245.jpg,vinodelnya-batrak-perfekt-klassik-saperavi-krasnoe-suhoe-135,yes,wrong_unknown,True,True,,claude,белое вино с жёлто-бежевой этикеткой - не Саперави Батрак; вино не опознано
+q-0246,q-0246.jpg,vinodelnya-raevskoe-renessans-rozovoe-tempranilo-suhoe-12,yes,keep,True,True,vinodelnya-raevskoe-renessans-rozovoe-tempranilo-suhoe-12,claude,«RENAISSANCE Раевское ROSE BLEND 2021»
+q-0247,q-0247.jpg,glera-manno,yes,not_in_catalog,True,False,,claude,«ENZIMA Мысхако SHIRAZ dry red 2023» - в каталоге нет (не Глера Манно)
+q-0248,q-0248.jpg,risling-2024,yes,fix,True,True,method-classic-kokur,claude,"«Винодельня Братьев Мельниковых KOKUR Method Classic 2024», не Рислинг"
+q-0249,q-0249.jpg,valeriy-zaharin-rubedo-reserve-merlo-krasnoe-suhoe-13,yes,keep,True,True,valeriy-zaharin-rubedo-reserve-merlo-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0250,q-0250.jpg,polusuhoe-rozovoe-zb-vajn-frizzante,yes,remove,False,,,claude,"ведёрко «Love Republic Maison Золотая Балка», бутылки нет"
+q-0251,q-0251.jpg,chateau-le-grand-vostock-kyuve-karsov-rezerv-shardone-beloe-suhoe-14,yes,remove,False,,,claude,"мероприятие, люди у стойки"
+q-0252,q-0252.jpg,dacha-serdyuka-porechnoe-kaberne-sovinon-krasnoe-suhoe-13,yes,remove,False,,,claude,дегустационный зал с людьми
+q-0253,q-0253.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-polusladkoe-roze-shardone-rozovoe-115,yes,multi,True,True,novyj-svet-vyderzhannoe-bryut;novyj-svet-polusladkoe,claude,"«Новый Свет выдержанное 2021» белое, не полусладкое розе"
+q-0254,q-0254.jpg,fanagoriya-brule-frizzante-polusladkoe-beloe-pino-nuar-11,yes,remove,False,,,claude,"Fanagoria «VELVET SKIN PREMIUM» - масло виноградных косточек, не вино"
+q-0255,q-0255.jpg,b-yu-rne-vinisa-zh-suhoe-rozovoe,yes,keep,True,True,b-yu-rne-vinisa-zh-suhoe-rozovoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0256,q-0256.jpg,vinodelnya-myshako-sovinon-blan-blanc-out-beloe-suhoe-138,yes,fix,True,True,glera-manno,claude,"«MANNO Мысхако GLERA brut white», не Совиньон Блан"
+q-0257,q-0257.jpg,dubinin-winery-roze-kaberne-fran-rozovoe-suhoe-13,yes,keep,True,True,dubinin-winery-roze-kaberne-fran-rozovoe-suhoe-13,claude,"Dubinin Winery «Розе», вино сухое розовое"
+q-0258,q-0258.jpg,belbek-belbek-sira-krasnoe-suhoe-132,yes,keep,True,True,belbek-belbek-sira-krasnoe-suhoe-132,claude,винодел с линейкой Бельбек; конкретная бутылка не выделена
+q-0259,q-0259.jpg,vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138,yes,keep,True,True,vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0260,q-0260.jpg,le-general-hiver,yes,keep,True,True,le-general-hiver,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0261,q-0261.jpg,aristov-anima-millesimato,yes,keep,True,True,aristov-anima-millesimato,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0262,q-0262.jpg,vinodelnya-pokrovskaya-sovinon-blan-pokrovskoe-beloe-suhoe-12,yes,remove,False,,,claude,"бокал белого вина, бутылки нет"
+q-0263,q-0263.jpg,chateau-de-talu-roze-kaberne-sovinon-rozovoe-suhoe-14,yes,keep,True,True,chateau-de-talu-roze-kaberne-sovinon-rozovoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0264,q-0264.jpg,domaine-lipko-roze-sira-rozovoe-suhoe-135,yes,keep,True,True,domaine-lipko-roze-sira-rozovoe-suhoe-135,user,пользователь: промах детектора этикетки
+q-0265,q-0265.jpg,villa-sofiya-kaberne-sovinon-krasnoe-suhoe-133,yes,keep,True,True,villa-sofiya-kaberne-sovinon-krasnoe-suhoe-133,claude,"ресторанный пост, край бутылки Вилла София"
+q-0266,q-0266.jpg,vinodelnya-uzunov-sovinon-blan-beloe-suhoe-125,yes,keep,True,True,vinodelnya-uzunov-sovinon-blan-beloe-suhoe-125,claude,винодел с большой печатью этикетки Узунов
+q-0267,q-0267.jpg,vinodelnya-batrak-perfekt-klassik-saperavi-krasnoe-suhoe-135,yes,wrong_unknown,True,True,,user,пользователь: детектор этикетки + разметка неверна
+q-0268,q-0268.jpg,usadba-mezyb-usadba-mezyb-kaberne-sovinon-krasnoe-suhoe-143,yes,keep,True,True,usadba-mezyb-usadba-mezyb-kaberne-sovinon-krasnoe-suhoe-143,user,пользователь: честный промах
+q-0269,q-0269.jpg,agrolayn-mountain-eagle-sauvignon-blanc-sovinon-blan-beloe-suhoe-125,yes,keep,True,True,agrolayn-mountain-eagle-sauvignon-blanc-sovinon-blan-beloe-suhoe-125,claude,«MOUNTAIN EAGLE SAUVIGNON BLANC 2025»
+q-0270,q-0270.jpg,lorio-kaberne-sovinon,yes,fix,True,True,lorio-sovinon-blan-2024,claude,«LORIOT Совиньон Блан 2024»
+q-0271,q-0271.jpg,mancopia-meritazh,yes,keep,True,True,mancopia-meritazh,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0272,q-0272.jpg,vinodelnya-byurne-lyublyu-krasnoe-kaberne-fran-suhoe-135,yes,multi,True,True,b-yu-rne-l-yu-bl-yu-suhoe-rozovoe;vinodelnya-byurne-lyublyu-beloe-shardone-suhoe-135;vinodelnya-byurne-lyublyu-krasnoe-kaberne-fran-suhoe-135,claude,"три «БЮРНЬЕ.ЛЮБЛЮ»: белое, розовое (в рамке), красное"
+q-0273,q-0273.jpg,shardone-akacziya,yes,keep,True,True,shardone-akacziya,user,пользователь: честный промах
+q-0274,q-0274.jpg,novyj-svet-kollekczionnoe-bryut,yes,keep,True,True,novyj-svet-kollekczionnoe-bryut,user,"пользователь: бутылка не совсем похожа, мб другой год"
+q-0275,q-0275.jpg,novyy-svet-dom-shampanskih-vin-pino-nuar-polusuhoe-rozovoe-135,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-pino-nuar-polusuhoe-rozovoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0276,q-0276.jpg,uva-vallis-risling,yes,keep,True,True,uva-vallis-risling,claude,"бутылка Uva Vallis на баннере, сорт не читается; опровергнуть нечем"
+q-0277,q-0277.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-kokur-kokur-belyy-beloe-ekstra-bryut-12,yes,fix,True,True,novyj-svet-shardone,user+claude,"шардоне, не кокур = 5-й ответ модели"
+q-0278,q-0278.jpg,domaine-lipko-roze-sira-rozovoe-suhoe-135,yes,wrong_unknown,True,True,,claude,Domaine Lipko в прозрачной бутылке с белым вином - не Розе Сира; сорт не читается
+q-0279,q-0279.jpg,vinodelnya-batrak-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,vinodelnya-batrak-kaberne-sovinon-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0280,q-0280.jpg,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15,yes,fix,True,True,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,user,пользователь: модель права; принят ответ модели
+q-0281,q-0281.jpg,dacha-serdyuka-sibirkovyy-oranzh-beloe-suhoe-135,yes,keep,True,True,dacha-serdyuka-sibirkovyy-oranzh-beloe-suhoe-135,claude,Дача Сердюка «ОРАНЖ»
+q-0282,q-0282.jpg,valeriy-zaharin-albedo-reserve-sary-pandas-beloe-suhoe-115,yes,keep,True,True,valeriy-zaharin-albedo-reserve-sary-pandas-beloe-suhoe-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0283,q-0283.jpg,tsimlyanskie-vina-tsimlyanskoe-kaberne-sovinon-ekstra-bryut-rozovoe-13,yes,keep,True,True,tsimlyanskie-vina-tsimlyanskoe-kaberne-sovinon-ekstra-bryut-rozovoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0284,q-0284.jpg,dacha-serdyuka-sibirkovyy-beloe-suhoe-135,yes,keep,True,True,dacha-serdyuka-sibirkovyy-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0285,q-0285.jpg,nikolaev-i-synovya-flamingo-malbek-rozovoe-suhoe-125,yes,keep,True,True,nikolaev-i-synovya-flamingo-malbek-rozovoe-suhoe-125,user,пользователь: абрп = модель снова ответила «Розовое полусладкое Абрау» (вино-магнит)
+q-0286,q-0286.jpg,imenie-sikory-merlo-sikory-krasnoe-suhoe-13,yes,multi,True,True,imenie-sikory-shardone-semeynyy-rezerv-beloe-suhoe-13;imenie-sikory-sovinon-blan-semeynyy-rezerv-beloe-suhoe-13;imenie-sikory-risling-semeynyy-rezerv-beloe-suhoe-13;imenie-sikory-risling-semeynyy-rezerv-risling-reynskiy-beloe-suhoe-13,claude,"три белых Сикоры «Семейный резерв»: Шардоне, Совиньон блан, Рислинг; Мерло на фото нет"
+q-0287,q-0287.jpg,vinodelnya-zhakov-logovo-saperavi-krasnoe-suhoe-126,yes,keep,True,True,vinodelnya-zhakov-logovo-saperavi-krasnoe-suhoe-126,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0288,q-0288.jpg,tsimlyanskie-vina-tsimlyanskoe-kaberne-sovinon-ekstra-bryut-rozovoe-13,yes,keep,True,True,tsimlyanskie-vina-tsimlyanskoe-kaberne-sovinon-ekstra-bryut-rozovoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0289,q-0289.jpg,domaine-de-la-vivandiere-sibirkovyy-sur-lies-beloe-suhoe-121,yes,not_in_catalog,True,False,,claude,"«SYRAH VIVANDIÈRE Côtes du Don 2023» - в каталоге нет, не Сибирьковый"
+q-0290,q-0290.jpg,vinodelnya-krinitsa-sirakyuz-krasnoe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-sirakyuz-krasnoe-suhoe-13,claude,«КРИНИЦА SYRACUSE 2022»
+q-0291,q-0291.jpg,petrouchka,yes,keep,True,True,petrouchka,claude,«Галицкий и Галицкий PETROUCHKA Красная горка 2023»
+q-0292,q-0292.jpg,ferrum-winery-saperavi-saperavi-krasnoe-suhoe-12,yes,not_in_catalog,True,False,,claude,«FERRUM WINERY CHARDONNAY» - шардоне Ferrum в каталоге нет
+q-0293,q-0293.jpg,dacha-serdyuka-kazache-krasnostop-zolotovskiy-krasnoe-suhoe-135,yes,keep,True,True,dacha-serdyuka-kazache-krasnostop-zolotovskiy-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0294,q-0294.jpg,perovskih_blan_de_noir,yes,keep,True,True,perovskih_blan_de_noir,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0295,q-0295.jpg,vinodelnya-byurne-kaberne-fran-krasnoe-suhoe-135,yes,fix,True,True,b-yu-rne-malbek-krasnoe-suhoe,claude,«БЮРНЬЕ ... МАЛЬБЕК / красное сухое»
+q-0296,q-0296.jpg,alma-valley-solntse-vozduh-vinograd-merlo-krasnoe-polusladkoe-14,yes,fix,True,True,alma-valley-solntse-vozduh-vinograd-sira-shiraz-krasnoe-polusuhoe-135,claude,"«Солнце, воздух, виноград - КРАСНОЕ ПОЛУСУХОЕ ВИНО»"
+q-0297,q-0297.jpg,denisov_pet_nat_citron_rkaciteli,yes,remove,False,,,claude,"стенд Denisov на выставке, десятки бутылок, цели нет"
+q-0298,q-0298.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-shardone-beloe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-shardone-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0299,q-0299.jpg,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0300,q-0300.jpg,chteau-le-grand-vostock-cabernet-sauvignon-reserve-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,chteau-le-grand-vostock-cabernet-sauvignon-reserve-kaberne-sovinon-krasnoe-suhoe-14,claude,«Château Le Grand Vostock Cabernet Sauvignon Reserve»
+q-0301,q-0301.jpg,nikolaev-i-synovya-shardone-beloe-suhoe-125,yes,not_in_catalog,True,False,,claude,"«NIKOLAEV & SONS ANCESTRAL CIDER» - сидр, в каталоге нет"
+q-0302,q-0302.jpg,vysokij-bereg-risling-zelenaya-seriya-2,yes,not_in_catalog,True,False,,claude,«Высокий Берег РИСЛИНГ экстра брют 2022 выдержанное» (игристое) - в каталоге только тихий Рислинг Зелёная серия
+q-0303,q-0303.jpg,shato-ay-danil-kapriz-muskat-belyy-beloe-suhoe-135,yes,keep,True,True,shato-ay-danil-kapriz-muskat-belyy-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0304,q-0304.jpg,belbek-beloe-suhoe-kaberne-sovinon-krasnoe-14,yes,keep,True,True,belbek-beloe-suhoe-kaberne-sovinon-krasnoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0305,q-0305.jpg,,no,keep,True,False,,claude,«ДВА СЕРДЦА ПЕТИ МАНСЕН» - в каталоге нет (проверено)
+q-0306,q-0306.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-polusladkoe-roze-shardone-rozovoe-115,yes,fix,True,True,novyj-svet-vyderzhannoe-bryut,claude,"три бутылки «Новый Свет ВЫДЕРЖАННОЕ 2021/2022 БРЮТ», не полусладкое розе"
+q-0307,q-0307.jpg,vinodelnya-zhakov-karbon-saperavi-krasnoe-suhoe-126,yes,keep,True,True,vinodelnya-zhakov-karbon-saperavi-krasnoe-suhoe-126,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0308,q-0308.jpg,zb-vajn-moskato-polusladkoe-beloe,yes,keep,True,True,zb-vajn-moskato-polusladkoe-beloe,claude,"бутылки ZB сверху, сорт не читается"
+q-0309,q-0309.jpg,mons-albus-kaberne-sovinon-krasnoe-suhoe-14,yes,multi,True,True,mons-albus-kaberne-sovinon-krasnoe-suhoe-14;mons-albus-merlo-rozovoe-suhoe-132,claude,две бутылки Mons Albus: «КАБЕРНЕ СОВИНЬОН» и «МЕРЛО»
+q-0310,q-0310.jpg,domaine-de-la-vivandiere-vn-krasnoe-pino-nuar-suhoe-12,yes,keep,True,True,domaine-de-la-vivandiere-vn-krasnoe-pino-nuar-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0311,q-0311.jpg,vinodelnya-myshako-kaberne-sovinon-black-out-krasnoe-polusuhoe-16,yes,keep,True,True,vinodelnya-myshako-kaberne-sovinon-black-out-krasnoe-polusuhoe-16,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0312,q-0312.jpg,chateau-de-talu-roze-kaberne-sovinon-rozovoe-suhoe-14,yes,multi,True,True,chateau-de-talu-blan-semilon-beloe-suhoe-127;chateau-de-talu-muskat-beloe-suhoe-13,claude,"Chateau de Talu с синей этикеткой и белым вином - Блан или Мускат, не Розе"
+q-0313,q-0313.jpg,vinodelnya-vedernikov-vedernikov-krasnostop-zolotovskiy-krasnoe-suhoe-145,yes,keep,True,True,vinodelnya-vedernikov-vedernikov-krasnostop-zolotovskiy-krasnoe-suhoe-145,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0314,q-0314.jpg,perovskih_aligote,yes,not_in_catalog,True,False,,claude,"«Усадьба Перовских СИРА, лимитированная серия» (красная этикетка) - в каталоге нет; разметка «Алиготе» неверна"
+q-0315,q-0315.jpg,temelion-bryut-roze,yes,keep,True,True,temelion-bryut-roze,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0316,q-0316.jpg,belmas-winery-cabernet-sauvignon-rose-belmas-kaberne-sovinon-rozovoe-suhoe-13,yes,remove,False,,,claude,табличка «69 Belmas» в винограднике
+q-0317,q-0317.jpg,vinodelnya-uzunov-nrav-rezerv-krasnostop-zolotovskiy-krasnoe-suhoe-139,yes,fix,True,True,vinodelnya-uzunov-rash-rezerv-risling-reynskiy-beloe-suhoe-127,claude,«Винодельня Узунов РАШ РЕЗЕРВ 2023»
+q-0318,q-0318.jpg,shato-pino-shardone-beloe-suhoe-125,yes,fix,True,True,shato-pino-shiraz-krasnoe-suhoe-14,user,пользователь: модель права; принят ответ модели
+q-0319,q-0319.jpg,usadba-divnomorskoe-solist-marselan-rozovoe-suhoe-115,yes,keep,True,True,usadba-divnomorskoe-solist-marselan-rozovoe-suhoe-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0320,q-0320.jpg,magnatum-cuvee-m-blanc-de-blancs,yes,keep,True,True,magnatum-cuvee-m-blanc-de-blancs,claude,ведро с MAGNATUM Mantra Estate
+q-0321,q-0321.jpg,loco-cimbali-oranzh-muskat-belyy-beloe-suhoe-129,yes,keep,True,True,loco-cimbali-oranzh-muskat-belyy-beloe-suhoe-129,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0322,q-0322.jpg,zhemchuzhnaya-9-pino-nuar-muskat-rozovyj,yes,multi,True,True,zhemchuzhnaya-9-pino-nuar-muskat-rozovyj;zhemchuzhnaya-9-pino-nuar-muskat-rozovyj-1;zhemchuzhnaya-9-pino-nuar-muskat-rozovyj-2,claude,«ЖЕМЧУЖНАЯ 9 ПИНО НУАР МУСКАТ РОЗОВЫЙ 2024»; в каталоге три карточки этого вина
+q-0323,q-0323.jpg,petrouchka,yes,keep,True,True,petrouchka,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0324,q-0324.jpg,denisov_pino_noir_klaret,yes,keep,True,True,denisov_pino_noir_klaret,claude,«DENISOV КРАСНАЯ СТРЕЛКА Пино Нуар»
+q-0325,q-0325.jpg,belbek-belbek-sira-krasnoe-suhoe-132,yes,multi,True,True,belbek-belbek-sira-krasnoe-suhoe-132;belbek-sira-rezerv-krasnoe-suhoe-132,claude,«Бельбек СИРА резерв 2022»; в каталоге Бельбек Сира и Сира Резерв
+q-0326,q-0326.jpg,belmas-winery-malbec-katya-malbek-rozovoe-suhoe-129,yes,multi,True,True,belmas-winery-malbec-katya-malbek-rozovoe-suhoe-129;belmas-winery-malbec-katya-belmas-malbek-rozovoe-suhoe-11,claude,"«Katya MALBEC VIOGNIER 2021 SEVASTOPOL», розовое = Malbec Katya (две карточки)"
+q-0327,q-0327.jpg,mancopia-meritazh,yes,fix,True,True,mancopia-kaberne-sovinon,claude,"на этикетке «MANCOPIA CABERNET SAUVIGNON», не Меритаж"
+q-0328,q-0328.jpg,sober-bash-grani-muskat-muskat-dzhialo-beloe-suhoe-12,yes,keep,True,True,sober-bash-grani-muskat-muskat-dzhialo-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0329,q-0329.jpg,sober-bash-rubin-rubin-rubin-azos-krasnoe-suhoe-14,yes,unsure,False,,,claude,наливают белое из чёрной бутылки Собер Баш (разметка - красное Рубин); сорт не читается
+q-0330,q-0330.jpg,loco-cimbali-rkatsiteli-oranzhevoe-suhoe-13,yes,keep,True,True,loco-cimbali-rkatsiteli-oranzhevoe-suhoe-13,claude,«LOCO CIMBALI RKATSITELI 2020»
+q-0331,q-0331.jpg,domaine-lipko-roze-sira-rozovoe-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0332,q-0332.jpg,method-classic-kokur,yes,fix,True,True,pino-nuar-2025,claude,«ДВА БРАТА ПИНО НУАР 2025»
+q-0333,q-0333.jpg,belbek-belbek-merlo-krasnoe-suhoe-129,yes,keep,True,True,belbek-belbek-merlo-krasnoe-suhoe-129,claude,«БЕЛЬБЕК МЕРЛО» на вертикальной этикетке
+q-0334,q-0334.jpg,arie-riserva,yes,keep,True,True,arie-riserva,claude,«Arie» с красной этикеткой = Arie Riserva
+q-0335,q-0335.jpg,vibes-vermentino-viognier-barrel-fermented-vermentino-beloe-suhoe-115,yes,multi,True,True,vibes-vermentino-viognier-barrel-fermented-vermentino-beloe-suhoe-115;vibes-vermentino-viognier-barrel-fermented-2022,claude,«VIBES Vermentino - Viognier 2022 Barrel Fermented»; две карточки этого вина
+q-0336,q-0336.jpg,vibes-pinot-grigio-2021,yes,keep,True,True,vibes-pinot-grigio-2021,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0337,q-0337.jpg,vinodelnya-pokrovskaya-risling-pokrovskoe-risling-reynskiy-beloe-suhoe-13,yes,keep,True,True,vinodelnya-pokrovskaya-risling-pokrovskoe-risling-reynskiy-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0338,q-0338.jpg,shato-pino-ice-wine-risling-risling-reynskiy-beloe-sladkoe-11,yes,keep,True,True,shato-pino-ice-wine-risling-risling-reynskiy-beloe-sladkoe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0339,q-0339.jpg,vinogradniki-gay-kodzora-terroir-blanc-de-ga-kodzor-semilon-beloe-suhoe-13,yes,fix,True,True,mons-albus-merlo-rozovoe-suhoe-132,claude,ряд розовых «МЕРЛО» с воздушным шаром = Mons Albus Мерло
+q-0340,q-0340.jpg,novyj-svet-zolotoj-risling,yes,keep,True,True,novyj-svet-zolotoj-risling,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0341,q-0341.jpg,vinodelnya-marchenko-krasnostop-zolotovskiy-krasnoe-suhoe-14,yes,fix,True,True,vinodelnya-marchenko-vermilon-kaberne-azos-krasnoe-suhoe-14,user,пользователь: третий вариант нейросети
+q-0342,q-0342.jpg,vinodelnya-pokrovskaya-ryzhest-rkatsiteli-beloe-suhoe-11,yes,multi,True,True,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14;vinodelnya-pokrovskaya-ryzhest-rkatsiteli-beloe-suhoe-11,user,"пользователь: много вина, выбранную угадала"
+q-0343,q-0343.jpg,loco-cimbali-oranzh-muskat-belyy-beloe-suhoe-129,yes,keep,True,True,loco-cimbali-oranzh-muskat-belyy-beloe-suhoe-129,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0344,q-0344.jpg,aratti-shardone-beloe-suhoe,yes,keep,True,True,aratti-shardone-beloe-suhoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0345,q-0345.jpg,zhemchuzhnaya-9-czitron-shardone-1,yes,multi,True,True,zhemchuzhnaya-9-czitron-shardone;zhemchuzhnaya-9-czitron-shardone-1,claude,«ЖЕМЧУЖНАЯ 9 ЦИТРОН ШАРДОНЕ»; две карточки
+q-0346,q-0346.jpg,aratti-kaberne-po-belomu,yes,fix,True,True,aratti-sovinon-blan-beloe-polusuhoe,user,пользователь: модель права; принят ответ модели
+q-0347,q-0347.jpg,mons-albus-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,mons-albus-kaberne-sovinon-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0348,q-0348.jpg,dacha-serdyuka-sibirkovyy-beloe-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0349,q-0349.jpg,shato-ay-danil-bomond-aligote-beloe-suhoe-13,yes,keep,True,True,shato-ay-danil-bomond-aligote-beloe-suhoe-13,user,"пользователь: бомонд той же винодельни, мб другой год; разметка оставлена"
+q-0350,q-0350.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-kokur-kokur-belyy-beloe-ekstra-bryut-12,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-novyy-svet-kokur-kokur-belyy-beloe-ekstra-bryut-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0351,q-0351.jpg,solnechnaya-dolina-meganom-kokur-beloe-bryut,yes,multi,True,True,solnechnaya-dolina-meganom-kokur-beloe-bryut;solnechnaya-dolina-meganom-blanc-de-blancs-kokur-beloe-bryut-11,claude,«Солнечная Долина Меганом БРЮТ» белое; две карточки кокура-брют
+q-0352,q-0352.jpg,aratti-risling-beloe-polusuhoe,yes,remove,False,,,user,пользователь: удалить
+q-0353,q-0353.jpg,gunko-winery-bryut-roze-pino-nuar-rozovoe-12,yes,fix,True,True,gunko-winery-blanc-de-blancs-shardone-beloe-bryut-12,claude,"«Gunko Winery BRUT» с зелёной этикеткой = Blanc de Blancs, не Брют розе"
+q-0354,q-0354.jpg,zb-vajn-roze-suhoe-rozovoe,yes,not_in_catalog,True,False,,claude,«Кагор Солнечной Долины 2019» - в каталоге нет
+q-0355,q-0355.jpg,belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-136,yes,fix,True,True,belbek-sovinon-blan-beloe-suhoe-12,claude,"«Бельбек SAUVIGNON BLANC RESERVE 2024», не Меритаж"
+q-0356,q-0356.jpg,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144,yes,keep,True,True,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0357,q-0357.jpg,belbek-kokur-kokur-belyy-beloe-suhoe-13,yes,keep,True,True,belbek-kokur-kokur-belyy-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0358,q-0358.jpg,aristov-kyuve-aleksandr-roze-de-pino,yes,multi,True,True,aristov-kyuve-aleksandr-roze-de-pino;kuban-vino-aristov-kyuve-aleksandr-rose-de-pinot-pino-nuar-rozovoe-ekstra-bryut-12,claude,«CUVÉE ALEXANDER Rosé de Pinot»; две карточки этого вина
+q-0359,q-0359.jpg,viognier-special-reserve,yes,keep,True,True,viognier-special-reserve,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0360,q-0360.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-pino-nuar-rozovoe-bryut-13,yes,multi,True,True,novyj-svet-risling-kyuve-de-prestizh;novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-ekstra-bryut-beloe-novyy-svet-risling-kyuve-de-prestizh-125,claude,«Новый Свет Кюве де Престиж 2017 Рислинг брют натюр»
+q-0361,q-0361.jpg,abrau-dyurso-brut-dor-riesling-risling-beloe-bryut-12,yes,keep,True,True,abrau-dyurso-brut-dor-riesling-risling-beloe-bryut-12,claude,«Абрау-Дюрсо Brut d'Or Riesling 2021»
+q-0362,q-0362.jpg,ballet-blanc,yes,keep,True,True,ballet-blanc,claude,«Галицкий и Галицкий BALLET BLANC Красная горка 2025»
+q-0363,q-0363.jpg,vinodelnya-raevskoe-glou-krasnoe-merlo-suhoe-14,yes,keep,True,True,vinodelnya-raevskoe-glou-krasnoe-merlo-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0364,q-0364.jpg,sosedi-aligote-shardone-2025,yes,keep,True,True,sosedi-aligote-shardone-2025,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0365,q-0365.jpg,cellar-master-malvaziya-beloe-suhoe-13,yes,keep,True,True,cellar-master-malvaziya-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0366,q-0366.jpg,usadba-divnomorskoe-solnechnyy-veter-shardone-beloe-suhoe-125,yes,keep,True,True,usadba-divnomorskoe-solnechnyy-veter-shardone-beloe-suhoe-125,user,"пользователь: хз, мб и верно"
+q-0367,q-0367.jpg,vinodelnya-uzunov-roze-ekstra-bryut-kaberne-sovinon-rozovoe-127,yes,keep,True,True,vinodelnya-uzunov-roze-ekstra-bryut-kaberne-sovinon-rozovoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0368,q-0368.jpg,alma-valley-kaberne-sovinon-rezerv-krasnoe-suhoe-15,yes,keep,True,True,alma-valley-kaberne-sovinon-rezerv-krasnoe-suhoe-15,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0369,q-0369.jpg,vibes-riesling-silvaner-2022,yes,keep,True,True,vibes-riesling-silvaner-2022,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0370,q-0370.jpg,loco-cimbali-loco-cimbali-pinot-meunier-mene-krasnoe-suhoe-125,yes,remove,False,,,user,пользователь: удалить
+q-0371,q-0371.jpg,chateau-le-grand-vostock-pino-nuar-rezerv-krasnoe-suhoe-14,yes,wrong_unknown,True,True,,claude,Château Le Grand Vostock с белым вином во льду - не красный Пино Нуар Резерв; этикетка не читается
+q-0372,q-0372.jpg,chateau-le-grand-vostock-pino-nuar-rezerv-krasnoe-suhoe-14,yes,keep,True,True,chateau-le-grand-vostock-pino-nuar-rezerv-krasnoe-suhoe-14,claude,«Château Le Grand Vostock Pinot Noir Reserve»
+q-0373,q-0373.jpg,loco-cimbali-loco-cimbali-pinot-meunier-mene-krasnoe-suhoe-125,yes,keep,True,True,loco-cimbali-loco-cimbali-pinot-meunier-mene-krasnoe-suhoe-125,claude,"Loco Cimbali на пикнике, сорт не читается"
+q-0374,q-0374.jpg,vinogradniki-gay-kodzora-terroir-blanc-de-ga-kodzor-semilon-beloe-suhoe-13,yes,fix,True,True,vinogradniki-gay-kodzora-gewurztraminer-de-gai-kodzor-gevyurtstraminer-beloe-polusuhoe-135,user+claude,на этикетке «Gewurztraminer de Gaï-Kodzor 2022»
+q-0375,q-0375.jpg,vinogradniki-gay-kodzora-rose-de-gai-kodzor-grenash-rozovoe-suhoe-125,yes,keep,True,True,vinogradniki-gay-kodzora-rose-de-gai-kodzor-grenash-rozovoe-suhoe-125,claude,«Rosé de GAÏ-KODZOR 2024»
+q-0376,q-0376.jpg,vibes-chardonnay-barrel-fermented-2021,yes,multi,True,True,cabernet-franc-pinot-noir-2021;vibes-cabernet-franc-pinot-noir-pino-nuar-krasnoe-suhoe-125;vibes-riesling-silvaner-risling-beloe-suhoe-115;vibes-riesling-silvaner-2022;vibes-chardonnay-barrel-fermented-2021;vibes-chardonnay-barrel-fermented-shardone-beloe-suhoe-125,claude,"три VIBES: Cabernet Franc - Pinot Noir 2021, Riesling - Silvaner 2021, Chardonnay 2021 Barrel Fermented (у каждого две карточки)"
+q-0377,q-0377.jpg,vinodelnya-batrak-perfekt-klassik-merlo-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,user+claude,"«Виталий Батрак, Пино Нуар», чёрная серия без медальона: в каталоге нет"
+q-0378,q-0378.jpg,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,yes,keep,True,True,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0379,q-0379.jpg,gunko-winery-saperavi-gunko-winery-krasnoe-suhoe-135,yes,keep,True,True,gunko-winery-saperavi-gunko-winery-krasnoe-suhoe-135,claude,"чёрная этикетка Gunko Winery, сорт не читается; опровергнуть нечем"
+q-0380,q-0380.jpg,,no,keep,True,False,,claude,«GREEN CAPE BLAUFRÄNKISCH» Мысхако - в каталоге нет (проверено)
+q-0381,q-0381.jpg,arie,yes,multi,True,True,arie;arie-vyderzhka-bochka-francziya-2020,claude,«Winemafia Arie 2020 Cabernet Sauvignon»; сталь или бочка - по этикетке не отличить
+q-0382,q-0382.jpg,kaberne-sovinon-1,yes,keep,True,True,kaberne-sovinon-1,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0383,q-0383.jpg,kuban-vino-aristov-sandzhoveze-krasnoe-suhoe-13,yes,remove,False,,,claude,"бокалы у окна, бутылки нет"
+q-0384,q-0384.jpg,shato-ay-danil-kapriz-muskat-belyy-beloe-suhoe-135,yes,multi,True,True,shato-ay-danil-tokkata-saperavi-krasnoe-suhoe-14;shato-ay-danil-kapriz-muskat-belyy-beloe-suhoe-135,claude,две бутылки Ай-Даниль: «ТОККАТА» и «КАПРИЗ»
+q-0385,q-0385.jpg,domaine-de-la-vivandiere-tsimlyanskiy-chyornyy-ctes-du-don-tsimlyanskiy-chernyy-rozovoe-suhoe-134,yes,keep,True,True,domaine-de-la-vivandiere-tsimlyanskiy-chyornyy-ctes-du-don-tsimlyanskiy-chernyy-rozovoe-suhoe-134,claude,«ЦИМЛЯНСКИЙ ЧЕРНЫЙ VIVANDIÈRE Côtes du Don 2023»
+q-0386,q-0386.jpg,molodoe-shato-taman,yes,keep,True,True,molodoe-shato-taman,claude,«CHATEAU TAMAGNE Молодое 2025 сухое белое»
+q-0387,q-0387.jpg,solnechnaya-dolina-chernyy-doktor-solnechnoy-doliny-ekim-kara-krasnoe-sladkoe-16,yes,keep,True,True,solnechnaya-dolina-chernyy-doktor-solnechnoy-doliny-ekim-kara-krasnoe-sladkoe-16,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0388,q-0388.jpg,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144,yes,multi,True,True,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144;usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-144,claude,«Старая дорога на Джанхот красное 2017»; две карточки
+q-0389,q-0389.jpg,alma-valley-traminer-beloe-suhoe-125,yes,not_in_catalog,True,False,,claude,игристое «ALMA VALLEY ALMA RESERVE 2021» - в каталоге нет (игристое Alma Valley там только Blanc de Noir)
+q-0390,q-0390.jpg,vinodelnya-berdyaeva-shardone-beloe-suhoe-125,yes,multi,True,True,vinodelnya-berdyaeva-shardone-beloe-suhoe-125;vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138;vinodelnya-berdyaeva-kaberne-sovinon-krasnoe-suhoe-145;vinodelnya-berdyaeva-kaberne-fran-krasnoe-suhoe-115;vinodelnya-berdyaeva-risling-beloe-polusuhoe-108;vinodelnya-berdyaeva-risling-risling-reynskiy-beloe-suhoe-121,claude,винодел со всей линейкой Бердяева (в рамке «Каберне Фран»); любая - верный ответ
+q-0391,q-0391.jpg,vinodelnya-batrak-perfekt-klassik-kaberne-fran-krasnoe-suhoe-135,yes,multi,True,True,vinodelnya-batrak-klaret-podarok-magaracha-rozovoe-suhoe-12;vinodelnya-batrak-perfekt-klassik-kaberne-fran-krasnoe-suhoe-135,user,пользователь: правую бутылку правильно
+q-0392,q-0392.jpg,vinodelnya-uzunov-bunt-tsitronnyy-magaracha-beloe-suhoe-132,yes,keep,True,True,vinodelnya-uzunov-bunt-tsitronnyy-magaracha-beloe-suhoe-132,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0393,q-0393.jpg,domaine-de-la-vivandiere-tsimlyanskiy-chyornyy-ctes-du-don-tsimlyanskiy-chernyy-rozovoe-suhoe-134,yes,multi,True,True,domaine-de-la-vivandiere-sibirkovyy-sur-lies-beloe-suhoe-121;domaine-de-la-vivandiere-tsimlyanskiy-chyornyy-ctes-du-don-tsimlyanskiy-chernyy-rozovoe-suhoe-134,user,пользователь: левую бутылку правильно
+q-0394,q-0394.jpg,chateau-tamagne-eno-traminer-i-shardone,yes,remove,False,,,claude,кафе Chateau Tamagne с людьми
+q-0395,q-0395.jpg,roze-1,yes,keep,True,True,roze-1,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0396,q-0396.jpg,domaine-de-la-vivandiere-sibirkovyy-fresh-beloe-suhoe-125,yes,keep,True,True,domaine-de-la-vivandiere-sibirkovyy-fresh-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0397,q-0397.jpg,vinodelnya-berdyaeva-kaberne-fran-krasnoe-suhoe-115,yes,wrong_unknown,True,True,,user,пользователь: разметка неверна + детектор этикетки
+q-0398,q-0398.jpg,fanagoriya-q-blanc-sovinon-blan-beloe-suhoe-14,yes,keep,True,True,fanagoriya-q-blanc-sovinon-blan-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0399,q-0399.jpg,legato-legato-shardone-beloe-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0400,q-0400.jpg,relikta-relikta-merlo-kaberne-sovinon-krasnoe-suhoe-135,yes,keep,True,True,relikta-relikta-merlo-kaberne-sovinon-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0401,q-0401.jpg,legato-legato-merlo-krasnoe-suhoe-135,yes,fix,True,True,legato-legato-pino-nuar-krasnoe-suhoe-135,claude,«LeGATO Pinot noir 2020»
+q-0402,q-0402.jpg,kuban-vino-shato-tamane-rezerv-krasnostop-krasnostop-anapskiy-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,claude,«CHATEAU TAMAGNE Sur Lie Blanc EXTRA BRUT 2022» - в каталоге нет
+q-0403,q-0403.jpg,valeriy-zaharin-bakkal-su-kaberne-kaberne-sovinon-krasnoe-suhoe-125,yes,remove,False,,,claude,"улитки, у бутылки виден только край"
+q-0404,q-0404.jpg,massandra-portveyn-krasnyy-livadiya-kaberne-sovinon-krasnoe-sladkoe-185,yes,keep,True,True,massandra-portveyn-krasnyy-livadiya-kaberne-sovinon-krasnoe-sladkoe-185,user,пользователь: честный промах
+q-0405,q-0405.jpg,vinodelnya-krinitsa-rivazh-kaberne-sovinon-krasnoe-suhoe-13,yes,fix,True,True,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,claude,"«КРИНИЦА COLLINE 2021», не Риваж"
+q-0406,q-0406.jpg,dacha-serdyuka-kazache-krasnostop-zolotovskiy-krasnoe-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0407,q-0407.jpg,fanagoriya-cru-lermont-chardonnay-shardone-beloe-suhoe-14,yes,keep,True,True,fanagoriya-cru-lermont-chardonnay-shardone-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0408,q-0408.jpg,vinodelnya-bratev-melnikovyh-kaberne-sovinon-kaberne-fran-dva-brata-krasnoe-suhoe-145,yes,keep,True,True,vinodelnya-bratev-melnikovyh-kaberne-sovinon-kaberne-fran-dva-brata-krasnoe-suhoe-145,user,пользователь: промах детектора этикетки
+q-0409,q-0409.jpg,fanagoriya-pelle-calda-saperavi-krasnoe-suhoe-155,yes,not_in_catalog,True,False,,claude,«ГОСТАГАЙ БЕЛЫЙ СКЛОН МАЛЬБЕК» - в каталоге нет
+q-0410,q-0410.jpg,vinodelnya-raevskoe-renessans-krasnoe-kaberne-sovinon-suhoe-13,yes,keep,True,True,vinodelnya-raevskoe-renessans-krasnoe-kaberne-sovinon-suhoe-13,claude,«Раевское Ренессанс 2022» красное
+q-0411,q-0411.jpg,dacha-serdyuka-sibirkovyy-oranzh-beloe-suhoe-135,yes,keep,True,True,dacha-serdyuka-sibirkovyy-oranzh-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0412,q-0412.jpg,imenie-sikory-risling-sikory-beloe-suhoe-13,yes,keep,True,True,imenie-sikory-risling-sikory-beloe-suhoe-13,claude,«SIKORY РИСЛИНГ Сикоры Семигорье»
+q-0413,q-0413.jpg,cellar-master-sandzhoveze-krasnoe-suhoe-125,yes,fix,True,True,cellar-master-malvaziya-beloe-suhoe-13,claude,"«CELLAR MASTER МАЛЬВАЗИЯ Село Яркое 2023», не Санджовезе"
+q-0414,q-0414.jpg,vinodelnya-krinitsa-aroma-pti-mansen-beloe-sladkoe-137,yes,keep,True,True,vinodelnya-krinitsa-aroma-pti-mansen-beloe-sladkoe-137,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0415,q-0415.jpg,golubitskoe-estate-tte-de-cheval-reserve-risling-beloe-bryut-125,yes,unsure,False,,,user,пользователь: разметка
+q-0416,q-0416.jpg,domaine-de-la-vivandiere-sibirkovyy-fresh-beloe-suhoe-125,yes,keep,True,True,domaine-de-la-vivandiere-sibirkovyy-fresh-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0417,q-0417.jpg,denisov_pet_nat_citron_rkaciteli,yes,keep,True,True,denisov_pet_nat_citron_rkaciteli,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0418,q-0418.jpg,legato-legato-shardone-beloe-suhoe-135,yes,fix,True,True,legato-legato-sovinon-blan-beloe-suhoe-125,claude,"три «LeGATO Sauvignon blanc 2022», не Шардоне"
+q-0419,q-0419.jpg,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-ekstra-bryut-beloe-novyy-svet-kokur-11,yes,fix,True,True,novyj-svet-vyderzhannoe-bryut,user+claude,"«Новый Свет, выдержанное, брют, 2022»"
+q-0420,q-0420.jpg,abrau-dyurso-abrau-estates-krasnoe-kaberne-sovinon-suhoe-13,yes,not_in_catalog,True,False,,claude,"«ZERO ALCO ABRAU ESTATES» - безалкогольные, в каталоге нет"
+q-0421,q-0421.jpg,b-yu-rne-vinisa-zh-suhoe-krasnoe,yes,multi,True,True,b-yu-rne-vinisa-zh-suhoe-krasnoe;b-yu-rne-vinisa-zh-suhoe-beloe;b-yu-rne-vinisa-zh-suhoe-rozovoe,claude,"три «БЮРНЬЕ.ВИНИСАЖ»: белое, розовое, красное"
+q-0422,q-0422.jpg,b-yu-rne-pino-gri-pozdnij-sbor-sladkoe-beloe,yes,keep,True,True,b-yu-rne-pino-gri-pozdnij-sbor-sladkoe-beloe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0423,q-0423.jpg,solnechnaya-dolina-chernyy-polkovnik-odesskiy-chernyy-krasnoe-sladkoe-175,yes,keep,True,True,solnechnaya-dolina-chernyy-polkovnik-odesskiy-chernyy-krasnoe-sladkoe-175,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0424,q-0424.jpg,usadba-markoth-kaberne-sovinon-rezerv-krasnoe-suhoe-13,yes,keep,True,True,usadba-markoth-kaberne-sovinon-rezerv-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0425,q-0425.jpg,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-bryut-rozovoe-novyy-svet-kaberne-kaberne-sovinon-11,yes,multi,True,True,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-bryut-rozovoe-novyy-svet-kaberne-kaberne-sovinon-11;novyj-svet-kaberne,claude,«Новый Свет КАБЕРНЕ СОВИНЬОН брют розе 2021»; две карточки
+q-0426,q-0426.jpg,b-yu-rne-pino-gri-pozdnij-sbor-sladkoe-beloe,yes,keep,True,True,b-yu-rne-pino-gri-pozdnij-sbor-sladkoe-beloe,claude,«БЮРНЬЕ ПИНО ГРИ» поздний сбор
+q-0427,q-0427.jpg,vinodelnya-batrak-perfekt-klassik-muskat-belyy-beloe-suhoe-125,yes,fix,True,True,vinodelnya-batrak-prikumskoe-sonnenschein-shardone-beloe-suhoe-12,claude,"«Виталий Батрак Sonnenschein BRILLANZ KLASSIK», не Мускат Белый"
+q-0428,q-0428.jpg,agora-saperavi,yes,keep,True,True,agora-saperavi,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0429,q-0429.jpg,belbek-kaberne-sovinon-krasnoe-suhoe-138,yes,multi,True,True,belbek-kaberne-fran-krasnoe-suhoe-134;belbek-belbek-kaberne-fran-krasnoe-suhoe-13,claude,в руках «БЕЛЬБЕК КАБЕРНЕ ФРАН 2020» (вертикальная этикетка) и цветная Бельбек; не Каберне Совиньон
+q-0430,q-0430.jpg,loco-cimbali-merlo-krasnoe-suhoe-138,yes,keep,True,True,loco-cimbali-merlo-krasnoe-suhoe-138,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0431,q-0431.jpg,cosaque-krasnaya-gorka,yes,keep,True,True,cosaque-krasnaya-gorka,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0432,q-0432.jpg,denisov_pazori_risling,yes,keep,True,True,denisov_pazori_risling,claude,"«DENISOV ПаДори белое брют 2022» - в каталоге «Пазори Рислинг», та же этикетка"
+q-0433,q-0433.jpg,kuban-vino-aristov-byanko-polusladkoe-shardone-beloe-13,yes,not_in_catalog,True,False,,claude,"«Высокий Берег» новая серия с дельфинами (белое, розовое Каберне Совиньон 2025) - такого дизайна в каталоге нет"
+q-0434,q-0434.jpg,roze-avtorskoe-vino,yes,keep,True,True,roze-avtorskoe-vino,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0435,q-0435.jpg,vinodelnya-zhakov-logovo-saperavi-krasnoe-suhoe-126,yes,keep,True,True,vinodelnya-zhakov-logovo-saperavi-krasnoe-suhoe-126,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0436,q-0436.jpg,vinodelnya-zhakov-fresherst-saperavi-krasnoe-suhoe-118,yes,keep,True,True,vinodelnya-zhakov-fresherst-saperavi-krasnoe-suhoe-118,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0437,q-0437.jpg,agora-muskat,yes,fix,True,True,agora-yachting-merlot,claude,"«AGORA MERLOT RESERVE Yachting», не Мускат"
+q-0438,q-0438.jpg,vinodelnya-krinitsa-vione-beloe-suhoe-133,yes,keep,True,True,vinodelnya-krinitsa-vione-beloe-suhoe-133,claude,«КРИНИЦА VIOGNIER 2023»
+q-0439,q-0439.jpg,solnechnaya-dolina-meganom-kokur-beloe-bryut,yes,not_in_catalog,True,False,,claude,«Солнечная Долина Меганом РОЗЕ БРЮТ» (розовая этикетка) - розового Меганома в каталоге нет
+q-0440,q-0440.jpg,sovinon-blan-krasnaya-gorka,yes,keep,True,True,sovinon-blan-krasnaya-gorka,claude,"«КРАСНОСТОП ЗОЛОТОВСКИЙ VIVANDIÈRE Côtes du Don 2023», розовое"
+q-0441,q-0441.jpg,vinodelnya-berdyaeva-risling-beloe-polusuhoe-108,yes,keep,True,True,vinodelnya-berdyaeva-risling-beloe-polusuhoe-108,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0442,q-0442.jpg,vino-suhoe-beloe-endemy-shardone,yes,fix,True,True,igristoe-vino-endemy-pino-blan-bryut-beloe,claude,"«ЭНДЕМЫ ПИНО БЛАН БРЮТ», не Шардоне"
+q-0443,q-0443.jpg,solnechnaya-dolina-meganom-beloe-aligote-suhoe-13,yes,keep,True,True,solnechnaya-dolina-meganom-beloe-aligote-suhoe-13,claude,"«Меганом» с зелёной надписью, белое"
+q-0444,q-0444.jpg,,no,keep,True,False,,claude,«КОКТЕБЕЛЬ ПЛАНЕРСКОЕ красное сухое» - в каталоге нет (проверено)
+q-0445,q-0445.jpg,vinodelnya-vedernikov-sibirkovyy-beloe-suhoe-11,yes,keep,True,True,vinodelnya-vedernikov-sibirkovyy-beloe-suhoe-11,claude,Ведерниковъ: зелёная «Сибирьковый» и синяя «Резерв»
+q-0446,q-0446.jpg,andryus-yutsis-organic-syrah-sira-krasnoe-suhoe-135,yes,fix,True,True,andryus-yutsis-shenen-blan-beloe-suhoe-12,claude,"«Andryus Yutsis Шенен Блан 2023», не Organic Syrah"
+q-0447,q-0447.jpg,legato-legato-merlo-krasnoe-suhoe-135,yes,fix,True,True,legato-legato-pino-nuar-krasnoe-suhoe-135,claude,"«LeGATO Pinot noir 2020», не Мерло"
+q-0448,q-0448.jpg,domaine-de-la-vivandiere-krasnostop-roze-rozovoe-suhoe-134,yes,keep,True,True,domaine-de-la-vivandiere-krasnostop-roze-rozovoe-suhoe-134,claude,«КРАСНОСТОП ЗОЛОТОВСКИЙ VIVANDIÈRE Côtes du Don 2023» (дубль q-0440)
+q-0449,q-0449.jpg,cosaque-krasnaya-gorka,yes,keep,True,True,cosaque-krasnaya-gorka,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0450,q-0450.jpg,vibes-montepulciano-cabernet-franc-petit-verdot-montepulchano-krasnoe-suhoe-125,yes,keep,True,True,vibes-montepulciano-cabernet-franc-petit-verdot-montepulchano-krasnoe-suhoe-125,claude,"две красные VIBES в ведре, сорт не читается"
+q-0451,q-0451.jpg,vibes-chardonnay-barrel-fermented-shardone-beloe-suhoe-125,yes,multi,True,True,vibes-chardonnay-barrel-fermented-shardone-beloe-suhoe-125;vibes-chardonnay-barrel-fermented-2021,claude,VIBES Chardonnay Barrel Fermented (издалека); две карточки
+q-0452,q-0452.jpg,vinodelnya-raevskoe-renessans-shardone-beloe-suhoe-128,yes,keep,True,True,vinodelnya-raevskoe-renessans-shardone-beloe-suhoe-128,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0453,q-0453.jpg,vibes-montepulchano-kaberne-fran-pti-verdo,yes,multi,True,True,vibes-riesling-silvaner-risling-beloe-suhoe-115;vibes-riesling-silvaner-2022,claude,"«VIBES Riesling - Silvaner 2021», не Монтепульчано"
+q-0454,q-0454.jpg,sovinon-blan-krasnaya-gorka,yes,keep,True,True,sovinon-blan-krasnaya-gorka,claude,«Галицкий и Галицкий СОВИНЬОН БЛАН Красная горка 2022»
+q-0455,q-0455.jpg,gunko-winery-malbek-krasnoe-suhoe-14,yes,keep,True,True,gunko-winery-malbek-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0456,q-0456.jpg,pino-glyu-2025,yes,keep,True,True,pino-glyu-2025,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0457,q-0457.jpg,belmas-winery-malbec-katya-malbek-rozovoe-suhoe-129,yes,not_in_catalog,True,False,,claude,«Katya ПИНО ГРИДЖИО 2025» - в каталоге нет
+q-0458,q-0458.jpg,perovskih_polusuhoe_krasnoe,yes,keep,True,True,perovskih_polusuhoe_krasnoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0459,q-0459.jpg,shato-taman-bryut,yes,remove,False,,,claude,"розовая бочка Chateau Tamagne и бокал, бутылки нет"
+q-0460,q-0460.jpg,belbek-kokur-kokur-belyy-beloe-suhoe-13,yes,keep,True,True,belbek-kokur-kokur-belyy-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0461,q-0461.jpg,loco-cimbali-rkatsiteli-oranzhevoe-suhoe-13,yes,keep,True,True,loco-cimbali-rkatsiteli-oranzhevoe-suhoe-13,user,пользователь: честно
+q-0462,q-0462.jpg,vinodelnya-batrak-glyu-glyu-podarok-magaracha-krasnoe-suhoe-12,yes,keep,True,True,vinodelnya-batrak-glyu-glyu-podarok-magaracha-krasnoe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0463,q-0463.jpg,vinodelnya-marko-dikiy-sovinon-sovinon-blan-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-dikiy-sovinon-sovinon-blan-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0464,q-0464.jpg,belbek-rkatsiteli-barrik-beloe-suhoe-13,yes,fix,True,True,belbek-belbek-pti-verdo-krasnoe-suhoe-121,claude,"«Бельбек ПТИ ВЕРДО», не Ркацители Баррик"
+q-0465,q-0465.jpg,kuban-vino-aristov-kyuve-aleksandr-millezimato-shardone-beloe-ekstra-bryut-12,yes,keep,True,True,kuban-vino-aristov-kyuve-aleksandr-millezimato-shardone-beloe-ekstra-bryut-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0466,q-0466.jpg,tempelhof-winery-tsimlyanskiy-chernyy-krasnoe-suhoe-125,yes,not_in_catalog,True,False,,claude,«Tempelhof Cabernet Sauvignon 2021» - в каталоге нет; разметка «Цимлянский Черный» неверна
+q-0467,q-0467.jpg,toile-de-vin-pinot-blanc,yes,keep,True,True,toile-de-vin-pinot-blanc,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0468,q-0468.jpg,relikta-relikta-dekabrskiy-krasnoe-polusladkoe-125,yes,keep,True,True,relikta-relikta-dekabrskiy-krasnoe-polusladkoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0469,q-0469.jpg,vinodelnya-krinitsa-sirakyuz-krasnoe-suhoe-13,yes,fix,True,True,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,claude,"«КРИНИЦА ARENA 2024», не Сиракюз"
+q-0470,q-0470.jpg,vinodelnya-krinitsa-aroma-pti-mansen-beloe-sladkoe-137,yes,keep,True,True,vinodelnya-krinitsa-aroma-pti-mansen-beloe-sladkoe-137,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0471,q-0471.jpg,vinodelnya-uzunov-mono-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-139,yes,keep,True,True,vinodelnya-uzunov-mono-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-139,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0472,q-0472.jpg,pet-nat-sosedi-2024,yes,keep,True,True,pet-nat-sosedi-2024,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0473,q-0473.jpg,derbent-vino-kavkazian-merlo-krasnoe-polusladkoe-105-125,yes,keep,True,True,derbent-vino-kavkazian-merlo-krasnoe-polusladkoe-105-125,claude,«CAUCASIAN полусладкое красное»
+q-0474,q-0474.jpg,shato-taman-par-la-mer-pino-nuar,yes,keep,True,True,shato-taman-par-la-mer-pino-nuar,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0475,q-0475.jpg,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,yes,multi,True,True,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13;vinodelnya-pokrovskaya-ryzhest-rkatsiteli-beloe-suhoe-11,claude,две Покровские: «Тихое знание Ркацители» и «Рыжесть»
+q-0476,q-0476.jpg,legato-legato-pino-nuar-krasnoe-suhoe-135,yes,fix,True,True,legato-legato-sovinon-blan-beloe-suhoe-125,user,пользователь: модель права; принят ответ модели
+q-0477,q-0477.jpg,vinodelnya-berdyaeva-kaberne-fran-krasnoe-suhoe-115,yes,keep,True,True,vinodelnya-berdyaeva-kaberne-fran-krasnoe-suhoe-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0478,q-0478.jpg,loco-cimbali-rkatsiteli-oranzhevoe-suhoe-13,yes,keep,True,True,loco-cimbali-rkatsiteli-oranzhevoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0479,q-0479.jpg,mons-albus-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,mons-albus-kaberne-sovinon-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0480,q-0480.jpg,zhemchuzhnaya-9-pino-nuar-muskat-rozovyj-2,yes,multi,True,True,zhemchuzhnaya-9-pino-nuar-muskat-rozovyj-2;zhemchuzhnaya-9-risling-sovinon-blan,user,пользователь: угадала левую
+q-0481,q-0481.jpg,vinogradniki-gay-kodzora-muscat-de-gai-kodzor-sladkiy-muskat-aleksandriyskiy-beloe-sladkoe-14,yes,not_in_catalog,True,False,,claude,«RIESLING de GAÏ-KODZOR 2023» - рислинга Гай-Кодзора в каталоге нет
+q-0482,q-0482.jpg,agora-blek-stoun,yes,keep,True,True,agora-blek-stoun,claude,«AGORA BLACK STONE»
+q-0483,q-0483.jpg,andryus-yutsis-organik-risling-beloe-suhoe-115,yes,keep,True,True,andryus-yutsis-organik-risling-beloe-suhoe-115,claude,"две Andryus Yutsis, сорт не читается"
+q-0484,q-0484.jpg,vinodelnya-uzunov-nrav-krasnostop-zolotovskiy-krasnoe-suhoe-132,yes,not_in_catalog,True,False,,claude,«Винодельня Узунов ФИНТ красное сухое 2025» - в каталоге нет
+q-0485,q-0485.jpg,abrau-dyurso-imperial-kyuve-pino-nuar-rozovoe-bryut-125,yes,remove,False,,,user,пользователь: удалить
+q-0486,q-0486.jpg,vibes-glera-col-fondo-2022,yes,keep,True,True,vibes-glera-col-fondo-2022,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0487,q-0487.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-merlo-krasnoe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-merlo-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0488,q-0488.jpg,solnechnaya-dolina-chernyy-polkovnik-odesskiy-chernyy-krasnoe-sladkoe-175,yes,keep,True,True,solnechnaya-dolina-chernyy-polkovnik-odesskiy-chernyy-krasnoe-sladkoe-175,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0489,q-0489.jpg,magnatum-cuvee-m-blanc-de-blancs,yes,keep,True,True,magnatum-cuvee-m-blanc-de-blancs,user,"пользователь: выбрала левую, разметка верна"
+q-0490,q-0490.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-pino-nuar-krasnoe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-pino-nuar-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0491,q-0491.jpg,belmas-winery-malbec-katya-malbek-rozovoe-suhoe-129,yes,multi,True,True,belmas-winery-malbec-katya-malbek-rozovoe-suhoe-129;belmas-winery-malbec-katya-belmas-malbek-rozovoe-suhoe-11,claude,"«…OGNIER SEVASTOPOL Katya», вино розовое = Katya Malbec-Viognier (ср. q-0326 «MALBEC VIOGNIER»); в каталоге розовое Malbec Katya, две карточки"
+q-0492,q-0492.jpg,usadba-rodnoe-gnezdo-4-elements-risling-beloe-polusuhoe-12,yes,keep,True,True,usadba-rodnoe-gnezdo-4-elements-risling-beloe-polusuhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0493,q-0493.jpg,denisov-winery-petnat-saperavi-severnyy-rozovoe-ekstra-bryut-105,yes,fix,True,True,denisov-winery-petnat-rkatsiteli-beloe-ekstra-bryut-107,user,пользователь: правильно; принят ответ модели
+q-0494,q-0494.jpg,seneth-shu-shu-saperavi-rozovoe-suhoe-12,yes,remove,False,,,user,пользователь: удалить
+q-0495,q-0495.jpg,zb-vajn-vajt-suhoe-beloe,yes,keep,True,True,zb-vajn-vajt-suhoe-beloe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0496,q-0496.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-pino-nuar-krasnoe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-pino-nuar-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0497,q-0497.jpg,arie-vyderzhka-bochka-francziya-2020,yes,keep,True,True,arie-vyderzhka-bochka-francziya-2020,user,пользователь: промах детектора этикетки
+q-0498,q-0498.jpg,chteau-le-grand-vostock-fagotine-pino-gri-rozovoe-polusladkoe-11,yes,fix,True,True,chteau-le-grand-vostock-fagotine-pino-gri-beloe-polusladkoe-105,claude,"«FAGOTINE white», бутылка с белым вином"
+q-0499,q-0499.jpg,nosorog-gold,yes,fix,True,True,nosorog-night,claude,центральная бутылка - тёмная этикетка с носорогом «KOFFMANN BROTHERS Красностоп Cabernet Sauvignon» = Nosorog night
+q-0500,q-0500.jpg,pino-nuar-2025,yes,keep,True,True,pino-nuar-2025,user,пользователь: абрп = модель снова ответила «Розовое полусладкое Абрау» (вино-магнит)
+q-0501,q-0501.jpg,kd-kokur,yes,keep,True,True,kd-kokur,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0502,q-0502.jpg,vinodelnya-krinitsa-sirakyuz-krasnoe-suhoe-13,yes,remove,False,,,user,пользователь: удалить
+q-0503,q-0503.jpg,vinodelnya-berdyaeva-risling-beloe-polusuhoe-108,yes,keep,True,True,vinodelnya-berdyaeva-risling-beloe-polusuhoe-108,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0504,q-0504.jpg,vinodelnya-batrak-klaret-podarok-magaracha-rozovoe-suhoe-12,yes,not_in_catalog,True,False,,user+claude,"«Виталий Батрак, Мерло», чёрная серия без медальона: в каталоге нет"
+q-0505,q-0505.jpg,millstream-cellar-blanc-de-blanc-ekstra-bryut-beloe,yes,unsure,False,,,claude,"женщина с бутылкой, этикетка мелко"
+q-0506,q-0506.jpg,naomi-2023,yes,keep,True,True,naomi-2023,claude,«NAOMI»
+q-0507,q-0507.jpg,vinodelnya-pokrovskaya-risling-pokrovskoe-risling-reynskiy-beloe-suhoe-13,yes,remove,False,,,claude,"бокал в руках, бутылки нет"
+q-0508,q-0508.jpg,domaine-de-la-vivandiere-alkomishka-malbek-krasnoe-suhoe-123,yes,keep,True,True,domaine-de-la-vivandiere-alkomishka-malbek-krasnoe-suhoe-123,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0509,q-0509.jpg,vinodelnya-marchenko-svezhiy-veter-mtsvane-mtsvane-kahetinskiy-beloe-suhoe-135,yes,not_in_catalog,True,False,,claude,«МАРЧЕНКО Солнце Ясное» - в каталоге нет
+q-0510,q-0510.jpg,loco-cimbali-kaberne-sovinon-krasnoe-suhoe-146,yes,keep,True,True,loco-cimbali-kaberne-sovinon-krasnoe-suhoe-146,claude,«LOCO CIMBALI CABERNET SAUVIGNON 2020 Repin»
+q-0511,q-0511.jpg,shato-ay-danil-tokkata-saperavi-krasnoe-suhoe-14,yes,wrong_unknown,True,True,,claude,открывают Ай-Даниль с белым вином - не красная Токката; название не читается
+q-0512,q-0512.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-kokur-kokur-belyy-beloe-ekstra-bryut-12,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-novyy-svet-kokur-kokur-belyy-beloe-ekstra-bryut-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0513,q-0513.jpg,usadba-mezyb-mezyb-kaberne-sovinon-kaberne-fran-vione-rozovoe-suhoe-133,yes,keep,True,True,usadba-mezyb-mezyb-kaberne-sovinon-kaberne-fran-vione-rozovoe-suhoe-133,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0514,q-0514.jpg,vinodelnya-bratev-melnikovyh-kaberne-sovinon-kaberne-fran-dva-brata-krasnoe-suhoe-145,yes,keep,True,True,vinodelnya-bratev-melnikovyh-kaberne-sovinon-kaberne-fran-dva-brata-krasnoe-suhoe-145,user,пользователь: правильного нет даже в топ-5
+q-0515,q-0515.jpg,domaine-lipko-petit-verdot-domaine-lipko-pti-verdo-krasnoe-suhoe-14,yes,fix,True,True,domaine-lipko-roze-sira-rozovoe-suhoe-135,claude,"«DOMAINE LIPKO SYRAH ROSÉ», не Petit Verdot"
+q-0516,q-0516.jpg,vinodelnya-berdyaeva-shardone-beloe-suhoe-125,yes,unsure,False,,,claude,"только пробка «Винодельня Бердяева», этикетки нет"
+q-0517,q-0517.jpg,vinogradniki-gay-kodzora-viognier-de-ga-kodzor-vione-beloe-suhoe-125,yes,keep,True,True,vinogradniki-gay-kodzora-viognier-de-ga-kodzor-vione-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0518,q-0518.jpg,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15,yes,keep,True,True,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15,claude,"Villa Urkusta на дереве, надпись не читается"
+q-0519,q-0519.jpg,karbon-glyu-2024,yes,keep,True,True,karbon-glyu-2024,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0520,q-0520.jpg,vinodelnya-marchenko-krasnostop-zolotovskiy-krasnoe-suhoe-14,yes,keep,True,True,vinodelnya-marchenko-krasnostop-zolotovskiy-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0521,q-0521.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-kaberne-fran-krasnoe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-kaberne-fran-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0522,q-0522.jpg,belmas-winery-cabernet-sauvignon-rose-belmas-kaberne-sovinon-rozovoe-suhoe-13,yes,multi,True,True,belmas-winery-pn-pino-nuar-krasnoe-suhoe-135;belmas-winery-cf-kaberne-fran-krasnoe-suhoe-14;belmas-winery-cabernet-sauvignon-rose-belmas-kaberne-sovinon-rozovoe-suhoe-13;belmas-winery-vi-vione-beloe-suhoe-122,claude,коробка Belmas с бутылками Pn / Cf / Cs
+q-0523,q-0523.jpg,sacrum-bryut-beloe,yes,keep,True,True,sacrum-bryut-beloe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0524,q-0524.jpg,zhemchuzhnaya-9-pino-gri-pino-nuar,yes,multi,True,True,zhemchuzhnaya-9-kaberne-sovinon-pino-nuar;zhemchuzhnaya-9-kaberne-sovinon-pino-nuar-1,claude,"«ЖЕМЧУЖНАЯ 9 КАБЕРНЕ СОВИНЬОН ПИНО НУАР розовое 2024», не Пино Гри"
+q-0525,q-0525.jpg,vinodelnya-marchenko-krasnostop-zolotovskiy-krasnoe-suhoe-14,yes,keep,True,True,vinodelnya-marchenko-krasnostop-zolotovskiy-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0526,q-0526.jpg,vinogradniki-gay-kodzora-rose-de-gai-kodzor-grenash-rozovoe-suhoe-125,yes,keep,True,True,vinogradniki-gay-kodzora-rose-de-gai-kodzor-grenash-rozovoe-suhoe-125,claude,«Rosé de GAÏ-KODZOR 2025»
+q-0527,q-0527.jpg,tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,yes,keep,True,True,tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,claude,«Tempelhof Spätburgunder 2023»
+q-0528,q-0528.jpg,loco-cimbali-merlo-krasnoe-suhoe-138,yes,unsure,False,,,claude,«LOCO CIMBALI Balaklava barrique Repin» с белым вином - не Мерло; сорт не читается
+q-0529,q-0529.jpg,belbek-sira-rezerv-krasnoe-suhoe-132,yes,keep,True,True,belbek-sira-rezerv-krasnoe-suhoe-132,claude,фиолетовая этикетка Бельбек (Сира)
+q-0530,q-0530.jpg,belbek-kokur-kokur-belyy-beloe-suhoe-13,yes,keep,True,True,belbek-kokur-kokur-belyy-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0531,q-0531.jpg,b-yu-rne-vinisa-zh-suhoe-krasnoe,yes,keep,True,True,b-yu-rne-vinisa-zh-suhoe-krasnoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0532,q-0532.jpg,shato-ay-danil-byanko-da-sole-muskat-belyy-beloe-polusladkoe-13,yes,keep,True,True,shato-ay-danil-byanko-da-sole-muskat-belyy-beloe-polusladkoe-13,claude,«БЬЯНКО ДА СОЛЕ 2023»
+q-0533,q-0533.jpg,tsimlyanskie-vina-tsimlyanskoe-kaberne-sovinon-ekstra-bryut-rozovoe-13,yes,fix,True,True,vina-arpachina-arpachino-inohodets-aligote-beloe-ekstra-bryut-125,claude,"«АРПАЧИНО ИНОХОДЕЦ АЛИГОТЕ 2021 экстра брют», не Цимлянское"
+q-0534,q-0534.jpg,aristov-kyuve-aleksandr-roze-de-pino,yes,multi,True,True,imenie-sikory-risling-sikory-beloe-suhoe-13;imenie-sikory-risling-semeynyy-rezerv-beloe-suhoe-13;imenie-sikory-risling-semeynyy-rezerv-risling-reynskiy-beloe-suhoe-13,claude,"белая этикетка «РИСЛИНГ Сикоры», не Кюве Александр; обычный или семейный резерв - не видно"
+q-0535,q-0535.jpg,zakat-denisov-vajneri,yes,keep,True,True,zakat-denisov-vajneri,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0536,q-0536.jpg,perovskih_odesskiy_chernyi,yes,remove,False,,,claude,"бокал с гравировкой «Усадьба Перовских», бутылки нет"
+q-0537,q-0537.jpg,denisov-winery-pino-nuar-rozovoe-suhoe-125,yes,keep,True,True,denisov-winery-pino-nuar-rozovoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0538,q-0538.jpg,b-yu-rne-vinisa-zh-suhoe-beloe,yes,remove,False,,,user,пользователь: удалить
+q-0539,q-0539.jpg,polusuhoe-rozovoe-zb-vajn-frizzante,yes,keep,True,True,polusuhoe-rozovoe-zb-vajn-frizzante,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0540,q-0540.jpg,legato-legato-pino-nuar-krasnoe-suhoe-135,yes,fix,True,True,legato-legato-sovinon-blan-beloe-suhoe-125,claude,"«LeGATO Sauvignon blanc», не Пино Нуар"
+q-0541,q-0541.jpg,loco-cimbali-shardone-beloe-suhoe-127,yes,fix,True,True,loco-cimbali-merlo-krasnoe-suhoe-138,claude,«BALAKLAVA 2022 LOCO CIMBALI MERLOT reserve»
+q-0542,q-0542.jpg,vinodelnya-byurne-lyublyu-krasnoe-kaberne-fran-suhoe-135,yes,keep,True,True,vinodelnya-byurne-lyublyu-krasnoe-kaberne-fran-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0543,q-0543.jpg,fanagoriya-ona-skazala-da-beloe-polusladkoe,yes,keep,True,True,fanagoriya-ona-skazala-da-beloe-polusladkoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0544,q-0544.jpg,chateau-de-talu-klere-sira-rozovoe-suhoe-136,yes,keep,True,True,chateau-de-talu-klere-sira-rozovoe-suhoe-136,claude,Miroir de Talu розовое и Chateau de Talu (Клере)
+q-0545,q-0545.jpg,perovskih_semilion_reserv,yes,keep,True,True,perovskih_semilion_reserv,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0546,q-0546.jpg,zhemchuzhnaya-9-czitron-shardone,yes,fix,True,True,zhemchuzhnaya-9-aligote-czitron,claude,"бутылки «ЖЕМЧУЖНАЯ 9 АЛИГОТЕ», не Цитрон Шардоне"
+q-0547,q-0547.jpg,vinodelnya-bratev-melnikovyh-pino-dva-brata-pino-gri-rozovoe-suhoe-13,yes,keep,True,True,vinodelnya-bratev-melnikovyh-pino-dva-brata-pino-gri-rozovoe-suhoe-13,claude,«ДВА БРАТА PINOT 2023»
+q-0548,q-0548.jpg,domaine-lipko-pti-verdo-krasnoe-suhoe-14,yes,not_in_catalog,True,False,,claude,«DOMAINE LIPKO CABERNET FRANC» - в каталоге нет (как q-0049)
+q-0549,q-0549.jpg,denisov_pereplyas_kurmyshi,yes,remove,False,,,user,пользователь: удалить
+q-0550,q-0550.jpg,shardone-rezerv,yes,fix,True,True,shardone-1,claude,«Усадьба Перовских 1890 ШАРДОНЕ» без «Резерв»
+q-0551,q-0551.jpg,domaine-lipko-blaufrankisch-domaine-lipko-blaufrankish-krasnoe-suhoe-136,yes,keep,True,True,domaine-lipko-blaufrankisch-domaine-lipko-blaufrankish-krasnoe-suhoe-136,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0552,q-0552.jpg,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144,yes,multi,True,True,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144;usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-144,claude,«Старая дорога на ДЖАНХОТ»; две карточки (дубль q-0553)
+q-0553,q-0553.jpg,sober-bash-trezvaya-golova-risling-risling-reynskiy-beloe-suhoe-10,yes,multi,True,True,usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-krasnoe-suhoe-144;usadba-mezyb-staraya-doroga-na-dzhanhot-kaberne-sovinon-kaberne-fran-krasnoe-suhoe-144,claude,«Старая дорога на ДЖАНХОТ»; две карточки
+q-0554,q-0554.jpg,usadba-mezyb-shishka-saperavi-krasnoe-suhoe-13,yes,keep,True,True,usadba-mezyb-shishka-saperavi-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0555,q-0555.jpg,oxana-istratova-wine-saperavi-2023-krasnoe-suhoe-13,yes,keep,True,True,oxana-istratova-wine-saperavi-2023-krasnoe-suhoe-13,user,пользователь: абрп = модель снова ответила «Розовое полусладкое Абрау» (вино-магнит)
+q-0556,q-0556.jpg,vinodelnya-byurne-lyublyu-krasnoe-kaberne-fran-suhoe-135,yes,keep,True,True,vinodelnya-byurne-lyublyu-krasnoe-kaberne-fran-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0557,q-0557.jpg,belbek-belbek-risling-beloe-suhoe-128,yes,keep,True,True,belbek-belbek-risling-beloe-suhoe-128,claude,«Бельбек РИСЛИНГ 2022»
+q-0558,q-0558.jpg,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,yes,keep,True,True,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0559,q-0559.jpg,loco-cimbali-loco-cimbali-red-kaberne-sovinon-krasnoe-suhoe-135,yes,keep,True,True,loco-cimbali-loco-cimbali-red-kaberne-sovinon-krasnoe-suhoe-135,claude,"Loco Cimbali, наливают красное"
+q-0560,q-0560.jpg,vinodelnya-bratev-melnikovyh-pino-dva-brata-pino-gri-rozovoe-suhoe-13,yes,keep,True,True,vinodelnya-bratev-melnikovyh-pino-dva-brata-pino-gri-rozovoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0561,q-0561.jpg,vinodelnya-krinitsa-rivazh-kaberne-sovinon-krasnoe-suhoe-13,yes,fix,True,True,vinodelnya-krinitsa-risling-beloe-suhoe-13,claude,«КРИНИЦА RIESLING 2023»
+q-0562,q-0562.jpg,gunko-winery-malbek-krasnoe-suhoe-14,yes,keep,True,True,gunko-winery-malbek-krasnoe-suhoe-14,claude,«Мальбек Gunko Winery урожай 2023»
+q-0563,q-0563.jpg,vinodelnya-uzunov-aligote-beloe-suhoe-127,yes,keep,True,True,vinodelnya-uzunov-aligote-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0564,q-0564.jpg,vinodelnya-uzunov-bunt-tsitronnyy-magaracha-beloe-suhoe-132,yes,keep,True,True,vinodelnya-uzunov-bunt-tsitronnyy-magaracha-beloe-suhoe-132,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0565,q-0565.jpg,risling-2024,yes,keep,True,True,risling-2024,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0566,q-0566.jpg,valeriy-zaharin-avtohtonnoe-vino-kryma-ot-valeriya-zaharina-kokur-sary-pandas-kokur-belyy-beloe-suhoe-115,yes,keep,True,True,valeriy-zaharin-avtohtonnoe-vino-kryma-ot-valeriya-zaharina-kokur-sary-pandas-kokur-belyy-beloe-suhoe-115,claude,«Автохтонное вино Крыма от Валерия Захарьина КОКУР - САРЫ ПАНДАС 2024»
+q-0567,q-0567.jpg,zolotaya-balka-zb-wine-sauvignon-blanc-sovinon-blan-beloe-suhoe-125,yes,keep,True,True,zolotaya-balka-zb-wine-sauvignon-blanc-sovinon-blan-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0568,q-0568.jpg,shato-pino-shary-koldunatroynichok-risling-beloe-suhoe-115,yes,keep,True,True,shato-pino-shary-koldunatroynichok-risling-beloe-suhoe-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0569,q-0569.jpg,vinogradniki-gay-kodzora-muscat-de-gai-kodzor-sladkiy-muskat-aleksandriyskiy-beloe-sladkoe-14,yes,fix,True,True,vinogradniki-gay-kodzora-viognier-de-ga-kodzor-vione-beloe-suhoe-125,claude,«Viognier GAÏ-KODZOR»
+q-0570,q-0570.jpg,rozovoe-bryut-1,yes,unsure,False,,,claude,"бокалы, у бутылки Золотой Балки видна только часть этикетки"
+q-0571,q-0571.jpg,nikolaev-i-synovya-pino-nuar-krasnoe-suhoe-125,yes,remove,False,,,claude,"меню Nikolaev & Sons и бокал, бутылки нет"
+q-0572,q-0572.jpg,alma-valley-traminer-beloe-suhoe-125,yes,multi,True,True,alma-valley-shardone-rezerv-beloe-suhoe-14;alma-valley-shardone-rezerv-beloe-suhoe-135,claude,"«ALMA VALLEY RESERVE 2022 CHARDONNAY», не Траминер"
+q-0573,q-0573.jpg,gaj-kodzor-sovinon-blan,yes,fix,True,True,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,claude,"«Muscat SEC BLANC GAÏ-KODZOR 2025», не Совиньон Блан"
+q-0574,q-0574.jpg,legato-legato-saperavi-krasnoe-suhoe-14,yes,multi,True,True,legato-legato-kaberne-fran-krasnoe-suhoe-14;legato-legato-sovinon-blan-beloe-suhoe-125;vinodelnya-krinitsa-risling-beloe-suhoe-13,claude,"ящик: LeGato Cabernet Franc 2020 (две), LeGato Sauvignon Blanc 2020, край Криница Riesling; Саперави на фото нет"
+q-0575,q-0575.jpg,aratti-muskat-belyj-suhoe,yes,multi,True,True,aratti-muskat-belyj-suhoe;aratti-muskat-belyj-polusuhoe,claude,«АРАТТИ МУСКАТ БЕЛЫЙ 2023»; сухое/полусухое не видно
+q-0576,q-0576.jpg,vinodelnya-marchenko-rubin-rubin-azos-krasnoe-suhoe-14,yes,multi,True,True,vinodelnya-marchenko-rubin-rubin-azos-krasnoe-suhoe-14;vinodelnya-marchenko-vermilon-kaberne-azos-krasnoe-suhoe-14,claude,в центре две бутылки Марченко: «Вермильон 2019» и «Рубин 2022»
+q-0577,q-0577.jpg,krasnostop-shato-taman,yes,keep,True,True,krasnostop-shato-taman,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0578,q-0578.jpg,relikta-relikta-varvary-antey-magarachskiy-krasnoe-suhoe-13-15,yes,multi,True,True,relikta-relikta-varvary-antey-magarachskiy-krasnoe-suhoe-13-15;relikta-relikta-merlo-kaberne-sovinon-krasnoe-suhoe-135,claude,Реликта: «ВАРВАРЫ» и «МЕРЛО КАБЕРНЕ СОВИНЬОН»
+q-0579,q-0579.jpg,krasnostop-shato-taman,yes,remove,False,,,claude,"наливают из чёрной бутылки в кастрюлю, этикетки нет"
+q-0580,q-0580.jpg,vermentino-viognier-2022,yes,keep,True,True,vermentino-viognier-2022,claude,VIBES с белым вином (Vermentino-Viognier)
+q-0581,q-0581.jpg,gunko-winery-kaberne-fran-gunko-winery-krasnoe-suhoe-135,yes,keep,True,True,gunko-winery-kaberne-fran-gunko-winery-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0582,q-0582.jpg,vinodelnya-pokrovskaya-ryzhest-rkatsiteli-beloe-suhoe-11,yes,remove,False,,,user,пользователь: удалить
+q-0583,q-0583.jpg,znoj-denisov-vajneri,yes,remove,False,,,user,пользователь: удалить
+q-0584,q-0584.jpg,vinodelnya-uzunov-mono-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-139,yes,keep,True,True,vinodelnya-uzunov-mono-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-139,user,"пользователь: выбрала левые, которых мб нет"
+q-0585,q-0585.jpg,zb-vajn-roze-suhoe-rozovoe,yes,keep,True,True,zb-vajn-roze-suhoe-rozovoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0586,q-0586.jpg,vinogradniki-gay-kodzora-semillion-de-gai-kodzor-semilon-beloe-sladkoe-12,yes,keep,True,True,vinogradniki-gay-kodzora-semillion-de-gai-kodzor-semilon-beloe-sladkoe-12,user,пользователь: промах детектора этикетки
+q-0587,q-0587.jpg,vinodelnya-uzunov-rash-rezerv-risling-reynskiy-beloe-suhoe-127,yes,fix,True,True,vinodelnya-uzunov-nrav-rezerv-krasnostop-zolotovskiy-krasnoe-suhoe-139,user,пользователь: модель права; принят ответ модели
+q-0588,q-0588.jpg,b-yu-rne-vinisa-zh-suhoe-beloe,yes,remove,False,,,user,пользователь: удалить
+q-0589,q-0589.jpg,vinogradniki-gay-kodzora-semillion-de-gai-kodzor-semilon-beloe-sladkoe-12,yes,remove,False,,,user,пользователь: удалить
+q-0590,q-0590.jpg,b-yu-rne-vinisa-zh-suhoe-krasnoe,yes,keep,True,True,b-yu-rne-vinisa-zh-suhoe-krasnoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0591,q-0591.jpg,relikta-relikta-ekstra-bryut-shardone-beloe-105,yes,keep,True,True,relikta-relikta-ekstra-bryut-shardone-beloe-105,claude,"розовая этикетка Реликта, издалека"
+q-0592,q-0592.jpg,nosorog-night,yes,keep,True,True,nosorog-night,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0593,q-0593.jpg,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-merlo-krasnoe-suhoe-13,yes,keep,True,True,donskoe-vinodelcheskoe-hozyaystvo-elbuzd-merlo-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0594,q-0594.jpg,vinodelnya-marko-vione-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-vione-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0595,q-0595.jpg,shato-taman-bryut,yes,remove,False,,,claude,"розовая бочка Chateau Tamagne, бутылки нет"
+q-0596,q-0596.jpg,perovskih_rose,yes,keep,True,True,perovskih_rose,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0597,q-0597.jpg,vinodelnya-batrak-prikumskoe-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-135,yes,multi,True,True,vinodelnya-batrak-prikumskoe-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-135;vinodelnya-batrak-vitale-kraft-kaberne-sovinon-krasnoe-suhoe-14,claude,«Виталий Батрак Vitale Kraft»; две карточки
+q-0598,q-0598.jpg,gaj-kodzor-sovinon-blan,yes,fix,True,True,vinogradniki-gay-kodzora-gewurztraminer-de-gai-kodzor-gevyurtstraminer-beloe-polusuhoe-135,claude,"«Gewurztraminer de GAÏ-KODZOR 2022», не Совиньон Блан"
+q-0599,q-0599.jpg,aratti-shardone-beloe-suhoe,yes,multi,True,True,aratti-risling-suhoe;aratti-risling-beloe-polusuhoe,claude,"на этикетке «АРАТТИ РИСЛИНГ 2024», не Шардоне; сухое/полусухое не видно"
+q-0600,q-0600.jpg,fanagoriya-pelle-calda-saperavi-krasnoe-suhoe-155,yes,remove,False,,,claude,стенд Фанагории на выставке
+q-0601,q-0601.jpg,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,yes,keep,True,True,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0602,q-0602.jpg,vinodelnya-zhakov-karbon-saperavi-krasnoe-suhoe-126,yes,remove,False,,,user,пользователь: удалить
+q-0603,q-0603.jpg,sober-bash-rkatsiteli-beloe-suhoe-14,yes,keep,True,True,sober-bash-rkatsiteli-beloe-suhoe-14,claude,«СОБЕР БАШ РКАЦИТЕЛИ 2022»
+q-0604,q-0604.jpg,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139,yes,fix,True,True,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15,claude,"на этикетке «Cabernet Sauvignon CLAIRET 2023», не Classic; вино светлое"
+q-0605,q-0605.jpg,kuban-vino-aristov-kyuve-aleksandr-millezimato-shardone-beloe-ekstra-bryut-12,yes,keep,True,True,kuban-vino-aristov-kyuve-aleksandr-millezimato-shardone-beloe-ekstra-bryut-12,claude,край бутылки «24 Millesimato Cuvée Alexander»
+q-0606,q-0606.jpg,kuban-vino-shato-tamane-rezerv-kaberne-limited-edishn-2015-kaberne-sovinon-krasnoe-suhoe-13,yes,not_in_catalog,True,False,,claude,«Château Tamagne RESERVE Экстра брют 2021» (игристое) - в каталоге нет
+q-0607,q-0607.jpg,alma-valley-pino-blan-rezerv-beloe-suhoe-14,yes,unsure,False,,,claude,"ведро с пин-ап бутылками, производитель не читается"
+q-0608,q-0608.jpg,chteau-le-grand-vostock-vostock-blanc-sovinon-blan-beloe-suhoe-135,yes,keep,True,True,chteau-le-grand-vostock-vostock-blanc-sovinon-blan-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0609,q-0609.jpg,domaine-de-la-vivandiere-sibirkovyy-sur-lies-beloe-suhoe-121,yes,keep,True,True,domaine-de-la-vivandiere-sibirkovyy-sur-lies-beloe-suhoe-121,user,пользователь: абрп = модель снова ответила «Розовое полусладкое Абрау» (вино-магнит)
+q-0610,q-0610.jpg,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14,yes,keep,True,True,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14,claude,Покровская «Тихое знание» с тёмным вином; сорт не читается
+q-0611,q-0611.jpg,belmas-winery-riesling-belmas-risling-beloe-suhoe-135,yes,keep,True,True,belmas-winery-riesling-belmas-risling-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0612,q-0612.jpg,roze-avtorskoe-vino,yes,fix,True,True,kokur-avtorskoe,claude,"«МАССАНДРА Авторское вино КОКУР 2022», не Розе"
+q-0613,q-0613.jpg,denisov_rubin_klaret_krasnaya_strelka,yes,keep,True,True,denisov_rubin_klaret_krasnaya_strelka,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0614,q-0614.jpg,belmas-winery-malbec-katya-belmas-malbek-rozovoe-suhoe-11,yes,keep,True,True,belmas-winery-malbec-katya-belmas-malbek-rozovoe-suhoe-11,user,пользователь: промах детектора этикетки
+q-0615,q-0615.jpg,shato-taman-par-la-mer-czvajgelt,yes,not_in_catalog,True,False,,claude,«CHATEAU TAMAGNE ZWEIGELT» оранжевая розовая этикетка - в каталоге Цвайгельт Шато Тамань только Пар Ла Мер (другая этикетка)
+q-0616,q-0616.jpg,belbek-belbek-muskat-beloe-suhoe-128,yes,multi,True,True,belbek-belbek-muskat-beloe-suhoe-128;belbek-belbek-risling-beloe-suhoe-128,user,"пользователь: три бутылки, центральную угадала"
+q-0617,q-0617.jpg,sober-bash-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-14,yes,keep,True,True,sober-bash-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-14,claude,«СОБЕР БАШ КРАСНОСТОП 2022»
+q-0618,q-0618.jpg,imenie-sikory-gerts-sikory-kaberne-sovinon-krasnoe-suhoe-14,yes,fix,True,True,imenie-sikory-semeynoe-nasledie-kaberne-sovinon-krasnoe-suhoe-14,user,"пользователь: фотка плохая, модель права; принят ответ модели"
+q-0619,q-0619.jpg,aratti-sovinon-blan-beloe-polusuhoe,yes,remove,False,,,claude,две девушки у стенда АРАТТИ
+q-0620,q-0620.jpg,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14,yes,keep,True,True,vinodelnya-pokrovskaya-pokrovskoe-krasnoe-kaberne-sovinon-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0621,q-0621.jpg,zolotaya-balka-blanc-de-neige-shardone-beloe-suhoe-125,yes,multi,True,True,zolotaya-balka-blanc-de-neige-shardone-beloe-suhoe-125;loco-cimbali-blanc-de-neige-shardone-beloe-suhoe-131,claude,«BLANC DE NEIGE Oleg Repin»; в каталоге две карточки (Золотая Балка и Loco Cimbali)
+q-0622,q-0622.jpg,agora-yachting-pinot-grigio,yes,keep,True,True,agora-yachting-pinot-grigio,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0623,q-0623.jpg,shato-ay-danil-bomond-aligote-beloe-suhoe-13,yes,fix,True,True,shato-ay-danil-grenash-krasnoe-suhoe-12,claude,"ряд бутылок «ГРЕНАШ» Ай-Даниль, не Бомонд"
+q-0624,q-0624.jpg,loco-cimbali-shardone-beloe-suhoe-127,yes,keep,True,True,loco-cimbali-shardone-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0625,q-0625.jpg,vibes-glera-col-fondo-2022,yes,keep,True,True,vibes-glera-col-fondo-2022,claude,«VIBES COL-FONDO GLERA»
+q-0626,q-0626.jpg,aya-organic-wine-vineyards-purity-in-trinity-pino-nuar-rozovoe-suhoe-13,yes,keep,True,True,aya-organic-wine-vineyards-purity-in-trinity-pino-nuar-rozovoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0627,q-0627.jpg,sosedi-aligote-shardone-2025,yes,multi,True,True,pino-glyu-2025;sosedi-aligote-shardone-2025,user,пользователь: для выбранной из двух верно
+q-0628,q-0628.jpg,vinodelnya-vedernikov-vedernikov-pet-nat-platovskiy-aligote-bryut-beloe-suhoe-10,yes,fix,True,True,chateau-de-talu-merlot,user,"пользователь: разметка неверна, модель молодец; принят ответ модели"
+q-0629,q-0629.jpg,belbek-rkatsiteli-beloe-suhoe-13,yes,remove,False,,,user,пользователь: удалить
+q-0630,q-0630.jpg,derbent-vino-di-kaspiko-shardone-beloe-polusladkoe-105-125,yes,keep,True,True,derbent-vino-di-kaspiko-shardone-beloe-polusladkoe-105-125,claude,«DI CASPICO frizzante style» розовое
+q-0631,q-0631.jpg,shato-ay-danil-skarlatto-da-sole-saperavi-krasnoe-polusladkoe-13,yes,not_in_catalog,True,False,,claude,"«Шато Ай-Даниль 21» (с картами) - в каталоге нет, не Скарлатто"
+q-0632,q-0632.jpg,chteau-le-grand-vostock-vostock-blanc-sovinon-blan-beloe-suhoe-135,yes,keep,True,True,chteau-le-grand-vostock-vostock-blanc-sovinon-blan-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0633,q-0633.jpg,cellar-master-malvaziya-beloe-suhoe-13,yes,keep,True,True,cellar-master-malvaziya-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0634,q-0634.jpg,usadba-divnomorskoe-rebo-rebo-krasnoe-suhoe-165,yes,keep,True,True,usadba-divnomorskoe-rebo-rebo-krasnoe-suhoe-165,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0635,q-0635.jpg,vinodelnya-myshako-quintessence-new-generation-kaberne-fran-krasnoe-suhoe-145,yes,remove,False,,,user,пользователь: удалить
+q-0636,q-0636.jpg,gaj-kodzor-sovinon-blan,yes,fix,True,True,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,claude,три бутылки «Muscat SEC BLANC GAÏ-KODZOR 2023»
+q-0637,q-0637.jpg,vinodelnya-raevskoe-parfyum-de-terruar-ruzh-tempranilo-krasnoe-suhoe-13,yes,fix,True,True,vinodelnya-raevskoe-parfyum-de-terruar-risling-beloe-suhoe-12,claude,"«RAEVSKOE Parfum de Terroir RIESLING», не Руж"
+q-0638,q-0638.jpg,legato-legato-merlo-krasnoe-suhoe-135,yes,multi,True,True,legato-legato-shardone-beloe-suhoe-135;legato-legato-sovinon-blan-mtsvane-beloe-suhoe-125;legato-legato-sovinon-blan-beloe-suhoe-125,claude,"LeGato: в рамке «Chardonnay 2023», рядом «Mtsvane Sauvignon blanc 2023» и «…ne blanc»; Мерло на фото нет"
+q-0639,q-0639.jpg,vinodelnya-marko-vione-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-vione-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0640,q-0640.jpg,vinodelnya-myshako-shiraz-black-out-krasnoe-suhoe-152,yes,keep,True,True,vinodelnya-myshako-shiraz-black-out-krasnoe-suhoe-152,claude,две Мысхако: «BLACK OUT» (разметка) и ENZIMA (нет в каталоге)
+q-0641,q-0641.jpg,,no,keep,True,False,,claude,«TRIVENTO White Malbec» (Аргентина) - в каталоге нет
+q-0642,q-0642.jpg,vinodelnya-pokrovskaya-marinka-marinovskiy-rozovoe-suhoe-123,yes,remove,False,,,claude,"бокал красного в руке, бутылки нет"
+q-0643,q-0643.jpg,ferrum-winery-kaberne-fran-krasnoe-suhoe-12,yes,fix,True,True,ferrum-winery-pinot-noir-pino-nuar-rozovoe-suhoe-13,claude,"«Ferrum PINOT NOIR», не Каберне Фран"
+q-0644,q-0644.jpg,nikolaev-i-synovya-flamingo-malbek-rozovoe-suhoe-125,yes,keep,True,True,nikolaev-i-synovya-flamingo-malbek-rozovoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0645,q-0645.jpg,kuban-vino-shato-tamane-rezerv-krasnostop-krasnostop-anapskiy-krasnoe-suhoe-135,yes,fix,True,True,kuban-vino-shato-tamane-rezerv-kollekshn-shardone-beloe-suhoe-125,claude,«CHATEAU TAMAGNE RESERVE CHARDONNAY 2016» (этикетка с R) - в каталоге Шато Тамань Резерв Шардоне в старом дизайне; не Красностоп
+q-0646,q-0646.jpg,tempelhof-winery-tsimlyanskiy-chernyy-krasnoe-suhoe-125,yes,keep,True,True,tempelhof-winery-tsimlyanskiy-chernyy-krasnoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0647,q-0647.jpg,usadba-perovskih-kaberne-sovinon-merlo-1890-krasnoe-suhoe-13,yes,keep,True,True,usadba-perovskih-kaberne-sovinon-merlo-1890-krasnoe-suhoe-13,user,"пользователь: выбрала ту, которой мб нет"
+q-0648,q-0648.jpg,inkermanskiy-zmv-kokur-belyy-ekstra-bryut-beloe-135,yes,keep,True,True,inkermanskiy-zmv-kokur-belyy-ekstra-bryut-beloe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0649,q-0649.jpg,uva-vallis-risling,yes,remove,False,,,user,пользователь: удалить
+q-0650,q-0650.jpg,relikta-relikta-pervenets-pervenets-magaracha-beloe-suhoe-12,yes,keep,True,True,relikta-relikta-pervenets-pervenets-magaracha-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0651,q-0651.jpg,vermentino-viognier-2022,yes,keep,True,True,vermentino-viognier-2022,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0652,q-0652.jpg,caucasian-dzharag,yes,fix,True,True,derbent-vino-kavkazian-dzharauli-moldova-krasnoe-polusladkoe-11,claude,"«CAUCASIAN ДЖАРАУЛИ», не Джарагъ"
+q-0653,q-0653.jpg,vinodelnya-myshako-quintessence-gevyurtstraminer-beloe-suhoe-128,yes,fix,True,True,vinodelnya-raevskoe-genezis-krasnoe-kaberne-sovinon-suhoe-13,user,"пользователь: модель молодец, разметка неверна; принят ответ модели"
+q-0654,q-0654.jpg,zolotaya-balka-zb-wine-riesling-risling-beloe-polusuhoe-115,yes,multi,True,True,zolotaya-balka-zb-wine-riesling-risling-beloe-polusuhoe-115;zb-vajn-risling-polusuhoe-beloe,claude,«А ВОТ И ТЫ - Riesling МОЕЙ МЕЧТЫ 2024» (ZB); две карточки
+q-0655,q-0655.jpg,shardone-barrel-2023,yes,keep,True,True,shardone-barrel-2023,claude,«Коммуналка CHARDONNAY FRENCH BARREL»
+q-0656,q-0656.jpg,belbek-risling-pozdniy-sbor-risling-reynskiy-beloe-sladkoe-117,yes,keep,True,True,belbek-risling-pozdniy-sbor-risling-reynskiy-beloe-sladkoe-117,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0657,q-0657.jpg,fanagoriya-q-bordeaux-blend-kaberne-sovinon-krasnoe-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0658,q-0658.jpg,shato-ay-danil-tramonto-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,shato-ay-danil-tramonto-kaberne-sovinon-krasnoe-suhoe-14,claude,«ТРАМОНТО» Ай-Даниль
+q-0659,q-0659.jpg,denisov_barynya_kurmyshi,yes,keep,True,True,denisov_barynya_kurmyshi,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0660,q-0660.jpg,vinodelnya-berdyaeva-risling-risling-reynskiy-beloe-suhoe-121,yes,keep,True,True,vinodelnya-berdyaeva-risling-risling-reynskiy-beloe-suhoe-121,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0661,q-0661.jpg,vinodelnya-bratev-melnikovyh-pino-dva-brata-pino-gri-rozovoe-suhoe-13,yes,keep,True,True,vinodelnya-bratev-melnikovyh-pino-dva-brata-pino-gri-rozovoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0662,q-0662.jpg,derbent-vino-kavkazian-rkatsiteli-beloe-bryut-105-125,yes,keep,True,True,derbent-vino-kavkazian-rkatsiteli-beloe-bryut-105-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0663,q-0663.jpg,aratti-kaberne-sovinon-2020-krasnoe-suhoe,yes,keep,True,True,aratti-kaberne-sovinon-2020-krasnoe-suhoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0664,q-0664.jpg,solnechnaya-dolina-porto-solnechnoy-doliny-kokur-belyy-beloe-sladkoe-175,yes,keep,True,True,solnechnaya-dolina-porto-solnechnoy-doliny-kokur-belyy-beloe-sladkoe-175,claude,«ПОРТО» Солнечная Долина
+q-0665,q-0665.jpg,belbek-semilon-rezerv-beloe-suhoe-127,yes,keep,True,True,belbek-semilon-rezerv-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0666,q-0666.jpg,mantra-estate-sira-roze-rozovoe-suhoe-12,yes,keep,True,True,mantra-estate-sira-roze-rozovoe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0667,q-0667.jpg,sober-bash-trezvaya-golova-rkatsiteli-beloe-suhoe-12,yes,multi,True,True,sober-bash-trezvaya-golova-rozovoe-krasnostop-zolotovskiy-suhoe-115;sober-bash-trezvaya-golova-rkatsiteli-beloe-suhoe-12;sober-bash-trezvaya-golova-kaberne-fran-krasnostop-krasnoe-suhoe-13,claude,"три «Трезвая голова 2024»: в центре РОЗОВОЕ, слева Каберне Фран + Красностоп, справа Ркацители"
+q-0668,q-0668.jpg,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12,yes,fix,True,True,villa-urkusta-kaberne-sovinon-blan-de-nuar-beloe-suhoe-13,claude,"прозрачная бутылка, белое вино, «Cabernet Sauvignon Blanc de Noirs 2024»"
+q-0669,q-0669.jpg,shato-taman-par-la-mer-pino-blan,yes,keep,True,True,shato-taman-par-la-mer-pino-blan,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0670,q-0670.jpg,vinodelnya-zhakov-fresherst-saperavi-krasnoe-suhoe-118,yes,keep,True,True,vinodelnya-zhakov-fresherst-saperavi-krasnoe-suhoe-118,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0671,q-0671.jpg,karbon-glyu-2024,yes,keep,True,True,karbon-glyu-2024,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0672,q-0672.jpg,rebo,yes,multi,True,True,rebo;sand-zh-oveze-rezerv,user,"пользователь: предсказала ту, что выбрала"
+q-0673,q-0673.jpg,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0674,q-0674.jpg,vinodelnya-batrak-perfekt-klassik-sovinon-blan-beloe-suhoe-125,yes,remove,False,,,claude,"бочка Батрак, бутылки нет"
+q-0675,q-0675.jpg,valeriy-zaharin-avtohtonnoe-vino-kryma-ot-valeriya-zaharina-bastardo-kefesiya-bastardo-magarachskiy-krasnoe-suhoe-115,yes,keep,True,True,valeriy-zaharin-avtohtonnoe-vino-kryma-ot-valeriya-zaharina-bastardo-kefesiya-bastardo-magarachskiy-krasnoe-suhoe-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0676,q-0676.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-pino-nuar-rozovoe-bryut-13,yes,multi,True,True,novyy-svet-dom-shampanskih-vin-pino-nuar-polusuhoe-rozovoe-135;novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-bryut-rozovoe-novyy-svet-pino-nuar-135,claude,оранжевая «Новый Свет Пино Нуар 1878» - полусухое или брют не видно; вторая бутылка белая
+q-0677,q-0677.jpg,shato-taman-grape-dance,yes,unsure,False,,,claude,"пикник, бутылки мелко"
+q-0678,q-0678.jpg,zolotaya-balka-zb-wine-sauvignon-blanc-sovinon-blan-beloe-suhoe-125,yes,keep,True,True,zolotaya-balka-zb-wine-sauvignon-blanc-sovinon-blan-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0679,q-0679.jpg,usadba-markoth-kaberne-sovinon-rezerv-krasnoe-suhoe-13,yes,unsure,False,,,claude,"ряд из 15 бутылок у окна, отдельную этикетку не прочесть"
+q-0680,q-0680.jpg,vibes-cabernet-franc-pinot-noir-pino-nuar-krasnoe-suhoe-125,yes,multi,True,True,vibes-cabernet-franc-pinot-noir-pino-nuar-krasnoe-suhoe-125;cabernet-franc-pinot-noir-2021,claude,«VIBES Cabernet Franc - Pinot Noir 2021»
+q-0681,q-0681.jpg,belmas-winery-malbec-katya-belmas-malbek-rozovoe-suhoe-11,yes,not_in_catalog,True,False,,claude,«Katya САНДЖОВЕЗЕ РОЗЕ» - в каталоге нет (как q-0041)
+q-0682,q-0682.jpg,temelion-bryut-roze,yes,keep,True,True,temelion-bryut-roze,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0683,q-0683.jpg,shardone-2,yes,keep,True,True,shardone-2,user,пользователь: честный промах
+q-0684,q-0684.jpg,relikta-relikta-varvary-antey-magarachskiy-krasnoe-suhoe-13-15,yes,multi,True,True,relikta-relikta-sira-kaberne-fran-krasnoe-suhoe-13;relikta-relikta-varvary-antey-magarachskiy-krasnoe-suhoe-13-15,user,"пользователь: правильно ту, что выбрала"
+q-0685,q-0685.jpg,loco-cimbali-kaberne-sovinon-krasnoe-suhoe-146,yes,keep,True,True,loco-cimbali-kaberne-sovinon-krasnoe-suhoe-146,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0686,q-0686.jpg,novyj-svet-blan-de-nuar,yes,fix,True,True,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-bryut-rozovoe-novyy-svet-pino-nuar-135,claude,"«Новый Свет Пино Нуар 1878 Брют» (оранжевая), не Блан де Нуар"
+q-0687,q-0687.jpg,nikolaev-i-synovya-pino-nuar-krasnoe-suhoe-125,yes,not_in_catalog,True,False,,claude,«NIKOLAEV & SONS SAUVIGNON BLANC» - в каталоге нет; разметка «Пино Нуар» неверна
+q-0688,q-0688.jpg,vibes-chardonnay-barrel-fermented-shardone-beloe-suhoe-125,yes,multi,True,True,vibes-chardonnay-barrel-fermented-shardone-beloe-suhoe-125;vibes-chardonnay-barrel-fermented-2021,claude,VIBES Chardonnay Barrel Fermented; две карточки
+q-0689,q-0689.jpg,vinodelnya-uzunov-rash-risling-beloe-suhoe-127,yes,keep,True,True,vinodelnya-uzunov-rash-risling-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0690,q-0690.jpg,loco-cimbali-blanc-de-neige-shardone-beloe-suhoe-131,yes,multi,True,True,loco-cimbali-blanc-de-neige-shardone-beloe-suhoe-131;zolotaya-balka-blanc-de-neige-shardone-beloe-suhoe-125,claude,«BLANC DE NEIGE Oleg Repin»; две карточки
+q-0691,q-0691.jpg,agora-blek-stoun,yes,keep,True,True,agora-blek-stoun,claude,«AGORA WINERY BLACK STONE»
+q-0692,q-0692.jpg,sober-bash-rkatsiteli-amfora-beloe-suhoe-135,yes,keep,True,True,sober-bash-rkatsiteli-amfora-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0693,q-0693.jpg,vinodelnya-krinitsa-aroma-pti-mansen-beloe-sladkoe-137,yes,fix,True,True,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,user,"пользователь: ответ модели похож на правду, разметка точно неверна; принят ответ модели"
+q-0694,q-0694.jpg,domaine-de-la-vivandiere-krasnostop-roze-rozovoe-suhoe-134,yes,keep,True,True,domaine-de-la-vivandiere-krasnostop-roze-rozovoe-suhoe-134,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0695,q-0695.jpg,dva-serdtsa-saperavi-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,claude,«ДВА СЕРДЦА ПТИ МАНСЕНГ» - в каталоге нет
+q-0696,q-0696.jpg,usadba-divnomorskoe-blanc-de-blancs-shardone-beloe-ekstra-bryut-12,yes,keep,True,True,usadba-divnomorskoe-blanc-de-blancs-shardone-beloe-ekstra-bryut-12,claude,«Усадьба Дивноморское BLANC DE BLANCS» две бутылки
+q-0697,q-0697.jpg,novyy-svet-dom-shampanskih-vin-pino-nuar-polusuhoe-rozovoe-135,yes,fix,True,True,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-bryut-rozovoe-novyy-svet-pino-nuar-135,claude,"«Новый Свет Пино Нуар 1878 БРЮТ», не полусухое"
+q-0698,q-0698.jpg,stn-winery-arhitektor-sira-krasnoe-suhoe-12,yes,unsure,False,,,claude,размытая бутылка в листве
+q-0699,q-0699.jpg,vinodelnya-vedernikov-sibirkovyy-beloe-suhoe-11,yes,keep,True,True,vinodelnya-vedernikov-sibirkovyy-beloe-suhoe-11,claude,в рамке «ВЕДЕРНИКОВЪ сибирьковый Долина Дона»
+q-0700,q-0700.jpg,perovskih_odesskiy_chernyi,yes,keep,True,True,perovskih_odesskiy_chernyi,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0701,q-0701.jpg,sober-bash-dostoynyy-krasnoe-suhoe-14,yes,keep,True,True,sober-bash-dostoynyy-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0702,q-0702.jpg,aratti-vremena-goda-saperavi-vyderzhannyj-zima,yes,multi,True,True,aratti-vremena-goda-saperavi-leto;aratti-vremena-goda-saperavi-vyderzhannyj-zima,claude,«АРАТТИ САПЕРАВИ 2024» с дубом; Лето или Зима - по этикетке не отличить
+q-0703,q-0703.jpg,villa-urkusta-kaberne-sovinon-roze-de-sene-rozovoe-suhoe-13,yes,unsure,False,,,claude,Villa Urkusta Cabernet Sauvignon с красным вином - не Розе де Сенье; какой именно не читается
+q-0704,q-0704.jpg,valeriy-zaharin-avtohtonnoe-vino-kryma-ot-valeriya-zaharina-bastardo-kefesiya-bastardo-magarachskiy-krasnoe-suhoe-115,yes,unsure,False,,,claude,"пост про рислинг, в кадре бутылки Баккал Су и Захарьина; цель неоднозначна"
+q-0705,q-0705.jpg,sand-zh-oveze-rezerv,yes,keep,True,True,sand-zh-oveze-rezerv,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0706,q-0706.jpg,agora-yachting-shiraz,yes,keep,True,True,agora-yachting-shiraz,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0707,q-0707.jpg,dacha-serdyuka-kazache-krasnostop-zolotovskiy-krasnoe-suhoe-135,yes,keep,True,True,dacha-serdyuka-kazache-krasnostop-zolotovskiy-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0708,q-0708.jpg,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-kollin-sira-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0709,q-0709.jpg,vinodelnya-marchenko-svezhiy-veter-mtsvane-mtsvane-kahetinskiy-beloe-suhoe-135,yes,keep,True,True,vinodelnya-marchenko-svezhiy-veter-mtsvane-mtsvane-kahetinskiy-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0710,q-0710.jpg,mont-blanc-cuvee,yes,keep,True,True,mont-blanc-cuvee,user,пользователь: промах детектора этикетки
+q-0711,q-0711.jpg,aya-organic-wine-vineyards-purity-in-merlot-merlo-rozovoe-suhoe-134,yes,unsure,False,,,claude,"бутылка у машины, этикетка не читается"
+q-0712,q-0712.jpg,chateau-tamagne-signature-shardone,yes,keep,True,True,chateau-tamagne-signature-shardone,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0713,q-0713.jpg,arie,yes,multi,True,True,arie;arie-vyderzhka-bochka-francziya-2020,claude,«Winemafia Arie 2020 Cabernet Sauvignon»; сталь или бочка не видно
+q-0714,q-0714.jpg,shardone-1,yes,remove,False,,,user,пользователь: удалить
+q-0715,q-0715.jpg,vinodelnya-vedernikov-vedernikov-krasnostop-zolotovskiy-magnum-krasnoe-suhoe-145,yes,multi,True,True,vinodelnya-vedernikov-vedernikov-krasnostop-zolotovskiy-magnum-krasnoe-suhoe-145;vinodelnya-vedernikov-vedernikov-krasnostop-zolotovskiy-krasnoe-suhoe-145,claude,«Винодельня ВЕДЕРНИКОВЪ Красностоп Золотовский 2012»; магнум или 0.75 - не видно
+q-0716,q-0716.jpg,loco-cimbali-loco-cimbali-pinot-meunier-mene-krasnoe-suhoe-125,yes,remove,False,,,user,пользователь: удалить
+q-0717,q-0717.jpg,novyj-svet-blan-de-nuar,yes,keep,True,True,novyj-svet-blan-de-nuar,claude,«Новый Свет БЛАН ДЕ НУАР 2019»
+q-0718,q-0718.jpg,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12,yes,multi,True,True,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139;villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12,claude,«Cabernet Sauvignon Classic 2023»; две карточки (дубль q-0719)
+q-0719,q-0719.jpg,vinodelnya-marko-risling-beloe-suhoe-12,yes,multi,True,True,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139;villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12,claude,«Cabernet Sauvignon Classic Villa Urkusta 2023»; две карточки
+q-0720,q-0720.jpg,vinodelnya-uzunov-sovinon-kukuoba-sovinon-blan-beloe-ekstra-bryut-12,yes,keep,True,True,vinodelnya-uzunov-sovinon-kukuoba-sovinon-blan-beloe-ekstra-bryut-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0721,q-0721.jpg,mancopia-saperavi,yes,fix,True,True,mancopia-sira,claude,"«MANCOPIA SYRAH RESERVE 2023», не Саперави"
+q-0722,q-0722.jpg,nikolaev-i-synovya-shardone-beloe-suhoe-125,yes,not_in_catalog,True,False,,claude,«NIKOLAEV & SONS SAUVIGNON BLANC» - в каталоге нет (как q-0687)
+q-0723,q-0723.jpg,alma-valley-kolombar-beloe-polusuhoe-135,yes,keep,True,True,alma-valley-kolombar-beloe-polusuhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0724,q-0724.jpg,vinodelnya-myshako-chernoe-iz-chernogo-appassimento-kaberne-sovinon-krasnoe-suhoe-15,yes,keep,True,True,vinodelnya-myshako-chernoe-iz-chernogo-appassimento-kaberne-sovinon-krasnoe-suhoe-15,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0725,q-0725.jpg,chteau-le-grand-vostock-cadet-karsov-shardone-beloe-suhoe-135,yes,keep,True,True,chteau-le-grand-vostock-cadet-karsov-shardone-beloe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0726,q-0726.jpg,loco-cimbali-vione-beloe-suhoe-14,yes,remove,False,,,claude,"постановочное фото девушки, бутылка крошечная"
+q-0727,q-0727.jpg,alma-valley-alma-graviti-pino-nuar-merlo-kaberne-sovinon-krasnoe-suhoe-14,yes,keep,True,True,alma-valley-alma-graviti-pino-nuar-merlo-kaberne-sovinon-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0728,q-0728.jpg,gavras-levokumskiy-krasnoe-suhoe-12,yes,keep,True,True,gavras-levokumskiy-krasnoe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0729,q-0729.jpg,vinodelnya-uzunov-sovinon-kukuoba-sovinon-blan-beloe-ekstra-bryut-12,yes,not_in_catalog,True,False,,claude,«Винодельня Узунов Семь морей 2017 белое сухое» - в каталоге нет
+q-0730,q-0730.jpg,agora-bastardo,yes,keep,True,True,agora-bastardo,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0731,q-0731.jpg,vina-arpachina-arpachino-inohodets-sibirkovyy-beloe-ekstra-bryut-125,yes,keep,True,True,vina-arpachina-arpachino-inohodets-sibirkovyy-beloe-ekstra-bryut-125,claude,«АРПАЧИНО ИНОХОДЕЦ Сибирьковый 2024 экстра брют»
+q-0732,q-0732.jpg,zb-vajn-roze-suhoe-rozovoe,yes,keep,True,True,zb-vajn-roze-suhoe-rozovoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0733,q-0733.jpg,belbek-aligote-beloe-suhoe-125,yes,fix,True,True,belbek-belbek-risling-beloe-suhoe-128,claude,"на этикетке «БЕЛЬБЕК РИСЛИНГ», не Алиготе"
+q-0734,q-0734.jpg,belbek-risling-pozdniy-sbor-risling-reynskiy-beloe-sladkoe-117,yes,keep,True,True,belbek-risling-pozdniy-sbor-risling-reynskiy-beloe-sladkoe-117,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0735,q-0735.jpg,dacha-serdyuka-porechnoe-kaberne-sovinon-krasnoe-suhoe-13,yes,remove,False,,,claude,стадион и вывеска «Волга-Дон фест»
+q-0736,q-0736.jpg,aratti-kaberne-po-belomu,yes,fix,True,True,aratti-risling-suhoe,user,пользователь: модель права; принят ответ модели
+q-0737,q-0737.jpg,villa-sofiya-merlo-kaberne-sovinon-krasnoe-suhoe-14,yes,not_in_catalog,True,False,,claude,«Вилла София КРАСНОСТОП сухое красное 2023» - в каталоге нет; разметка «Мерло - Каберне Совиньон» неверна
+q-0738,q-0738.jpg,cellar-master-sandzhoveze-krasnoe-suhoe-125,yes,keep,True,True,cellar-master-sandzhoveze-krasnoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0739,q-0739.jpg,b-yu-rne-vinisa-zh-suhoe-beloe,yes,keep,True,True,b-yu-rne-vinisa-zh-suhoe-beloe,claude,ведро winestyle с Бюрнье Винисаж
+q-0740,q-0740.jpg,chateau-le-grand-vostock-pino-nuar-rezerv-krasnoe-suhoe-14,yes,multi,True,True,chteau-le-grand-vostock-sauvignon-blanc-sovinon-blan-beloe-suhoe-14;chteau-le-grand-vostock-sauvignon-blanc-reserve-sovinon-blan-beloe-suhoe-14,claude,"«Château Le Grand Vostock Sauvignon Blanc», не Пино Нуар"
+q-0741,q-0741.jpg,mons-albus-rkatsiteli-beloe-suhoe-124,yes,keep,True,True,mons-albus-rkatsiteli-beloe-suhoe-124,claude,«MONS ALBUS РКАЦИТЕЛИ 2024»
+q-0742,q-0742.jpg,valeriy-zaharin-aligote-burlyuk-beloe-bryut-115,yes,keep,True,True,valeriy-zaharin-aligote-burlyuk-beloe-bryut-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0743,q-0743.jpg,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139,yes,fix,True,True,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15,claude,"«Cabernet Sauvignon Clairet», светлое вино"
+q-0744,q-0744.jpg,sacrum-bryut-rozovoe,yes,keep,True,True,sacrum-bryut-rozovoe,claude,«SACRUM BRUT ROSÉ»
+q-0745,q-0745.jpg,vinodelnya-pokrovskaya-pokrovskoe-sladkoe-krasnoe-kaberne-sovinon-13,yes,keep,True,True,vinodelnya-pokrovskaya-pokrovskoe-sladkoe-krasnoe-kaberne-sovinon-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0746,q-0746.jpg,gunko-winery-saperavi-gunko-winery-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,claude,«Gunko Winery Шардоне» - шардоне Gunko в каталоге нет
+q-0747,q-0747.jpg,karbon-glyu-2024,yes,fix,True,True,aligote-barrel-2025,user,пользователь: модель права; принят ответ модели
+q-0748,q-0748.jpg,aratti-kaberne-sovinon-2020-krasnoe-suhoe,yes,keep,True,True,aratti-kaberne-sovinon-2020-krasnoe-suhoe,claude,«АРАТТИ … КАБЕРНЕ СОВИНЬОН»
+q-0749,q-0749.jpg,kuban-vino-aristov-8-byanko-07-shardone-beloe-suhoe-8,yes,not_in_catalog,True,False,,claude,«Алексей Коретный Резерв 2023» - в каталоге нет
+q-0750,q-0750.jpg,aya-organic-wine-vineyards-evolution-chardonnay-shardone-beloe-suhoe-124,yes,remove,False,,,claude,люди за столом с помидорами
+q-0751,q-0751.jpg,dubinin-winery-saperavi-fresh-krasnoe-suhoe-135,yes,keep,True,True,dubinin-winery-saperavi-fresh-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0752,q-0752.jpg,czitronnyj-magaracha-sovinon-blan,yes,multi,True,True,zhemchuzhnaya-9-czitron-shardone;zhemchuzhnaya-9-czitron-shardone-1,claude,"«ЖЕМЧУЖНАЯ 9 ЦИТРОН ШАРДОНЕ 2024», не Совиньон блан"
+q-0753,q-0753.jpg,czimlyanskoe-beloe-polusladkoe,yes,not_in_catalog,True,False,,claude,«ЦИМЛЯНСКОЕ КЮВЕ САПЕРАВИ сухое красное 2023» - в каталоге нет
+q-0754,q-0754.jpg,vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138,yes,multi,True,True,vinodelnya-berdyaeva-kaberne-kaberne-sovinon-krasnoe-suhoe-138;vinodelnya-berdyaeva-kaberne-sovinon-krasnoe-suhoe-145;vinodelnya-berdyaeva-risling-beloe-polusuhoe-108;vinodelnya-berdyaeva-risling-risling-reynskiy-beloe-suhoe-121;vinodelnya-berdyaeva-kaberne-fran-krasnoe-suhoe-115,claude,"полка Бердяева: «Каберне Совиньон», «Рислинг» и третья бутылка"
+q-0755,q-0755.jpg,shato-ay-danil-tokkata-saperavi-krasnoe-suhoe-14,yes,keep,True,True,shato-ay-danil-tokkata-saperavi-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0756,q-0756.jpg,perovskih_kaberne_fran_reserve,yes,keep,True,True,perovskih_kaberne_fran_reserve,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0757,q-0757.jpg,shato-taman-polusladkoe,yes,not_in_catalog,True,False,,user+claude,«Chateau Tamagne ... Extra Brut 2024»: экстра брюта в каталоге нет
+q-0758,q-0758.jpg,domaine-de-la-vivandiere-senso-roze-rozovoe-suhoe-126,yes,multi,True,True,domaine-de-la-vivandiere-senso-roze-rozovoe-suhoe-126;domaine-de-la-vivandiere-vn-beloe-aligote-suhoe-131,claude,две Vivandière: розовая и жёлтая «Vn 2023» (белое)
+q-0759,q-0759.jpg,loco-cimbali-kuprin-bastardo-magarachskiy-krasnoe-suhoe-138,yes,unsure,False,,,claude,"фотосессия, розовое вино в графинах, этикетка не читается"
+q-0760,q-0760.jpg,solnechnaya-dolina-meganom-blanc-de-blancs-kokur-beloe-bryut-11,yes,multi,True,True,solnechnaya-dolina-meganom-kokur-beloe-bryut;solnechnaya-dolina-meganom-blanc-de-blancs-kokur-beloe-bryut-11,claude,«Солнечная Долина Меганом КОКУР БРЮТ»; две карточки
+q-0761,q-0761.jpg,sober-bash-grani-muskat-muskat-dzhialo-beloe-suhoe-12,yes,unsure,False,,,claude,"«СОБЕР БАШ … 2023» с розовой этикеткой-кувшином, название не читается"
+q-0762,q-0762.jpg,vinodelnya-batrak-contadina-merlo-krasnoe-suhoe-14,yes,keep,True,True,vinodelnya-batrak-contadina-merlo-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0763,q-0763.jpg,belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-136,yes,multi,True,True,belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-136;belbek-belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-135,claude,«Бельбек МЕРИТАЖ 2022»; две карточки
+q-0764,q-0764.jpg,uppa-winery-sovinon-blan-rezerva-beloe-suhoe-12,yes,remove,False,,,user,пользователь: удалить
+q-0765,q-0765.jpg,chteau-le-grand-vostock-fagotine-pino-gri-rozovoe-polusladkoe-11,yes,keep,True,True,chteau-le-grand-vostock-fagotine-pino-gri-rozovoe-polusladkoe-11,claude,"ряд Château Le Grand Vostock (Petit Chêne, Vostock rosé и др.)"
+q-0766,q-0766.jpg,vinodelnya-uzunov-aligote-beloe-suhoe-127,yes,keep,True,True,vinodelnya-uzunov-aligote-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0767,q-0767.jpg,toile-de-vin-cabernet-sauvignon,yes,keep,True,True,toile-de-vin-cabernet-sauvignon,claude,"Toile de vin, розово-красный узор как у cabernet sauvignon; надпись издалека не читается"
+q-0768,q-0768.jpg,vinodelnya-pokrovskaya-sovinon-blan-pokrovskoe-beloe-suhoe-12,yes,remove,False,,,claude,"бокалы у озера, бутылки нет"
+q-0769,q-0769.jpg,vinodelnya-pokrovskaya-pokrovskoe-sladkoe-krasnoe-kaberne-sovinon-13,yes,remove,False,,,user,пользователь: удалить
+q-0770,q-0770.jpg,seneth-shu-shu-saperavi-rozovoe-suhoe-12,yes,keep,True,True,seneth-shu-shu-saperavi-rozovoe-suhoe-12,claude,розовое «Шу-Шу» с корги
+q-0771,q-0771.jpg,vinodelnya-pokrovskaya-rozovoe-marinovskiy-suhoe-135,yes,remove,False,,,user,пользователь: удалить
+q-0772,q-0772.jpg,zimovets-avtohton-tsimlyanskiy-chernyy-krasnoe-suhoe-135,yes,keep,True,True,zimovets-avtohton-tsimlyanskiy-chernyy-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0773,q-0773.jpg,vinodelnya-uzunov-sovinon-blan-beloe-suhoe-125,yes,keep,True,True,vinodelnya-uzunov-sovinon-blan-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0774,q-0774.jpg,sober-bash-krasnostop-amfora-krasnostop-zolotovskiy-krasnoe-suhoe-13,yes,keep,True,True,sober-bash-krasnostop-amfora-krasnostop-zolotovskiy-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0775,q-0775.jpg,sand-zh-oveze-rezerv,yes,keep,True,True,sand-zh-oveze-rezerv,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0776,q-0776.jpg,tempelhof-winery-tsimlyanskiy-chernyy-krasnoe-suhoe-125,yes,not_in_catalog,True,False,,claude,«Tempelhof Cabernet Sauvignon 2023» - в каталоге нет (как q-0466)
+q-0777,q-0777.jpg,cru-lermont-risling,yes,fix,True,True,fanagoriya-cru-lermont-rubinovyy-magaracha-krasnoe-suhoe-13,user,пользователь: модель права; принят ответ модели
+q-0778,q-0778.jpg,dacha-serdyuka-porechnoe-kaberne-sovinon-krasnoe-suhoe-13,yes,remove,False,,,user,пользователь: удалить
+q-0779,q-0779.jpg,vinodelnya-berdyaeva-kaberne-sovinon-krasnoe-suhoe-145,yes,keep,True,True,vinodelnya-berdyaeva-kaberne-sovinon-krasnoe-suhoe-145,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0780,q-0780.jpg,vibes-montepulchano-kaberne-fran-pti-verdo,yes,keep,True,True,vibes-montepulchano-kaberne-fran-pti-verdo,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0781,q-0781.jpg,kuban-vino-aristov-8-roze-07-merlo-rozovoe-suhoe-8,yes,multi,True,True,kuban-vino-aristov-8-roze-07-merlo-rozovoe-suhoe-8;kuban-vino-aristov-8-roze-merlo-rozovoe-suhoe-8,claude,«ARISTOV 8 ROSE МЕРЛО»; две карточки
+q-0782,q-0782.jpg,shato-pino-pino-nuar-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,claude,"«CHATEAU PINOT … BRUT 2023» с лошадью (золотая этикетка) - в каталоге нет, не Пино Нуар"
+q-0783,q-0783.jpg,sira,yes,fix,True,True,mantra-blanc-de-blancs,user+claude,на этикетке «MANTRA ESTATE BLANC DE BLANCS 2021»
+q-0784,q-0784.jpg,vibes-riesling-silvaner-2022,yes,multi,True,True,vibes-riesling-silvaner-2022;vibes-riesling-silvaner-risling-beloe-suhoe-115,claude,«VIBES Riesling - Silvaner 2022»; две карточки
+q-0785,q-0785.jpg,dacha-serdyuka-saperavi-saperavi-severnyy-krasnoe-suhoe-14,yes,unsure,False,,,claude,"двое с бутылкой Дачи Сердюка, этикетка мелко"
+q-0786,q-0786.jpg,alma-valley-graviti-pino-blan-beloe-suhoe-135,yes,keep,True,True,alma-valley-graviti-pino-blan-beloe-suhoe-135,claude,«GRAVITY by ALMA» пино блан
+q-0787,q-0787.jpg,vinodelnya-batrak-klaret-podarok-magaracha-rozovoe-suhoe-12,yes,remove,False,,,claude,"виноградник, бутылки нет"
+q-0788,q-0788.jpg,abrau-dyurso-brut-dor-riesling-risling-beloe-bryut-12,yes,keep,True,True,abrau-dyurso-brut-dor-riesling-risling-beloe-bryut-12,claude,«Абрау-Дюрсо Brut d'Or Riesling 2022»
+q-0789,q-0789.jpg,alma-valley-traminer-beloe-suhoe-125,yes,fix,True,True,alma-valley-kaberne-sovinon-rezerv-krasnoe-suhoe-15,user+claude,на этикетке «ALMA VALLEY RESERVE 2021 CABERNET SAUVIGNON»; детектор взял фон
+q-0790,q-0790.jpg,abrau-dyurso-brut-dor-blanc-de-blancs-shardone-beloe-bryut-12,yes,remove,False,,,user,пользователь: удалить
+q-0791,q-0791.jpg,domaine-de-la-vivandiere-sibirkovyy-fresh-beloe-suhoe-125,yes,not_in_catalog,True,False,,claude,«РКАЦИТЕЛИ FRESH VIVANDIÈRE Côtes du Don 2024» - в каталоге нет
+q-0792,q-0792.jpg,toile-de-vin-pinot-blanc,yes,keep,True,True,toile-de-vin-pinot-blanc,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0793,q-0793.jpg,chateau-tamagne-nature-vert,yes,keep,True,True,chateau-tamagne-nature-vert,claude,«CHATEAU TAMAGNE Vert»
+q-0794,q-0794.jpg,loco-cimbali-kuprin-bastardo-magarachskiy-krasnoe-suhoe-138,yes,keep,True,True,loco-cimbali-kuprin-bastardo-magarachskiy-krasnoe-suhoe-138,user,пользователь: абрп = модель снова ответила «Розовое полусладкое Абрау» (вино-магнит)
+q-0795,q-0795.jpg,chateau-de-talu-enolog-kaberne-sovinon-krasnoe-suhoe-15,yes,keep,True,True,chateau-de-talu-enolog-kaberne-sovinon-krasnoe-suhoe-15,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0796,q-0796.jpg,legato-legato-pino-nuar-krasnoe-suhoe-135,yes,keep,True,True,legato-legato-pino-nuar-krasnoe-suhoe-135,claude,иллюстрация с бутылкой «LeGATO Pinot Noir»
+q-0797,q-0797.jpg,,no,keep,True,False,,claude,«ДВА СЕРДЦА ПТИ МАНСЕНГ» - в каталоге нет (проверено)
+q-0798,q-0798.jpg,dacha-serdyuka-sibirkovyy-beloe-suhoe-135,yes,fix,True,True,dacha-serdyuka-sibirkovyy-oranzh-beloe-suhoe-135,claude,"«Дача Сердюка ОРАНЖ ЛЕТНИЙ» с ежом, не Сибирьковый"
+q-0799,q-0799.jpg,usadba-perovskih-kaberne-fran-1890-krasnoe-suhoe-13,yes,not_in_catalog,True,False,,claude,«Усадьба Перовских 1890 ПИНО НУАР» - в каталоге нет (как q-0130)
+q-0800,q-0800.jpg,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12,yes,multi,True,True,vinogradniki-gay-kodzora-muscat-ga-kodzor-muskat-melkozernistyy-beloe-suhoe-12;vinogradniki-gay-kodzora-rose-de-gai-kodzor-grenash-rozovoe-suhoe-125,claude,две Гай-Кодзор: «Rosé» и «Muscat sec blanc»
+q-0801,q-0801.jpg,chateau-andre-gryuner-beloe-suhoe-13,yes,keep,True,True,chateau-andre-gryuner-beloe-suhoe-13,claude,«Chateau André GRUNER Veltliner 2022»
+q-0802,q-0802.jpg,vino-nebo-aligote-sur-lie-aligote-beloe-suhoe-127,yes,keep,True,True,vino-nebo-aligote-sur-lie-aligote-beloe-suhoe-127,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0803,q-0803.jpg,balaklava-muskat-beloe-polusladkoe,yes,fix,True,True,balaklava-pino-nuar,user+claude,на пино нуар больше похоже = ответ модели
+q-0804,q-0804.jpg,vibes-riesling-silvaner-risling-beloe-suhoe-115,yes,multi,True,True,vibes-riesling-silvaner-risling-beloe-suhoe-115;vibes-riesling-silvaner-2022,claude,узкая бутылка VIBES с синей этикеткой = Riesling - Silvaner; две карточки
+q-0805,q-0805.jpg,portvejn-surozh,yes,keep,True,True,portvejn-surozh,claude,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ СУРОЖ»
+q-0806,q-0806.jpg,wine,yes,fix,True,True,balaklava-bryut-rezerv,claude,"«БАЛАКЛАВА Brut», белое (не розе)"
+q-0807,q-0807.jpg,villa-urkusta-kaberne-sovinon-roze-de-sene-rozovoe-suhoe-13,yes,keep,True,True,villa-urkusta-kaberne-sovinon-roze-de-sene-rozovoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0808,q-0808.jpg,vinodelnya-myshako-sesto-senso-fruktovyy-vzryv-kaberne-sovinon-krasnoe-suhoe-155,yes,not_in_catalog,True,False,,claude,"две бутылки «МЫСХАКО NOBLE AGE CHARDONNAY» (одна Blanc de Blanc Brut) - в каталоге нет, не Sesto Senso"
+q-0809,q-0809.jpg,relikta-relikta-antey-magarachskiy-muskat-belyy-rozovoe-polusuhoe-11,yes,multi,True,True,relikta-relikta-antey-magarachskiy-muskat-belyy-rozovoe-polusuhoe-11;relikta-relikta-varvary-antey-magarachskiy-krasnoe-suhoe-13-15,user,пользователь: из трёх центральную угадала
+q-0810,q-0810.jpg,molodoe-shato-taman-1,yes,keep,True,True,molodoe-shato-taman-1,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0811,q-0811.jpg,derbent-vino-di-kaspiko-shardone-beloe-polusladkoe-105-125,yes,fix,True,True,polusuhoe-rozovoe-zb-vajn-frizzante,user,пользователь: модель права; принят ответ модели
+q-0812,q-0812.jpg,gavras-sira-krasnoe-suhoe-135,yes,keep,True,True,gavras-sira-krasnoe-suhoe-135,user,пользователь: из четырёх выбрала вторую слева и ошиблась
+q-0813,q-0813.jpg,toile-de-vin-cabernet-sauvignon,yes,not_in_catalog,True,False,,claude,"«TOILE DE VIN Cabernet Franc 2025» - в каталоге нет, не Cabernet Sauvignon"
+q-0814,q-0814.jpg,novyy-svet-dom-shampanskih-vin-novyy-svet-kyuve-ekstra-bryut-shardone-beloe-135,yes,multi,True,True,novyy-svet-dom-shampanskih-vin-novyy-svet-kyuve-ekstra-bryut-shardone-beloe-135;novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-ekstra-bryut-beloe-novyy-svet-kyuve-risling-125,claude,«Новый Свет Кюве 1878 Брют Натюр»; в каталоге две карточки «Кюве 1878» (экстра брют)
+q-0815,q-0815.jpg,zhemchuzhnaya-9-pino-nuar-muskat-rozovyj,yes,multi,True,True,zhemchuzhnaya-9-aligote-czitron;zhemchuzhnaya-9-kaberne-sovinon-pino-nuar-1;zhemchuzhnaya-9-kaberne-sovinon-pino-nuar;zhemchuzhnaya-9-merlo-kaberne-sovinon;zhemchuzhnaya-9-muskat-rozovyj-kaberne-sovinon;zhemchuzhnaya-9-muskat-rozovyj-pino-gri;zhemchuzhnaya-9-pino-gri-pino-nuar;zhemchuzhnaya-9-pino-nuar-muskat-rozovyj-2;zhemchuzhnaya-9-pino-nuar-muskat-rozovyj-1;zhemchuzhnaya-9-pino-nuar-muskat-rozovyj;zhemchuzhnaya-9-risling-sovinon-blan;zhemchuzhnaya-9-sovinon-blan-aligote;zhemchuzhnaya-9-czitron-shardone-1;zhemchuzhnaya-9-czitron-shardone,claude,"стол со всей линейкой «Жемчужная 9» (Мускат розовый, Каберне Совиньон, Пино Нуар, Мерло, Рислинг…); любая Жемчужная 9 - верный ответ"
+q-0816,q-0816.jpg,nikolaev-i-synovya-flamingo-malbek-rozovoe-suhoe-125,yes,keep,True,True,nikolaev-i-synovya-flamingo-malbek-rozovoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0817,q-0817.jpg,seneth-shu-shu-saperavi-rozovoe-suhoe-12,yes,keep,True,True,seneth-shu-shu-saperavi-rozovoe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0818,q-0818.jpg,alma-valley-pino-nuar-beloe-ekstra-bryut-115,yes,keep,True,True,alma-valley-pino-nuar-beloe-ekstra-bryut-115,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0819,q-0819.jpg,chateau-de-talu-uroki-frantsuzskogo-krasnostop-krasnostop-anapskiy-krasnoe-suhoe-145,yes,keep,True,True,chateau-de-talu-uroki-frantsuzskogo-krasnostop-krasnostop-anapskiy-krasnoe-suhoe-145,claude,«CHÂTEAU TALU УРОКИ ФРАНЦУЗСКОГО КРАСНОСТОП»
+q-0820,q-0820.jpg,loco-cimbali-vione-beloe-suhoe-14,yes,keep,True,True,loco-cimbali-vione-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0821,q-0821.jpg,villa-di-alma-ekstra-bryut-kokur-beloe-125,yes,unsure,False,,,claude,"полка с разными бутылками, цель неясна"
+q-0822,q-0822.jpg,vinodelnya-raevskoe-glou-krasnoe-merlo-suhoe-14,yes,keep,True,True,vinodelnya-raevskoe-glou-krasnoe-merlo-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0823,q-0823.jpg,dacha-serdyuka-saperavi-saperavi-severnyy-krasnoe-suhoe-14,yes,not_in_catalog,True,False,,claude,«Дача Сердюка ИМПЕРСКИЙ КРАСНОСТОП №1» - в каталоге нет
+q-0824,q-0824.jpg,villa-urkusta-kaberne-sovinon-roze-de-sene-rozovoe-suhoe-13,yes,fix,True,True,villa-urkusta-kaberne-sovinon-klaret-rozovoe-polusuhoe-15,claude,"«Villa Urkusta Cabernet Sauvignon Clairet» в прозрачной бутылке, не Розе де Сенье"
+q-0825,q-0825.jpg,cloudy-winery-krash-super-bryut-shardone-beloe-ekstra-bryut-85,yes,keep,True,True,cloudy-winery-krash-super-bryut-shardone-beloe-ekstra-bryut-85,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0826,q-0826.jpg,,no,keep,True,False,,claude,«GAÏ-KODZOR Chardonnay 2025» - в каталоге нет (проверено)
+q-0827,q-0827.jpg,gunko-winery-monumental-bryut-shardone-beloe-12,yes,keep,True,True,gunko-winery-monumental-bryut-shardone-beloe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0828,q-0828.jpg,sira,yes,keep,True,True,sira,claude,«MANTRA ESTATE SYRAH 2023»
+q-0829,q-0829.jpg,shardone-balaklava,yes,keep,True,True,shardone-balaklava,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0830,q-0830.jpg,legato-legato-shardone-beloe-suhoe-135,yes,unsure,False,,,claude,"«LeGATO LUI …» - не Шардоне; в каталоге такой линейки нет, но надпись не дочитать"
+q-0831,q-0831.jpg,fanagoriya-alveus-ultra-cuvee-ekstra-bryut-beloe-risling-reynskiy-12,yes,keep,True,True,fanagoriya-alveus-ultra-cuvee-ekstra-bryut-beloe-risling-reynskiy-12,claude,«ALVEUS ULTRA CUVÉE»
+q-0832,q-0832.jpg,sober-bash-trezvaya-golova-risling-risling-reynskiy-beloe-suhoe-10,yes,keep,True,True,sober-bash-trezvaya-golova-risling-risling-reynskiy-beloe-suhoe-10,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0833,q-0833.jpg,inkermanskiy-zmv-inkerman-pino-blan-zero-dozazh-beloe-ekstra-bryut-12,yes,remove,False,,,claude,"человек с газетой, бутылки нет"
+q-0834,q-0834.jpg,vinodelnya-myshako-chernoe-iz-krasnogo-appassimento-kaberne-sovinon-krasnoe-polusuhoe-15,yes,keep,True,True,vinodelnya-myshako-chernoe-iz-krasnogo-appassimento-kaberne-sovinon-krasnoe-polusuhoe-15,claude,«МЫСХАКО ЧЕРНОЕ ИЗ КРАСНОГО Аппассименто»
+q-0835,q-0835.jpg,twopeters_kaberne_sovinion,yes,keep,True,True,twopeters_kaberne_sovinion,user,пользователь: этикеткой посчитался кирпич
+q-0836,q-0836.jpg,chteau-le-grand-vostock-fagotine-pino-gri-rozovoe-polusladkoe-11,yes,keep,True,True,chteau-le-grand-vostock-fagotine-pino-gri-rozovoe-polusladkoe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0837,q-0837.jpg,relikta-relikta-ekstra-bryut-shardone-beloe-105,yes,keep,True,True,relikta-relikta-ekstra-bryut-shardone-beloe-105,claude,«Реликта Экстра Брют»
+q-0838,q-0838.jpg,vinodelnya-marko-dikiy-sovinon-sovinon-blan-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-dikiy-sovinon-sovinon-blan-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0839,q-0839.jpg,esse-brut-cuvee-prestige-shardone-beloe-ekstra-bryut-115,yes,keep,True,True,esse-brut-cuvee-prestige-shardone-beloe-ekstra-bryut-115,claude,«ESSE BRUT CUVÉE PRESTIGE»
+q-0840,q-0840.jpg,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12,yes,fix,True,True,villa-urkusta-kaberne-sovinon-rezerva-krasnoe-suhoe-15,claude,«Villa Urkusta Reserva 12 Cabernet Sauvignon 2023»
+q-0841,q-0841.jpg,vinodelnya-batrak-klaret-podarok-magaracha-rozovoe-suhoe-12,yes,keep,True,True,vinodelnya-batrak-klaret-podarok-magaracha-rozovoe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0842,q-0842.jpg,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-ekstra-bryut-beloe-novyy-svet-kokur-11,yes,keep,True,True,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-vyderzhannoe-ekstra-bryut-beloe-novyy-svet-kokur-11,claude,"«Новый Свет» в ведре со льдом, выдержанное"
+q-0843,q-0843.jpg,mont-blanc-blanc-de-blancs,yes,multi,True,True,mont-blanc-cuvee;mont-blanc-blanc-de-blancs,claude,"две бутылки: в рамке «Mont Blanc Cuvée BRUT», рядом «Mont Blanc Blanc de Blancs BRUT»"
+q-0844,q-0844.jpg,novyy-svet-dom-shampanskih-vin-rossiyskoe-shampanskoe-kollektsionnoe-ekstra-bryut-beloe-novyy-svet-blan-de-nuar-pino-nuar-13,yes,remove,False,,,user,пользователь: удалить
+q-0845,q-0845.jpg,millstream-alamak-bryut-beloe,yes,keep,True,True,millstream-alamak-bryut-beloe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0846,q-0846.jpg,vinodelnya-pokrovskaya-sovinon-blan-pokrovskoe-beloe-suhoe-12,yes,fix,True,True,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,claude,"«ТИХОЕ ЗНАНИЕ … РКАЦИТЕЛИ» - бежевая этикетка Ркацители-Шардоне, не зелёная Совиньон Блан"
+q-0847,q-0847.jpg,bakla-vines-kangun-beloe-suhoe-12,yes,keep,True,True,bakla-vines-kangun-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0848,q-0848.jpg,shato-pino-shary-kolduna-topolek-rkatsiteli-beloe-suhoe-125,yes,not_in_catalog,True,False,,claude,"«CHATEAU PINOT … BRUT ROSÉ 2023» с лошадью - в каталоге нет, не Шары Колдуна"
+q-0849,q-0849.jpg,vinodelnya-batrak-perfekt-klassik-pino-nuar-krasnoe-suhoe-12,yes,not_in_catalog,True,False,,claude,в рамке «Виталий Батрак Labsal» - в каталоге нет; рядом Батрак Пино Нуар
+q-0850,q-0850.jpg,abrau-dyurso-femme-dabrau-amurskiy-potapenko-krasnoe-suhoe-107,yes,keep,True,True,abrau-dyurso-femme-dabrau-amurskiy-potapenko-krasnoe-suhoe-107,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0851,q-0851.jpg,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,yes,keep,True,True,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,claude,«РКАЦИТЕЛИ - Ш…» Покровская
+q-0852,q-0852.jpg,aratti-kaberne-sovinon-2020-krasnoe-suhoe,yes,keep,True,True,aratti-kaberne-sovinon-2020-krasnoe-suhoe,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0853,q-0853.jpg,arie-riserva,yes,keep,True,True,arie-riserva,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0854,q-0854.jpg,vinodelnya-myshako-gevyurtstraminer-mode-petnat-beloe-bryut-118,yes,keep,True,True,vinodelnya-myshako-gevyurtstraminer-mode-petnat-beloe-bryut-118,claude,"бутылка Mode Мысхако, сорт не читается"
+q-0855,q-0855.jpg,cellar-master-sandzhoveze-krasnoe-suhoe-125,yes,fix,True,True,sand-zh-oveze-rezerv,user,"пользователь: модель верно для своей бутылки, разметка неверна; принят ответ модели"
+q-0856,q-0856.jpg,uva-vallis-risling,yes,keep,True,True,uva-vallis-risling,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0857,q-0857.jpg,naomi-2023,yes,remove,False,,,user,пользователь: удалить
+q-0858,q-0858.jpg,,no,keep,True,False,,claude,"«Усадьба Перовских Саперави, лимитированная серия» - в каталоге нет (проверено)"
+q-0859,q-0859.jpg,vinogradniki-gay-kodzora-malbec-de-gai-kodzor-malbek-krasnoe-suhoe-135,yes,not_in_catalog,True,False,,claude,«SHIRAZ GAÏ-KODZOR» - в каталоге нет; разметка «Malbec» неверна
+q-0860,q-0860.jpg,aromatnoe-malbek-rezerv-krasnoe-suhoe-125,yes,keep,True,True,aromatnoe-malbek-rezerv-krasnoe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0861,q-0861.jpg,kokur-suhoe-2025,yes,multi,True,True,kokur-suhoe-2025;kokur-2025,claude,«ДВА БРАТА KOKUR 2024»; в каталоге две карточки Кокура 2025
+q-0862,q-0862.jpg,sovinon-blan-krasnaya-gorka,yes,keep,True,True,sovinon-blan-krasnaya-gorka,user,пользователь: честно
+q-0863,q-0863.jpg,vinodelnya-byurne-lyublyu-beloe-shardone-suhoe-135,yes,keep,True,True,vinodelnya-byurne-lyublyu-beloe-shardone-suhoe-135,claude,«БЮРНЬЕ ЛЮБЛЮ белое сухое»
+q-0864,q-0864.jpg,andryus-yutsis-organik-risling-beloe-suhoe-115,yes,fix,True,True,andryus-yutsis-shenen-blan-beloe-suhoe-12,claude,"«Andryus Yutsis CHENIN BLANC Sevastopol», не Органик Рислинг"
+q-0865,q-0865.jpg,villa-urkusta-kaberne-sovinon-rezerva-krasnoe-suhoe-15,yes,multi,True,True,villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-139;villa-urkusta-kaberne-sovinon-klassik-krasnoe-suhoe-12,claude,"на этикетке «Cabernet Sauvignon Classic 2024», не Reserva; две карточки"
+q-0866,q-0866.jpg,tempelhof-winery-pino-nuar-krasnoe-suhoe-125,yes,multi,True,True,tempelhof-winery-pino-nuar-krasnoe-suhoe-125;tempelhof-winery-tsimlyanskiy-chernyy-krasnoe-suhoe-125;tempelhof-winery-risling-risling-reynskiy-beloe-suhoe-115;tempelhof-winery-shpetburgunder-pino-nuar-krasnoe-suhoe-125,claude,"четыре Tempelhof: Tsimlyansky Cherny, Pinot Noir (в рамке), Riesling, Spätburgunder"
+q-0867,q-0867.jpg,domaine-lipko-blaufrankisch-domaine-lipko-blaufrankish-krasnoe-suhoe-136,yes,not_in_catalog,True,False,,claude,"«DOMAINE LIPKO SANGIOVESE» - в каталоге нет, не Blaufrankisch"
+q-0868,q-0868.jpg,vinodelnya-uzunov-mono-kaberne-sovinon-krasnoe-suhoe-139,yes,fix,True,True,vinodelnya-uzunov-mono-saperavi-krasnoe-suhoe-139,claude,«Винодельня Узунов САПЕРАВИ красное сухое 2020» - старый дизайн этикетки; в каталоге Узунов Моно. Саперави
+q-0869,q-0869.jpg,loco-cimbali-pino-blan-beloe-suhoe-13,yes,keep,True,True,loco-cimbali-pino-blan-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0870,q-0870.jpg,vinodelnya-marko-risling-beloe-suhoe-12,yes,keep,True,True,vinodelnya-marko-risling-beloe-suhoe-12,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0871,q-0871.jpg,shardone-balaklava,yes,fix,True,True,balaklava-pino-nuar,claude,«БАЛАКЛАВА PINOT NOIR Brut»
+q-0872,q-0872.jpg,derbent-vino-graf-vorontsov-bryut-rozovoe-pervenets-magaracha-105-125,yes,keep,True,True,derbent-vino-graf-vorontsov-bryut-rozovoe-pervenets-magaracha-105-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0873,q-0873.jpg,alma-valley-tba-sovinon-sovinon-blan-beloe-sladkoe-75,yes,unsure,False,,,claude,"бутылка «IL LAGO» с лебедем, производитель не опознан"
+q-0874,q-0874.jpg,shato-ay-danil-presto-rezerv-kaberne-sovinon-krasnoe-suhoe-135,yes,keep,True,True,shato-ay-danil-presto-rezerv-kaberne-sovinon-krasnoe-suhoe-135,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0875,q-0875.jpg,sober-bash-rubin-rubin-rubin-azos-krasnoe-suhoe-14,yes,remove,False,,,user,пользователь: удалить
+q-0876,q-0876.jpg,shardone-barrel-2023,yes,keep,True,True,shardone-barrel-2023,claude,«Коммуналка CHARDONNAY FRENCH BARREL»
+q-0877,q-0877.jpg,shato-ay-danil-byanko-da-sole-muskat-belyy-beloe-polusladkoe-13,yes,not_in_catalog,True,False,,claude,"«Château Côtes de Saint Daniel ДЖАННЕТ 2012» - в каталоге нет, не Бьянко да Соле"
+q-0878,q-0878.jpg,aristov-anima-millesimato,yes,multi,True,True,aristov-anima-millesimato-beloe-bryut;aristov-anima-millesimato,claude,«ARISTOV ANIMA MILLESIMATO BRUT 2025» (тёмная бутылка) + розовая Anima сзади
+q-0879,q-0879.jpg,usadba-perovskih-blanc-de-blancs-shardone-beloe-ekstra-bryut-11,yes,keep,True,True,usadba-perovskih-blanc-de-blancs-shardone-beloe-ekstra-bryut-11,claude,«Усадьба Перовских Extra Brut Blanc de Blancs»
+q-0880,q-0880.jpg,shato-ay-danil-bomond-aligote-beloe-suhoe-13,yes,keep,True,True,shato-ay-danil-bomond-aligote-beloe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0881,q-0881.jpg,belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-136,yes,multi,True,True,belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-136;belbek-belbek-meritazh-kaberne-sovinon-krasnoe-suhoe-135,claude,Бельбек Меритаж (радужная этикетка); две карточки
+q-0882,q-0882.jpg,novyj-svet-zolotoj-risling,yes,keep,True,True,novyj-svet-zolotoj-risling,user,пользователь: честно
+q-0883,q-0883.jpg,relikta-relikta-antey-magarachskiy-muskat-belyy-rozovoe-polusuhoe-11,yes,keep,True,True,relikta-relikta-antey-magarachskiy-muskat-belyy-rozovoe-polusuhoe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0884,q-0884.jpg,lesnaya-proseka,yes,keep,True,True,lesnaya-proseka,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0885,q-0885.jpg,czimlyanskoe-bianka,yes,fix,True,True,igristoe-krasnoe-sladkoe-czimlyanskoe,claude,"«ЦИМЛЯНСКОЕ … сладкое красное», не Бианка"
+q-0886,q-0886.jpg,alma-valley-pino-nuar-rezerv-krasnoe-suhoe-14,yes,keep,True,True,alma-valley-pino-nuar-rezerv-krasnoe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0887,q-0887.jpg,miroir-de-talu-merlot-krasnostop,yes,fix,True,True,miroir-de-talu-merlot-cabernet-sauvignon,claude,"«MIROIR DE TALU МЕРЛО КАБЕРНЕ СОВИНЬОН», не Красностоп"
+q-0888,q-0888.jpg,kuban-vino-aristov-8-byanko-07-shardone-beloe-suhoe-8,yes,remove,False,,,claude,пиво «№1 Light Lager»
+q-0889,q-0889.jpg,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,yes,keep,True,True,vinodelnya-krinitsa-arena-sira-krasnoe-suhoe-13,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0890,q-0890.jpg,uppa-winery-nebbiolo-krasnoe-suhoe-14,yes,not_in_catalog,True,False,,claude,«PAVEL SHVETS PINOT NOIR Cler Polati Rodnoe 2023» - в каталоге нет; разметка «Неббиоло» неверна
+q-0891,q-0891.jpg,lesnaya-proseka,yes,keep,True,True,lesnaya-proseka,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0892,q-0892.jpg,usadba-perovskih-kaberne-fran-1890-krasnoe-suhoe-13,yes,fix,True,True,usadba-perovskih-kaberne-sovinon-merlo-1890-krasnoe-suhoe-13,claude,"«Усадьба Перовских 1890 КАБЕРНЕ СОВИНЬОН И МЕРЛО», не Каберне Фран"
+q-0893,q-0893.jpg,imenie-sikory-kaberne-sovinon-semeynyy-rezerv-krasnoe-suhoe-14,yes,keep,True,True,imenie-sikory-kaberne-sovinon-semeynyy-rezerv-krasnoe-suhoe-14,user,пользователь: промах детектора этикетки
+q-0894,q-0894.jpg,shato-taman-bryut-1,yes,remove,False,,,claude,розовая бочка Chateau Tamagne
+q-0895,q-0895.jpg,,no,keep,True,False,,claude,«Бельбек МАЛЬБЕК сухое красное 2023» - в каталоге нет (проверено)
+q-0896,q-0896.jpg,derbent-vino-kavkazian-saperavi-krasnoe-suhoe-105-125,yes,fix,True,True,zmv-koktebel-kagor-vysshego-kachestva-kaberne-sovinon-krasnoe-sladkoe-16,claude,"«КАГОР Коктебель», не Кавказиан"
+q-0897,q-0897.jpg,belbek-belbek-risling-beloe-suhoe-128,yes,keep,True,True,belbek-belbek-risling-beloe-suhoe-128,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0898,q-0898.jpg,sober-bash-dve-doliny-myuller-turgau-2023-beloe-suhoe-117,yes,multi,True,True,sober-bash-dve-doliny-myuller-turgau-2023-beloe-suhoe-117;sober-bash-dve-doliny-tsimlyanskiy-2023-tsimlyanskiy-chernyy-krasnoe-suhoe-13,user,пользователь: для выбранной бутылки верно
+q-0899,q-0899.jpg,loco-cimbali-risling-risling-reynskiy-beloe-suhoe-13,yes,keep,True,True,loco-cimbali-risling-risling-reynskiy-beloe-suhoe-13,claude,«Loco Cimbali RIESLING»
+q-0900,q-0900.jpg,vinodelnya-myshako-gevyurtstraminer-mode-petnat-beloe-bryut-118,yes,not_in_catalog,True,False,,claude,"«Мысхако MODÉ Dry Red CABERNET SAUVIGNON MERLOT» - в каталоге нет, не Гевюрцтраминер Петнат"
+q-0901,q-0901.jpg,shato-ay-danil-skarlatto-da-sole-saperavi-krasnoe-polusladkoe-13,yes,not_in_catalog,True,False,,claude,«РОССО ДА СОЛЕ» - в каталоге нет (как q-0168)
+q-0902,q-0902.jpg,andryus-yutsis-muscat-blanc-muskat-beloe-suhoe-112,yes,fix,True,True,andryus-yutsis-organic-syrah-sira-krasnoe-suhoe-135,claude,"тёмные бутылки «Andryus Yutsis ORGANIC SYRAH», не Muscat Blanc"
+q-0903,q-0903.jpg,aromatnoe-shenen-blan-beloe-suhoe-13,yes,not_in_catalog,True,False,,claude,«Ароматное ШАРДОНЕ 2024 Резерв» - в каталоге нет
+q-0904,q-0904.jpg,usadba-perovskih-pino-nuar-rezerv-krasnoe-suhoe-122,yes,not_in_catalog,True,False,,claude,«Усадьба Перовских 135 СИРА МУРВЕДР» - в каталоге нет
+q-0905,q-0905.jpg,vibes-vermentino-viognier-barrel-fermented-vermentino-beloe-suhoe-115,yes,multi,True,True,vibes-vermentino-viognier-barrel-fermented-vermentino-beloe-suhoe-115;vibes-vermentino-viognier-barrel-fermented-2022,claude,«VIBES Vermentino - Viognier 2022 Barrel Fermented»; две карточки
+q-0906,q-0906.jpg,zmv-koktebel-kokur-bryut-beloe-11,yes,keep,True,True,zmv-koktebel-kokur-bryut-beloe-11,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0907,q-0907.jpg,denisov_pet_nat_rubin,yes,keep,True,True,denisov_pet_nat_rubin,user,"пользователь: выбрала ту, которой скорее всего нет"
+q-0908,q-0908.jpg,vinodelnya-berdyaeva-kaberne-sovinon-krasnoe-suhoe-145,yes,keep,True,True,vinodelnya-berdyaeva-kaberne-sovinon-krasnoe-suhoe-145,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0909,q-0909.jpg,sira,yes,fix,True,True,mantra-estate-sauvignon-blanc-sovinon-blan-beloe-suhoe-133,user+claude,на этикетке «MANTRA ESTATE SAUVIGNON BLANC»
+q-0910,q-0910.jpg,dva-brata-pet-nat-kokur-2024,yes,keep,True,True,dva-brata-pet-nat-kokur-2024,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0911,q-0911.jpg,solnechnaya-dolina-chernyy-doktor-solnechnoy-doliny-ekim-kara-krasnoe-sladkoe-16,yes,remove,False,,,user,пользователь: удалить
+q-0912,q-0912.jpg,shardone-akacziya,yes,fix,True,True,shardone-2,claude,"«Галицкий и Галицкий ШАРДОНЕ Красная горка 2022», не Акация"
+q-0913,q-0913.jpg,aromatnoe-malbek-rezerv-krasnoe-suhoe-125,yes,keep,True,True,aromatnoe-malbek-rezerv-krasnoe-suhoe-125,claude,«Ароматное МАЛЬБЕК Вишневецкого Крым Резерв 2024»
+q-0914,q-0914.jpg,loco-cimbali-vione-beloe-suhoe-14,yes,keep,True,True,loco-cimbali-vione-beloe-suhoe-14,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0915,q-0915.jpg,vinodelnya-uzunov-sovinon-blan-beloe-suhoe-125,yes,keep,True,True,vinodelnya-uzunov-sovinon-blan-beloe-suhoe-125,claude,топ-1 модели = разметка; этикетка проверена по листу
+q-0916,q-0916.jpg,fanagoriya-sur-lie-chardonnay-shardone-beloe-suhoe-135,yes,keep,True,True,fanagoriya-sur-lie-chardonnay-shardone-beloe-suhoe-135,claude,«Chardonnay Sur Lie» во льду
+q-0917,q-0917.jpg,ballet-blanc,yes,keep,True,True,ballet-blanc,claude,«Галицкий & Галицкий BALLET BLANC»
+q-0918,q-0918.jpg,usadba-perovskih-rkatsiteli-beloe-suhoe-13,yes,remove,False,,,user,пользователь: удалить

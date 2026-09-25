@@ -7,7 +7,8 @@ from scripts.evaluate_api import compute_metrics
 
 
 def row(truth, predicted, top5, error=False):
-    result = {"true_slug": truth, "predicted_slug": predicted, "top5": top5,
+    truths = truth if isinstance(truth, list) else ([] if truth is None else [truth])
+    result = {"true_slugs": truths, "in_catalog": truth is not None, "predicted_slug": predicted, "top5": top5,
               "model_version": "v1", "elapsed_ms": 10, "status": "matched"}
     if error:
         result["error"] = "Timeout"
@@ -27,6 +28,15 @@ def test_metrics_distinguish_top5_recall_f1_and_failures():
     assert report["f1_top5"] == pytest.approx(4 / 7)
     assert report["recall_at_5"] == pytest.approx(2 / 3)
     assert report["coverage"] == .5
+
+
+def test_any_accepted_slug_counts_and_unknown_wrong_label_is_a_miss():
+    report = compute_metrics([
+        row(["a", "a2"], "a2", ["a2"]),  # second bottle / duplicate card: TP
+        row([], "x", ["x"]),             # in catalogue, true wine unidentified: FP + FN
+    ])
+    assert report["f1_top1"] == pytest.approx(2 / 4)
+    assert report["recall_at_5"] == pytest.approx(1 / 2)
 
 
 def test_reports_are_null_until_actually_evaluated(tmp_path):

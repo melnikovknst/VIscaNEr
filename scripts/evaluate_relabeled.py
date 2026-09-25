@@ -17,10 +17,12 @@ half - the most precise setting within 0.01 of the best F1 there - and scored on
 report half.
 
     python -m scripts.evaluate_relabeled
+    python -m scripts.evaluate_relabeled --bottle-run old_run.json --out old_scores.json
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import json
@@ -39,8 +41,8 @@ def split(source_post: str) -> str:
     return "selection" if digest[0] % 2 == 0 else "report"
 
 
-def load_systems() -> dict[str, dict[str, list[tuple[str, float]]]]:
-    bottle = json.loads(BOTTLE_RUN.read_text(encoding="utf-8"))["results"]
+def load_systems(bottle_run: Path = BOTTLE_RUN) -> dict[str, dict[str, list[tuple[str, float]]]]:
+    bottle = json.loads(bottle_run.read_text(encoding="utf-8"))["results"]
     label = json.loads(LABEL_RUN.read_text(encoding="utf-8"))
     return {
         "bottle": {Path(r["source"]).stem: [(p["wine_slug"], p["similarity"]) for p in r["predictions"]]
@@ -100,8 +102,12 @@ def choose_thresholds(rows, preds) -> tuple[float, float]:
 
 
 def main() -> None:
-    systems = load_systems()
-    report = {"truth": str(RELABELED.relative_to(ROOT)), "systems": {}}
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--bottle-run", type=Path, default=BOTTLE_RUN, help="infer_wine.py --output JSON")
+    parser.add_argument("--out", type=Path, default=OUT)
+    args = parser.parse_args()
+    systems = load_systems(args.bottle_run)
+    report = {"truth": str(RELABELED.relative_to(ROOT)), "bottle_run": args.bottle_run.as_posix(), "systems": {}}
     for name, preds in systems.items():
         entry = {}
         for relabeled in (False, True):
@@ -117,14 +123,14 @@ def main() -> None:
                                     "report": abstention_scores(rep, preds, s, m)},
             }
         report["systems"][name] = entry
-    OUT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for name, entry in report["systems"].items():
         for kind, e in entry.items():
             a, rep = e["ranking"]["all"], e["with_abstention"]["report"]
             print(f"{name:6} {kind:15} n={a['photos_in_catalog']:3} top1={a['top1']:.3f} top2={a['top2']:.3f} "
                   f"top5={a['top5']:.3f} | report F1={rep['f1']:.3f} P={rep['precision']:.3f} "
                   f"cov={rep['coverage']:.3f} @ {e['thresholds_from_selection']}")
-    print(OUT)
+    print(args.out)
 
 
 if __name__ == "__main__":

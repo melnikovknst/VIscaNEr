@@ -1,46 +1,47 @@
 {
   "truth": "evaluation\\real_photos_v4_relabeled.csv",
+  "bottle_run": "C:/Users/Alex/Downloads/VIscaNEr/runs/inference/real_photos_v4_bottle_pipeline.json",
   "systems": {
     "bottle": {
       "original_labels": {
         "ranking": {
           "selection": {
             "photos_in_catalog": 472,
-            "top1": 0.3983,
-            "top2": 0.5169,
-            "top3": 0.5487,
-            "top5": 0.5932
+            "top1": 0.3771,
+            "top2": 0.5064,
+            "top3": 0.5403,
+            "top5": 0.5953
           },
           "report": {
             "photos_in_catalog": 434,
-            "top1": 0.3525,
-            "top2": 0.4793,
-            "top3": 0.5553,
-            "top5": 0.6106
+            "top1": 0.3479,
+            "top2": 0.4862,
+            "top3": 0.5369,
+            "top5": 0.606
           },
           "all": {
             "photos_in_catalog": 906,
-            "top1": 0.3764,
-            "top2": 0.4989,
-            "top3": 0.5519,
-            "top5": 0.6015
+            "top1": 0.3631,
+            "top2": 0.4967,
+            "top3": 0.5386,
+            "top5": 0.6004
           }
         },
         "thresholds_from_selection": {
-          "min_similarity": 0.59,
+          "min_similarity": 0.6,
           "min_margin": 0.004
         },
         "with_abstention": {
           "selection": {
-            "f1": 0.4208,
-            "precision": 0.5663,
-            "coverage": 0.5849,
+            "f1": 0.4086,
+            "precision": 0.6272,
+            "coverage": 0.478,
             "n": 477
           },
           "report": {
-            "f1": 0.3483,
-            "precision": 0.4706,
-            "coverage": 0.5782,
+            "f1": 0.3138,
+            "precision": 0.4722,
+            "coverage": 0.4898,
             "n": 441
           }
         }
@@ -49,41 +50,41 @@
         "ranking": {
           "selection": {
             "photos_in_catalog": 387,
-            "top1": 0.5426,
-            "top2": 0.6744,
-            "top3": 0.7183,
-            "top5": 0.7649
+            "top1": 0.509,
+            "top2": 0.6537,
+            "top3": 0.6951,
+            "top5": 0.7519
           },
           "report": {
             "photos_in_catalog": 350,
-            "top1": 0.5257,
-            "top2": 0.6771,
-            "top3": 0.7286,
-            "top5": 0.7829
+            "top1": 0.5171,
+            "top2": 0.6543,
+            "top3": 0.7086,
+            "top5": 0.7657
           },
           "all": {
             "photos_in_catalog": 737,
-            "top1": 0.5346,
-            "top2": 0.6757,
-            "top3": 0.7232,
-            "top5": 0.7734
+            "top1": 0.5129,
+            "top2": 0.654,
+            "top3": 0.7015,
+            "top5": 0.7585
           }
         },
         "thresholds_from_selection": {
-          "min_similarity": 0.59,
+          "min_similarity": 0.58,
           "min_margin": 0.004
         },
         "with_abstention": {
           "selection": {
-            "f1": 0.5303,
-            "precision": 0.641,
-            "coverage": 0.6469,
+            "f1": 0.5016,
+            "precision": 0.6569,
+            "coverage": 0.5664,
             "n": 422
           },
           "report": {
-            "f1": 0.4649,
-            "precision": 0.5605,
-            "coverage": 0.631,
+            "f1": 0.4557,
+            "precision": 0.5822,
+            "coverage": 0.5725,
             "n": 393
           }
         }

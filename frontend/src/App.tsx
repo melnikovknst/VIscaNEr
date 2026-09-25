@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, ReactNode } from "react";
+import type { CSSProperties, ChangeEvent, ReactNode } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -32,6 +32,7 @@ import {
   CakeSlice,
   Milk,
   RotateCcw,
+  Zap,
 } from "lucide-react";
 import { api, useSavedInitial } from "./api";
 import type {
@@ -40,6 +41,8 @@ import type {
   Meta,
   Pairing,
   ScanResult,
+  SommelierAnswer,
+  SommelierStatus,
   Wine,
 } from "./api";
 
@@ -210,8 +213,101 @@ function CandidateList({
   );
 }
 
+/**
+ * An uncertain answer: the model's top guess first, one tap to confirm it,
+ * the other candidates only on request. The list is always rendered so it can
+ * animate open; while closed it is inert (no focus, no screen reader).
+ */
+function BestGuess({
+  wines,
+  onPick,
+}: {
+  wines: Wine[];
+  onPick: (wine: Wine) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [top, ...others] = wines;
+  if (!top) return null;
+  return (
+    <div className="best-guess">
+      <article className="guess-card">
+        <span className={`guess-thumb tone-${top.category}`}>
+          <WineImage wine={top} />
+        </span>
+        <div className="guess-copy">
+          <small>{top.winery || "Российское вино"}</small>
+          <h2>{top.name}</h2>
+          <span>
+            {[top.category, top.region, top.grapes].filter(Boolean).join(" · ")}
+          </span>
+        </div>
+        <div className="guess-actions">
+          <button className="primary-button" onClick={() => onPick(top)}>
+            <Check size={18} />
+            Да, это оно
+          </button>
+          {others.length > 0 && (
+            <button
+              className={`secondary-button more-toggle ${open ? "is-open" : ""}`}
+              aria-expanded={open}
+              aria-controls="other-guesses"
+              onClick={() => setOpen((value) => !value)}
+            >
+              {open ? "Скрыть варианты" : "Другие варианты"}
+              <ChevronRight size={17} className="more-chevron" />
+            </button>
+          )}
+        </div>
+      </article>
+      {others.length > 0 && (
+        <div
+          id="other-guesses"
+          className={`other-guesses ${open ? "is-open" : ""}`}
+          inert={!open}
+        >
+          <div className="other-guesses-inner">
+            <span className="other-guesses-title">
+              Может быть, одно из этих:
+            </span>
+            <ul className="candidate-list">
+              {others.map((wine, index) => (
+                <li key={wine.slug} style={{ "--i": index } as CSSProperties}>
+                  <button
+                    className="candidate-row"
+                    onClick={() => onPick(wine)}
+                  >
+                    <span className={`candidate-thumb tone-${wine.category}`}>
+                      <WineImage wine={wine} />
+                    </span>
+                    <span className="candidate-copy">
+                      <small>{wine.winery || "Российское вино"}</small>
+                      <strong>{wine.name}</strong>
+                      <span>
+                        {[wine.category, wine.region]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+                    <ChevronRight size={18} className="candidate-chevron" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** The visitor's own photo, so a match can be checked by eye. */
-function ScanPhoto({ src, className = "" }: { src: string; className?: string }) {
+function ScanPhoto({
+  src,
+  className = "",
+}: {
+  src: string;
+  className?: string;
+}) {
   return (
     <figure className={`scan-photo ${className}`}>
       <img src={src} alt="Ваше фото этикетки" />
@@ -249,23 +345,26 @@ function ResultChooser({
         {photo && <ScanPhoto src={photo} className="chooser-photo" />}
         <div className="chooser-body">
           <span className="eyebrow">
-            {uncertain ? "ПОХОЖИХ ЭТИКЕТОК НЕСКОЛЬКО" : "НЕ УДАЛОСЬ УЗНАТЬ ВИНО"}
+            {uncertain ? "СКОРЕЕ ВСЕГО" : "НЕ УДАЛОСЬ УЗНАТЬ ВИНО"}
           </span>
-          <h1>{uncertain ? "Какое из этих вин у вас?" : "Пока не узнали это вино"}</h1>
+          <h1>{uncertain ? "Похоже, это оно" : "Пока не узнали это вино"}</h1>
           <p>
             {uncertain
-              ? "Выберите своё — откроем его карточку."
+              ? "Сверьте с этикеткой: уверенного совпадения нет, поэтому решать вам."
               : "Снимите этикетку крупнее и ровнее, без бликов и соседних бутылок."}
           </p>
           {uncertain ? (
-            <CandidateList wines={wines} onPick={onPick} />
+            <BestGuess wines={wines} onPick={onPick} />
           ) : (
             <div className="chooser-actions">
               <button className="primary-button" onClick={onRetake}>
                 <Camera size={18} />
                 Сделать другое фото
               </button>
-              <button className="secondary-button" onClick={() => navigate("catalog")}>
+              <button
+                className="secondary-button"
+                onClick={() => navigate("catalog")}
+              >
                 <Search size={17} />
                 Найти в каталоге
               </button>
@@ -279,7 +378,10 @@ function ResultChooser({
                   <Camera size={17} />
                   Сделать другое фото
                 </button>
-                <button className="text-button" onClick={() => navigate("catalog")}>
+                <button
+                  className="text-button"
+                  onClick={() => navigate("catalog")}
+                >
                   Найти в каталоге <ArrowRight size={16} />
                 </button>
               </div>
@@ -319,6 +421,7 @@ export default function App() {
   // A retake from a result screen opens the camera directly; the new photo
   // then waits in the scanner for the visitor to confirm.
   const retakeInput = useRef<HTMLInputElement>(null);
+  const retakeGallery = useRef<HTMLInputElement>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   useEffect(() => {
     if (!photoFile) {
@@ -412,11 +515,15 @@ export default function App() {
   };
   // Must run inside the click handler: browsers only open a file or camera
   // picker in direct response to a user gesture.
-  const retake = () => retakeInput.current?.click();
+  const [liveRetake, setLiveRetake] = useState(false);
+  const retake = () =>
+    liveCameraAvailable() ? setLiveRetake(true) : retakeInput.current?.click();
   const retaken = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file) return;
+    if (file) takeRetake(file);
+  };
+  const takeRetake = (file: File) => {
     backToScanner();
     setPendingFile(file);
     if (page !== "scanner") navigate("scanner");
@@ -544,7 +651,11 @@ export default function App() {
             />
           ) : page === "scanner" ? (
             <Scanner
-              key={pendingFile ? `retake-${pendingFile.name}-${pendingFile.lastModified}` : "scanner"}
+              key={
+                pendingFile
+                  ? `retake-${pendingFile.name}-${pendingFile.lastModified}`
+                  : "scanner"
+              }
               health={health}
               meta={meta}
               initialFile={pendingFile}
@@ -572,6 +683,32 @@ export default function App() {
           <span>Открывайте. Узнавайте. Сохраняйте.</span>
         </footer>
       </div>
+      {liveRetake && (
+        <CameraCapture
+          onCapture={(shot) => {
+            setLiveRetake(false);
+            takeRetake(shot);
+          }}
+          onClose={() => setLiveRetake(false)}
+          onFallback={() => {
+            setLiveRetake(false);
+            retakeInput.current?.click();
+          }}
+          onGallery={() => {
+            setLiveRetake(false);
+            retakeGallery.current?.click();
+          }}
+        />
+      )}
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="visually-hidden"
+        ref={retakeGallery}
+        onChange={retaken}
+        aria-label="Новое фото из галереи"
+        tabIndex={-1}
+      />
       <input
         type="file"
         accept="image/*"
@@ -611,6 +748,177 @@ export default function App() {
         </div>
       )}
       {help && <Help onClose={() => setHelp(false)} />}
+    </div>
+  );
+}
+
+/** True when the browser can show a live camera inside the page (HTTPS or localhost). */
+const liveCameraAvailable = () =>
+  typeof window !== "undefined" &&
+  window.isSecureContext &&
+  !!navigator.mediaDevices?.getUserMedia;
+
+/**
+ * Full-screen viewfinder with a crosshair. The crosshair sits exactly at the
+ * frame centre - where the recogniser looks for the target bottle - and the
+ * whole frame is captured, so what is under the crosshair is what gets
+ * recognised. Falls back to the system camera if the stream cannot start.
+ */
+function CameraCapture({
+  onCapture,
+  onClose,
+  onFallback,
+  onGallery,
+}: {
+  onCapture: (file: File) => void;
+  onClose: () => void;
+  onFallback: () => void;
+  onGallery: () => void;
+}) {
+  const video = useRef<HTMLVideoElement>(null);
+  const stream = useRef<MediaStream | null>(null);
+  const [ready, setReady] = useState(false);
+  const [flash, setFlash] = useState(false);
+  // null = the camera has no torch; otherwise whether it is on.
+  const [torch, setTorch] = useState<boolean | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 3840 },
+          height: { ideal: 2160 },
+        },
+      })
+      .then((media) => {
+        if (cancelled) {
+          media.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        stream.current = media;
+        const track = media.getVideoTracks()[0];
+        const caps = (track.getCapabilities?.() ?? {}) as { torch?: boolean };
+        if (caps.torch) setTorch(false);
+        if (video.current) {
+          video.current.srcObject = media;
+          video.current.play().catch(() => undefined);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) onFallback();
+      });
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    document.body.classList.add("camera-open");
+    return () => {
+      cancelled = true;
+      window.removeEventListener("keydown", onKey);
+      document.body.classList.remove("camera-open");
+      stream.current?.getTracks().forEach((track) => track.stop());
+    };
+    // The stream is opened once per mount; the callbacks only close it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const toggleTorch = async () => {
+    const track = stream.current?.getVideoTracks()[0];
+    if (!track || torch === null) return;
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: !torch } as MediaTrackConstraintSet],
+      });
+      setTorch(!torch);
+    } catch {
+      setTorch(null);
+    }
+  };
+  const shoot = () => {
+    const element = video.current;
+    if (!element || !element.videoWidth) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = element.videoWidth;
+    canvas.height = element.videoHeight;
+    canvas.getContext("2d")?.drawImage(element, 0, 0);
+    setFlash(true);
+    canvas.toBlob(
+      (blob) => {
+        if (blob)
+          onCapture(
+            new File([blob], `label-${Date.now()}.jpg`, { type: "image/jpeg" }),
+          );
+      },
+      "image/jpeg",
+      0.92,
+    );
+  };
+  return (
+    <div className="camera" role="dialog" aria-modal="true" aria-label="Камера">
+      <video
+        ref={video}
+        className="camera-video"
+        playsInline
+        muted
+        autoPlay
+        onLoadedData={() => setReady(true)}
+      />
+      <div
+        className={`camera-overlay ${ready ? "is-ready" : ""}`}
+        aria-hidden="true"
+      >
+        <div className="camera-window">
+          <span className="corner tl" />
+          <span className="corner tr" />
+          <span className="corner bl" />
+          <span className="corner br" />
+          <span className="crosshair" />
+        </div>
+      </div>
+      {flash && (
+        <div className="camera-flash" onAnimationEnd={() => setFlash(false)} />
+      )}
+      <div className="camera-top">
+        <button
+          className="camera-round"
+          onClick={onClose}
+          aria-label="Закрыть камеру"
+        >
+          <X size={22} />
+        </button>
+        <span className="camera-hint">
+          {ready ? "Наведите перекрестие на этикетку" : "Включаем камеру…"}
+        </span>
+        {torch !== null ? (
+          <button
+            className={`camera-round ${torch ? "is-on" : ""}`}
+            onClick={toggleTorch}
+            aria-label={torch ? "Выключить фонарик" : "Включить фонарик"}
+            aria-pressed={torch}
+          >
+            <Zap size={20} />
+          </button>
+        ) : (
+          <span className="camera-round placeholder" />
+        )}
+      </div>
+      <div className="camera-bottom">
+        <button
+          className="camera-round"
+          onClick={onGallery}
+          aria-label="Выбрать из галереи"
+        >
+          <ImagePlus size={22} />
+        </button>
+        <button
+          className="camera-shutter"
+          onClick={shoot}
+          disabled={!ready}
+          aria-label="Сделать снимок"
+        />
+        <span className="camera-round placeholder" />
+      </div>
     </div>
   );
 }
@@ -669,7 +977,10 @@ function Scanner({
   useEffect(() => {
     if (!preview || !window.matchMedia("(max-width: 920px)").matches) return;
     const frame = requestAnimationFrame(() =>
-      previewActions.current?.scrollIntoView({ block: "end", behavior: "smooth" }),
+      previewActions.current?.scrollIntoView({
+        block: "end",
+        behavior: "smooth",
+      }),
     );
     return () => cancelAnimationFrame(frame);
   }, [preview]);
@@ -696,7 +1007,9 @@ function Scanner({
       setSource(from);
       selectFile(chosen);
     };
-  const openCamera = () => camera.current?.click();
+  const [live, setLive] = useState(false);
+  const openCamera = () =>
+    liveCameraAvailable() ? setLive(true) : camera.current?.click();
   const openFiles = () => input.current?.click();
   const reopen = () => (source === "camera" ? openCamera() : openFiles());
   const scan = async () => {
@@ -783,6 +1096,24 @@ function Scanner({
             onChange={changed("camera")}
             aria-label="Сфотографировать этикетку"
           />
+          {live && (
+            <CameraCapture
+              onCapture={(shot) => {
+                setLive(false);
+                setSource("camera");
+                selectFile(shot);
+              }}
+              onClose={() => setLive(false)}
+              onFallback={() => {
+                setLive(false);
+                camera.current?.click();
+              }}
+              onGallery={() => {
+                setLive(false);
+                openFiles();
+              }}
+            />
+          )}
           <div
             className={`drop-zone ${dragging ? "dragging" : ""} ${preview ? "has-preview" : ""}`}
             onDragOver={(e) => {
@@ -842,11 +1173,19 @@ function Scanner({
                 {/* On a phone the camera is the point: it leads, the
                     gallery follows, and drag-and-drop copy is hidden. */}
                 <div className="mobile-scan-actions">
-                  <button className="primary-button" onClick={openCamera} disabled={busy}>
+                  <button
+                    className="primary-button"
+                    onClick={openCamera}
+                    disabled={busy}
+                  >
                     <Camera size={19} />
                     Сфотографировать
                   </button>
-                  <button className="secondary-button" onClick={openFiles} disabled={busy}>
+                  <button
+                    className="secondary-button"
+                    onClick={openFiles}
+                    disabled={busy}
+                  >
                     <ImagePlus size={18} />
                     Выбрать из галереи
                   </button>
@@ -887,7 +1226,11 @@ function Scanner({
                 disabled={busy}
                 onClick={reopen}
               >
-                {source === "camera" ? <Camera size={17} /> : <ImagePlus size={17} />}
+                {source === "camera" ? (
+                  <Camera size={17} />
+                ) : (
+                  <ImagePlus size={17} />
+                )}
                 {source === "camera" ? "Переснять" : "Выбрать другое"}
               </button>
             </div>
@@ -1178,6 +1521,232 @@ function PageHeading({
   );
 }
 
+/** Whether the local LLM sommelier is switched on, and once it has warmed up. */
+function useSommelierStatus() {
+  const [status, setStatus] = useState<SommelierStatus | null>(null);
+  useEffect(() => {
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const poll = () =>
+      api<SommelierStatus>("/api/sommelier/status")
+        .then((value) => {
+          if (!alive) return;
+          setStatus(value);
+          // The models load in the background after startup; check back until ready.
+          if (value.enabled && !value.ready && !value.error)
+            timer = setTimeout(poll, 3000);
+        })
+        .catch(() => alive && setStatus({ enabled: false, ready: false, error: null }));
+    poll();
+    return () => {
+      alive = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+  return status;
+}
+
+/** The answer text with [N] citations turned into numbered badges. */
+function SommelierText({
+  text,
+  numbers,
+}: {
+  text: string;
+  numbers: Map<number, number>;
+}) {
+  const parts = text.split(/(\[\d+\])/g);
+  return (
+    <p className="sommelier-text">
+      {parts.map((part, index) => {
+        const match = /^\[(\d+)\]$/.exec(part);
+        if (!match) return <span key={index}>{part}</span>;
+        const shown = numbers.get(Number(match[1]));
+        return shown ? (
+          <sup key={index} className="sommelier-cite">
+            {shown}
+          </sup>
+        ) : null;
+      })}
+    </p>
+  );
+}
+
+/**
+ * Ask the sommelier. On a wine card it answers about that wine and may suggest
+ * alternatives; on the pairing page it picks wines from the whole catalog.
+ * Renders `fallback` when the local model is not switched on.
+ */
+function SommelierChat({
+  wine,
+  suggestions,
+  onPick,
+  card,
+  fallback = null,
+}: {
+  wine?: Wine;
+  suggestions: string[];
+  onPick?: (wine: Wine) => void;
+  card?: (wine: Wine) => ReactNode;
+  fallback?: ReactNode;
+}) {
+  const status = useSommelierStatus();
+  const [question, setQuestion] = useState("");
+  const [asked, setAsked] = useState("");
+  const [answer, setAnswer] = useState<SommelierAnswer | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const abort = useRef<AbortController | null>(null);
+  useEffect(() => () => abort.current?.abort(), []);
+  if (!status) return null;
+  if (!status.enabled || status.error) return <>{fallback}</>;
+  const ask = async (text: string) => {
+    const value = text.trim();
+    if (!value || busy) return;
+    setBusy(true);
+    setError("");
+    setAnswer(null);
+    setAsked(value);
+    setQuestion("");
+    const controller = new AbortController();
+    abort.current = controller;
+    const timer = setTimeout(() => controller.abort(), 90000);
+    try {
+      setAnswer(
+        await api<SommelierAnswer>("/api/sommelier", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: value, wine_slug: wine?.slug ?? null }),
+          signal: controller.signal,
+        }),
+      );
+    } catch (e) {
+      setError(
+        controller.signal.aborted
+          ? "Сомелье не успел ответить. Попробуйте спросить ещё раз."
+          : errorText(e),
+      );
+    } finally {
+      clearTimeout(timer);
+      setBusy(false);
+    }
+  };
+  // On a wine card [1] is the wine itself: it needs no badge, and the
+  // suggested alternatives are numbered from 1.
+  const shownWines = answer
+    ? answer.wines.filter((w) => !wine || w.slug !== wine.slug)
+    : [];
+  const numbers = new Map<number, number>();
+  answer?.cited.forEach((n) => {
+    const target = answer.wines[answer.cited.indexOf(n)];
+    const position = shownWines.findIndex((w) => w.slug === target?.slug);
+    if (position >= 0) numbers.set(n, position + 1);
+  });
+  return (
+    <section className={`sommelier-chat ${wine ? "is-wine" : ""}`}>
+      <div className="sommelier-head">
+        <span className="sommelier-avatar">
+          <Sparkles size={20} />
+        </span>
+        <div>
+          <span className="eyebrow">
+            {wine ? "СПРОСИТЕ ОБ ЭТОМ ВИНЕ" : "СПРОСИТЕ СОМЕЛЬЕ"}
+          </span>
+          <h2>
+            {wine ? "Сомелье подскажет, как его подать" : "Что будем пить сегодня?"}
+          </h2>
+          <small>
+            {status.ready
+              ? "Локальная модель YandexGPT-5 Lite. Отвечает только по данным каталога."
+              : "Сомелье просыпается — это займёт около минуты…"}
+          </small>
+        </div>
+      </div>
+      <div className="sommelier-suggestions">
+        {suggestions.map((text) => (
+          <button
+            key={text}
+            className="chip"
+            disabled={busy || !status.ready}
+            onClick={() => ask(text)}
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+      <form
+        className="sommelier-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          ask(question);
+        }}
+      >
+        <input
+          value={question}
+          onChange={(event) => setQuestion(event.target.value)}
+          maxLength={500}
+          placeholder={
+            wine
+              ? "Например: подойдёт ли к утке?"
+              : "Например: что взять к пасте с морепродуктами?"
+          }
+          aria-label="Вопрос сомелье"
+          disabled={busy || !status.ready}
+        />
+        <button
+          className="primary-button"
+          type="submit"
+          disabled={busy || !status.ready || !question.trim()}
+          aria-label="Спросить"
+        >
+          {busy ? <Loader2 className="spin" size={18} /> : <ArrowRight size={18} />}
+        </button>
+      </form>
+      {(busy || answer || error) && (
+        <div className="sommelier-dialog" aria-live="polite">
+          <div className="sommelier-bubble is-guest">{asked}</div>
+          {busy && (
+            <div className="sommelier-bubble is-thinking">
+              <span className="dots">
+                <i />
+                <i />
+                <i />
+              </span>
+              Сомелье подбирает ответ…
+            </div>
+          )}
+          {error && <ErrorBox>{error}</ErrorBox>}
+          {answer && (
+            <div className="sommelier-bubble is-answer">
+              <SommelierText text={answer.answer} numbers={numbers} />
+              <small>
+                Рекомендация модели · {(answer.elapsed_ms / 1000).toFixed(1)} сек.
+              </small>
+            </div>
+          )}
+        </div>
+      )}
+      {shownWines.length > 0 &&
+        (card ? (
+          <div className="wine-grid sommelier-wines">
+            {shownWines.map((w, index) => (
+              <div key={w.slug} className="sommelier-pick">
+                <span className="sommelier-cite">{index + 1}</span>
+                {card(w)}
+              </div>
+            ))}
+          </div>
+        ) : (
+          onPick && (
+            <div className="sommelier-alternatives">
+              <span className="alternatives-label">Сомелье советует</span>
+              <CandidateList wines={shownWines} onPick={onPick} compact />
+            </div>
+          )
+        ))}
+    </section>
+  );
+}
+
 function WineDetail({
   wine,
   result,
@@ -1206,7 +1775,10 @@ function WineDetail({
   // but the right wine is in the first three 69% of the time - so the
   // alternatives are part of the answer, not an afterthought.
   const alternatives = scanned
-    ? result.candidates.map((c) => c.wine).filter((w) => w.slug !== wine.slug).slice(0, 3)
+    ? result.candidates
+        .map((c) => c.wine)
+        .filter((w) => w.slug !== wine.slug)
+        .slice(0, 3)
     : [];
   return (
     <section className="wine-detail">
@@ -1228,7 +1800,9 @@ function WineDetail({
             {picked ? <Check size={18} /> : <CheckCheck size={18} />}
             {picked ? "Вы выбрали это вино из похожих" : "Ваше вино найдено"}
           </span>
-          {!picked && <small>{(result.elapsed_ms / 1000).toFixed(2)} сек.</small>}
+          {!picked && (
+            <small>{(result.elapsed_ms / 1000).toFixed(2)} сек.</small>
+          )}
         </div>
       )}
       {alternatives.length > 0 && (
@@ -1313,20 +1887,32 @@ function WineDetail({
           </div>
         </div>
       </div>
-      <div className="detail-pairing">
-        <span className="empty-icon">
-          <Utensils size={24} />
-        </span>
-        <div>
-          <span className="eyebrow">ПРОДОЛЖИМ ЗНАКОМСТВО?</span>
-          <h2>Идеальная пара для вашего стола</h2>
-          <p>Расскажите, что на ужин. Подберём подходящие стили вина.</p>
-        </div>
-        <button className="primary-button" onClick={onPair}>
-          Подобрать пару
-          <ArrowRight size={17} />
-        </button>
-      </div>
+      <SommelierChat
+        key={wine.slug}
+        wine={wine}
+        onPick={onPick}
+        suggestions={[
+          "К каким блюдам подать?",
+          "Как подать и при какой температуре?",
+          "Посоветуйте похожее вино",
+        ]}
+        fallback={
+          <div className="detail-pairing">
+            <span className="empty-icon">
+              <Utensils size={24} />
+            </span>
+            <div>
+              <span className="eyebrow">ПРОДОЛЖИМ ЗНАКОМСТВО?</span>
+              <h2>Идеальная пара для вашего стола</h2>
+              <p>Расскажите, что на ужин. Подберём подходящие стили вина.</p>
+            </div>
+            <button className="primary-button" onClick={onPair}>
+              Подобрать пару
+              <ArrowRight size={17} />
+            </button>
+          </div>
+        }
+      />
     </section>
   );
 }
@@ -1368,6 +1954,15 @@ function Sommelier({ card }: { card: (wine: Wine) => ReactNode }) {
         eyebrow="ВКУС СКЛАДЫВАЕТСЯ ИЗ ДЕТАЛЕЙ"
         title="Вино к вашему столу"
         text="Хорошая пара делает вечер особенным. Начнём с того, что вы готовите."
+      />
+      <SommelierChat
+        card={card}
+        suggestions={[
+          "Что взять к утке с вишнёвым соусом?",
+          "Лёгкое белое к рыбе на гриле",
+          "Сладкое вино к шоколадному десерту",
+          "Игристое для праздничного вечера",
+        ]}
       />
       <section className="sommelier-panel">
         <span className="eyebrow">01 · ЧТО СЕГОДНЯ В МЕНЮ?</span>

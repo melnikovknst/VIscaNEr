@@ -2744,3 +2744,566 @@ footer > span:first-child {
     padding-right: 15px;
   }
 }
+
+/* Uncertain answer: one best guess, the rest on request. */
+.best-guess {
+  display: grid;
+}
+.guess-card {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 24px;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 24px 16px 16px;
+  box-shadow: 0 18px 40px -28px rgba(23, 62, 51, 0.45);
+  animation: guess-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.guess-thumb {
+  grid-row: 1 / 3;
+  height: 180px;
+  border-radius: 10px;
+  background: #edece3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.guess-thumb.tone-Белое {
+  background: #eef0e2;
+}
+.guess-thumb.tone-Розовое {
+  background: #f4e7e3;
+}
+.guess-thumb {
+  position: relative;
+}
+/* Pinned to the frame: a percentage height inside the auto-sized grid row
+   would resolve to the image's natural height and crop the bottle. */
+.guess-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+  animation: guess-bottle 0.7s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.guess-thumb .image-fallback {
+  width: 36px;
+  height: 36px;
+  color: var(--muted);
+}
+.guess-copy {
+  min-width: 0;
+  align-self: end;
+}
+.guess-copy small {
+  display: block;
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.guess-copy h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1.1;
+  color: var(--deep);
+  margin: 6px 0 6px;
+  overflow-wrap: anywhere;
+}
+.guess-copy > span {
+  display: block;
+  font-size: var(--text-secondary);
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.guess-actions {
+  align-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+}
+.more-chevron {
+  margin-left: 10px;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.more-toggle.is-open .more-chevron {
+  transform: rotate(90deg);
+}
+
+/* Height animates via grid rows 0fr -> 1fr; rows then stagger in. */
+.other-guesses {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s ease;
+}
+.other-guesses.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.other-guesses-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.other-guesses-title {
+  display: block;
+  margin: 22px 0 10px;
+  font-size: var(--text-secondary);
+  font-weight: 600;
+  color: var(--muted);
+}
+.other-guesses .candidate-list > li {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.other-guesses.is-open .candidate-list > li {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.4s ease calc(0.08s + var(--i, 0) * 0.07s),
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)
+      calc(0.08s + var(--i, 0) * 0.07s);
+}
+@keyframes guess-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes guess-bottle {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 920px) {
+  .guess-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 14px 14px 12px;
+  }
+  .guess-thumb {
+    height: 140px;
+  }
+  .guess-copy h2 {
+    font-size: 27px;
+  }
+  .guess-thumb {
+    grid-row: 1;
+  }
+  .guess-copy {
+    align-self: center;
+  }
+  .guess-copy > span {
+    margin-bottom: 0;
+  }
+  .guess-actions {
+    grid-column: 1 / -1;
+    margin-top: 14px;
+  }
+  .guess-actions > button {
+    flex: 1 1 100%;
+  }
+}
+
+/* In-page camera: live viewfinder with a crosshair at the frame centre. */
+body.camera-open {
+  overflow: hidden;
+}
+.camera {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  color: white;
+  animation: camera-in 0.25s ease both;
+}
+.camera-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* "cover" keeps the frame centre at the screen centre, so the crosshair
+     marks exactly the point the recogniser uses. */
+  object-fit: cover;
+}
+.camera-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.camera-overlay.is-ready {
+  opacity: 1;
+}
+/* A bottle-shaped window; the huge shadow dims everything around it. */
+.camera-window {
+  position: relative;
+  width: min(62vw, 300px);
+  height: min(58vh, 500px);
+  border-radius: 22px;
+  box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0.45);
+}
+.camera-window .corner {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 3px solid white;
+}
+.corner.tl {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: 22px;
+}
+.corner.tr {
+  top: 0;
+  right: 0;
+  border-left: 0;
+  border-bottom: 0;
+  border-top-right-radius: 22px;
+}
+.corner.bl {
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  border-top: 0;
+  border-bottom-left-radius: 22px;
+}
+.corner.br {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: 22px;
+}
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+}
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  background: white;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+}
+.crosshair::before {
+  left: 0;
+  right: 0;
+  top: calc(50% - 1.5px);
+  height: 3px;
+}
+.crosshair::after {
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1.5px);
+  width: 3px;
+}
+.is-ready .crosshair {
+  animation: crosshair-pulse 2.2s ease-in-out 0.3s infinite;
+}
+.camera-top,
+.camera-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+}
+.camera-top {
+  top: 0;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  background: linear-gradient(rgba(0, 0, 0, 0.55), transparent);
+}
+.camera-bottom {
+  bottom: 0;
+  justify-content: space-around;
+  padding-bottom: calc(26px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+.camera-hint {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.camera-round {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  backdrop-filter: blur(8px);
+}
+.camera-round.is-on {
+  background: #f5d76e;
+  color: #1e2d27;
+}
+.camera-round.placeholder {
+  visibility: hidden;
+}
+.camera-shutter {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 5px solid white;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.25) inset;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease;
+}
+.camera-shutter:active:not(:disabled) {
+  transform: scale(0.9);
+  background: white;
+}
+.camera-shutter:disabled {
+  opacity: 0.4;
+}
+.camera-flash {
+  position: absolute;
+  inset: 0;
+  background: white;
+  pointer-events: none;
+  animation: camera-flash 0.35s ease-out both;
+}
+@keyframes camera-in {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes camera-flash {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes crosshair-pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 0.75;
+  }
+}
+
+/* Local LLM sommelier. */
+.sommelier-chat {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 18px 40px -32px rgba(23, 62, 51, 0.5);
+}
+.sommelier-chat.is-wine {
+  margin-top: 28px;
+}
+.sommelier-head {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.sommelier-avatar {
+  flex: 0 0 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: white;
+}
+.sommelier-head h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--deep);
+  margin: 4px 0 4px;
+}
+.sommelier-head small {
+  color: var(--muted);
+  font-size: var(--text-secondary);
+}
+.sommelier-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 12px;
+}
+.sommelier-form {
+  display: flex;
+  gap: 10px;
+}
+.sommelier-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid #d6ddcf;
+  border-radius: 10px;
+  background: #fbfcf8;
+  color: inherit;
+}
+.sommelier-form input:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}
+.sommelier-form .primary-button {
+  min-width: 52px;
+  justify-content: center;
+}
+.sommelier-dialog {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.sommelier-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  animation: guess-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.sommelier-bubble.is-guest {
+  justify-self: end;
+  background: var(--green);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.sommelier-bubble.is-thinking,
+.sommelier-bubble.is-answer {
+  justify-self: start;
+  background: #f1f4ec;
+  border-bottom-left-radius: 4px;
+}
+.sommelier-bubble.is-thinking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+.sommelier-text {
+  margin: 0 0 6px;
+  white-space: pre-line;
+}
+.sommelier-bubble small {
+  color: var(--muted);
+  font-size: var(--text-label);
+}
+.sommelier-cite {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  margin: 0 2px;
+  border-radius: 99px;
+  background: var(--green);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: super;
+  line-height: 1;
+}
+.dots {
+  display: inline-flex;
+  gap: 4px;
+}
+.dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: dot 1.2s ease-in-out infinite;
+}
+.dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes dot {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+.sommelier-wines {
+  margin-top: 20px;
+}
+.sommelier-pick {
+  position: relative;
+  animation: guess-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.sommelier-pick > .sommelier-cite {
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  box-shadow: 0 0 0 3px white;
+  z-index: 2;
+  vertical-align: baseline;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+}
+.sommelier-alternatives {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+@media (max-width: 920px) {
+  .sommelier-chat {
+    padding: 16px;
+  }
+  .sommelier-head h2 {
+    font-size: 25px;
+  }
+  .sommelier-bubble {
+    max-width: 100%;
+  }
+}

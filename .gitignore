@@ -45,3 +45,6 @@ tmp/
 .npm-cache/
 test-results/
 playwright-report/
+
+# Local LLM weights (15 GB, third-party licence): downloaded per machine, never committed.
+models/llm/

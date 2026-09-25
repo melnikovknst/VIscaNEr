@@ -47,3 +47,8 @@ class Settings(BaseSettings):
     max_upload_mb: int = Field(default=12, ge=1, le=30)
     max_pixels: int = Field(default=24_000_000, ge=1)
     history_limit: int = Field(default=100, ge=1, le=1000)
+    # Local LLM sommelier (backend/sommelier.py). Off unless the weights are present.
+    sommelier_enabled: bool = False
+    sommelier_llm_path: Path = ROOT / "models/llm/yandexgpt5-lite-8b-instruct"
+    sommelier_embedder_path: Path = ROOT / "models/llm/bge-m3"
+    sommelier_profiles_path: Path = ROOT / "runs/sommelier/profiles.jsonl"

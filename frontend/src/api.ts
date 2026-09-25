@@ -44,6 +44,18 @@ export interface CatalogPage {
   offset: number;
   limit: number;
 }
+export interface SommelierStatus {
+  enabled: boolean;
+  ready: boolean;
+  error: string | null;
+}
+export interface SommelierAnswer {
+  answer: string;
+  wines: Wine[];
+  cited: number[];
+  elapsed_ms: number;
+  model: string;
+}
 export interface Pairing {
   title: string;
   explanation: string;

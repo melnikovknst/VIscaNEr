@@ -231,6 +231,17 @@ npm.cmd run test:e2e
 .venv\Scripts\python.exe -m scripts.evaluate_api --labels datasets/real_photos_v4/labels.csv --images datasets/real_photos_v4/queries
 ```
 
+Исходные метки `real_photos_v4` местами ошибочны. Переразметка всех 918 фото лежит в
+`evaluation/relabel/` (журнал решений с причинами) и экспортируется в
+`evaluation/real_photos_v4_relabeled.csv`: у фото с несколькими бутылками или с
+дублирующимися карточками каталога несколько верных ответов, фото без целевой бутылки
+исключены. Пороги подбираются на половине `selection`, честная цифра — на `report`:
+
+```powershell
+.venv\Scripts\python.exe -m scripts.evaluate_relabeled
+.venv\Scripts\python.exe -m scripts.evaluate_api --labels evaluation/real_photos_v4_relabeled.csv --images datasets/real_photos_v4/queries --split report
+```
+
 Скрипт считает top-1 micro-F1, set-retrieval micro-F1@5, Recall@5, точность с учётом честных отказов, coverage, медиану и p95 времени. Ошибки не выбрасываются из знаменателя; при них код выхода 1. Формулы сохранены в отчёте. **F1@5 и Recall@5 — разные метрики**: для сравнения с организаторами используйте их окончательное определение и официальный оценщик.
 
 Отчёт `backend/data/evaluation.json` доступен в `/api/metrics` и в ответах сканера, с флагом соответствия версии модели. Без прогона F1 равен `null`: по одному запросу без правильного ответа измерить F1 нельзя. Demo-режим оценщик отклоняет.

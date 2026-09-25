@@ -2349,3 +2349,398 @@ footer > span:first-child {
     margin-top: auto;
   }
 }
+
+/* ------------------------------------------------------------------------
+   Scan results: the visitor's photo, candidate choice, retake.
+   ------------------------------------------------------------------------ */
+.mobile-age,
+.mobile-scan-actions {
+  display: none;
+}
+.preview-actions {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0;
+}
+.preview-actions .scan-submit {
+  margin: 0;
+}
+.detail-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.detail-toolbar .back-button {
+  margin-bottom: 0;
+}
+.retake-link {
+  color: var(--green);
+}
+.result-notice.is-picked {
+  color: var(--deep);
+  border-color: #dfe3d8;
+  background: #f0f2eb;
+}
+
+/* The visitor's own photo. */
+.scan-photo {
+  margin: 0;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1f2a24;
+}
+.scan-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.scan-photo figcaption {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  font-size: var(--text-label);
+  letter-spacing: 0.04em;
+  color: var(--deep);
+  background: #ffffffd9;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+/* On the match card: a small print over the catalog photo, so the two can
+   be compared at a glance. */
+.detail-scan-photo {
+  position: absolute;
+  z-index: 3;
+  right: 18px;
+  bottom: 18px;
+  width: 132px;
+  height: 172px;
+  border: 4px solid white;
+  box-shadow: 0 12px 28px #1c2b2230;
+  transform: rotate(2deg);
+}
+.detail-scan-photo img {
+  object-fit: cover;
+}
+.detail-scan-photo figcaption {
+  left: 6px;
+  top: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+/* Candidate rows. */
+.candidate-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.candidate-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 16px 10px 10px;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    transform 0.15s;
+}
+.candidate-row:hover {
+  border-color: #c9d5bd;
+  background: #fbfcf8;
+  transform: translateY(-1px);
+}
+.candidate-thumb {
+  height: 84px;
+  border-radius: 7px;
+  background: #edece3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.candidate-thumb.tone-Белое {
+  background: #e9ece1;
+}
+.candidate-thumb.tone-Розовое {
+  background: #eee7e1;
+}
+.candidate-thumb img {
+  height: 76px;
+  width: 100%;
+  object-fit: contain;
+}
+.candidate-thumb .image-fallback {
+  color: var(--muted);
+}
+.candidate-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.candidate-copy small {
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.candidate-copy strong {
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.candidate-copy span {
+  font-size: var(--text-secondary);
+  color: var(--muted);
+}
+.candidate-chevron {
+  color: var(--muted);
+}
+.candidate-list.is-compact .candidate-row {
+  grid-template-columns: 44px minmax(0, 1fr) 16px;
+  gap: 12px;
+  padding: 8px 12px 8px 8px;
+}
+.candidate-list.is-compact .candidate-thumb {
+  height: 58px;
+}
+.candidate-list.is-compact .candidate-thumb img {
+  height: 52px;
+}
+.candidate-list.is-compact .candidate-copy strong {
+  font-size: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.candidate-list.is-compact .candidate-copy span {
+  display: none;
+}
+
+/* "Not that wine?" strip above the match card. */
+.alternatives {
+  margin-bottom: 24px;
+}
+.alternatives-label {
+  display: block;
+  font-size: var(--text-secondary);
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.alternatives .candidate-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Uncertain / not found. */
+.result-chooser .back-button {
+  margin-bottom: 18px;
+}
+.chooser-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) 1.2fr;
+  gap: 44px;
+  align-items: start;
+}
+.no-photo .chooser-grid {
+  grid-template-columns: minmax(0, 760px);
+}
+.chooser-photo {
+  height: 560px;
+  position: sticky;
+  top: 24px;
+}
+.chooser-body > h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 50px;
+  line-height: 1.05;
+  color: var(--deep);
+  margin: 10px 0 12px;
+}
+.chooser-body > p {
+  color: var(--muted);
+  font-size: 17px;
+  margin-bottom: 26px;
+}
+.chooser-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+.chooser-footer {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+}
+.chooser-footer > span {
+  font-size: var(--text-secondary);
+  color: var(--muted);
+}
+.chooser-maybe {
+  margin-top: 30px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+.chooser-maybe summary {
+  cursor: pointer;
+  font-size: var(--text-secondary);
+  font-weight: 600;
+  color: var(--muted);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.chooser-maybe[open] summary {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 1200px) {
+  .alternatives .candidate-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phones: the scanner action has to be on the first screen. */
+@media (max-width: 920px) {
+  .topbar {
+    display: none;
+  }
+  .mobile-age {
+    display: grid;
+    margin-left: auto;
+    border-color: #ffffff40;
+    color: #d4dec9;
+  }
+  .mobile-age + .sidebar-help {
+    margin-left: 4px;
+  }
+  .main-shell main {
+    padding-top: 22px;
+  }
+  .scanner-heading {
+    margin-bottom: 18px;
+  }
+  .scanner-heading h1 {
+    font-size: 42px;
+    margin-top: 8px;
+  }
+  .scanner-heading p {
+    font-size: 15px;
+    line-height: 1.55;
+    margin-top: 10px;
+  }
+  .upload-panel .panel-top {
+    margin-bottom: 14px;
+  }
+  .drop-zone:not(.has-preview) {
+    min-height: 0;
+    padding: 16px 14px;
+  }
+  .drop-zone:not(.has-preview) .upload-symbol,
+  .drop-zone:not(.has-preview) > h2,
+  .drop-zone:not(.has-preview) > p,
+  .drop-zone .desktop-upload,
+  .drop-zone .file-hint,
+  .camera-button {
+    display: none;
+  }
+  .mobile-scan-actions {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+  }
+  .mobile-scan-actions .primary-button {
+    min-height: 56px;
+    font-size: 17px;
+  }
+  .detail-toolbar {
+    margin-bottom: 6px;
+  }
+  .detail-scan-photo {
+    width: 96px;
+    height: 124px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .alternatives .candidate-list {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: minmax(230px, 78%);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 4px;
+    margin: 0 -22px;
+    padding-left: 22px;
+    padding-right: 22px;
+    scrollbar-width: none;
+  }
+  .alternatives .candidate-list::-webkit-scrollbar {
+    display: none;
+  }
+  .alternatives .candidate-list > li {
+    scroll-snap-align: start;
+  }
+  .chooser-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .chooser-photo {
+    /* Not sticky on phones - but still the anchor for its caption. */
+    position: relative;
+    top: auto;
+    height: 240px;
+  }
+  /* Keep "Распознать" and "Переснять" both on the first screen. */
+  .drop-zone.has-preview {
+    min-height: 0;
+  }
+  .upload-preview {
+    height: 230px;
+  }
+  /* scrollIntoView stops above the fixed bottom navigation. */
+  .preview-actions {
+    scroll-margin-bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+  .chooser-body > h1 {
+    font-size: 36px;
+  }
+  .chooser-body > p {
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+  .chooser-actions > .primary-button,
+  .chooser-actions > .secondary-button {
+    flex: 1 1 100%;
+  }
+}
+@media (max-width: 400px) {
+  .scanner-heading h1 {
+    font-size: 36px;
+  }
+}
+@media (max-width: 370px) {
+  .alternatives .candidate-list {
+    margin: 0 -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}

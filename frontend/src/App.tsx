@@ -177,6 +177,127 @@ function WineCard({
   );
 }
 
+/** Tap-to-pick rows of catalog wines, used wherever the scanner offers a choice. */
+function CandidateList({
+  wines,
+  onPick,
+  compact = false,
+}: {
+  wines: Wine[];
+  onPick: (wine: Wine) => void;
+  compact?: boolean;
+}) {
+  return (
+    <ul className={`candidate-list ${compact ? "is-compact" : ""}`}>
+      {wines.map((wine) => (
+        <li key={wine.slug}>
+          <button className="candidate-row" onClick={() => onPick(wine)}>
+            <span className={`candidate-thumb tone-${wine.category}`}>
+              <WineImage wine={wine} />
+            </span>
+            <span className="candidate-copy">
+              <small>{wine.winery || "Российское вино"}</small>
+              <strong>{wine.name}</strong>
+              <span>
+                {[wine.category, wine.region].filter(Boolean).join(" · ")}
+              </span>
+            </span>
+            <ChevronRight size={18} className="candidate-chevron" />
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The visitor's own photo, so a match can be checked by eye. */
+function ScanPhoto({ src, className = "" }: { src: string; className?: string }) {
+  return (
+    <figure className={`scan-photo ${className}`}>
+      <img src={src} alt="Ваше фото этикетки" />
+      <figcaption>Ваше фото</figcaption>
+    </figure>
+  );
+}
+
+/** Uncertain and not-found scans: let the visitor finish the job. */
+function ResultChooser({
+  result,
+  photo,
+  onPick,
+  onRetake,
+  navigate,
+}: {
+  result: ScanResult;
+  photo: string;
+  onPick: (wine: Wine) => void;
+  onRetake: () => void;
+  navigate: (page: Page) => void;
+}) {
+  // Measured on the held-out half of the relabeled real photos: after an
+  // "uncertain" answer the right wine is among the first five 75% of the time,
+  // after "not found" 48%. So the first is a real choice, the second a
+  // low-key fallback.
+  const uncertain = result.status === "uncertain";
+  const wines = result.candidates.slice(0, 5).map((c) => c.wine);
+  return (
+    <section className={`result-chooser ${photo ? "" : "no-photo"}`}>
+      <button className="text-button back-button" onClick={onRetake}>
+        <ArrowLeft size={17} />К сканеру
+      </button>
+      <div className="chooser-grid">
+        {photo && <ScanPhoto src={photo} className="chooser-photo" />}
+        <div className="chooser-body">
+          <span className="eyebrow">
+            {uncertain ? "ПОХОЖИХ ЭТИКЕТОК НЕСКОЛЬКО" : "НЕ УДАЛОСЬ УЗНАТЬ ВИНО"}
+          </span>
+          <h1>{uncertain ? "Какое из этих вин у вас?" : "Пока не узнали это вино"}</h1>
+          <p>
+            {uncertain
+              ? "Выберите своё — откроем его карточку."
+              : "Снимите этикетку крупнее и ровнее, без бликов и соседних бутылок."}
+          </p>
+          {uncertain ? (
+            <CandidateList wines={wines} onPick={onPick} />
+          ) : (
+            <div className="chooser-actions">
+              <button className="primary-button" onClick={onRetake}>
+                <Camera size={18} />
+                Сделать другое фото
+              </button>
+              <button className="secondary-button" onClick={() => navigate("catalog")}>
+                <Search size={17} />
+                Найти в каталоге
+              </button>
+            </div>
+          )}
+          {uncertain ? (
+            <div className="chooser-footer">
+              <span>Нет вашего вина?</span>
+              <div className="chooser-actions">
+                <button className="secondary-button" onClick={onRetake}>
+                  <Camera size={17} />
+                  Сделать другое фото
+                </button>
+                <button className="text-button" onClick={() => navigate("catalog")}>
+                  Найти в каталоге <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            wines.length > 0 && (
+              <details className="chooser-maybe">
+                <summary>Вдруг оно среди похожих?</summary>
+                <CandidateList wines={wines} onPick={onPick} compact />
+              </details>
+            )
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState<Page>(initialPage);
   const [health, setHealth] = useState<Health | null>(null);
@@ -188,6 +309,26 @@ export default function App() {
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState("");
   const [refresh, setRefresh] = useState(0);
+  // The photo behind the current result. Kept only in memory for this tab:
+  // the server never stores photos, and history entries have none.
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photo, setPhoto] = useState("");
+  // True when the visitor chose the wine from candidates rather than the
+  // model deciding it - the card must not claim "found" in that case.
+  const [picked, setPicked] = useState(false);
+  // A retake from a result screen opens the camera directly; the new photo
+  // then waits in the scanner for the visitor to confirm.
+  const retakeInput = useRef<HTMLInputElement>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  useEffect(() => {
+    if (!photoFile) {
+      setPhoto("");
+      return;
+    }
+    const url = URL.createObjectURL(photoFile);
+    setPhoto(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photoFile]);
 
   useEffect(() => {
     let current = true;
@@ -211,6 +352,7 @@ export default function App() {
       setPage(initialPage());
       setDetail(null);
       setResult(null);
+      setPhotoFile(null);
     };
     window.addEventListener("hashchange", handler);
     return () => window.removeEventListener("hashchange", handler);
@@ -223,6 +365,7 @@ export default function App() {
   const navigate = (next: Page) => {
     setDetail(null);
     setResult(null);
+    setPhotoFile(null);
     setPage(next);
     if (location.hash !== `#${next}`) location.hash = next;
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -248,9 +391,35 @@ export default function App() {
       setToast("Браузер не разрешил сохранить коллекцию");
     }
   };
-  const showResult = (value: ScanResult) => {
+  const showResult = (value: ScanResult, file: File | null = null) => {
     setResult(value);
     setDetail(value.wine);
+    setPicked(false);
+    setPhotoFile(file);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  // Choosing among candidates opens that card but keeps the scan context
+  // (photo, alternatives), so a wrong pick can be corrected in one tap.
+  const pickCandidate = (wine: Wine) => {
+    setDetail(wine);
+    setPicked(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const backToScanner = () => {
+    setDetail(null);
+    setResult(null);
+    setPhotoFile(null);
+  };
+  // Must run inside the click handler: browsers only open a file or camera
+  // picker in direct response to a user gesture.
+  const retake = () => retakeInput.current?.click();
+  const retaken = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    backToScanner();
+    setPendingFile(file);
+    if (page !== "scanner") navigate("scanner");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const card = (wine: Wine) => (
@@ -316,6 +485,8 @@ export default function App() {
             Открыть каталог <ArrowUpRight size={15} />
           </a>
         </div>
+        {/* Phones hide the breadcrumb row; the age mark moves up here. */}
+        <span className="age-tag mobile-age">18+</span>
         <button className="sidebar-help" onClick={() => setHelp(true)}>
           <CircleHelp size={18} />
           Как это работает
@@ -354,59 +525,33 @@ export default function App() {
             <WineDetail
               wine={detail}
               result={result}
+              photo={photo}
+              picked={picked}
               saved={saved.includes(detail.slug)}
               onSave={() => toggleSave(detail)}
-              onBack={() => {
-                setDetail(null);
-                setResult(null);
-              }}
+              onBack={backToScanner}
+              onPick={pickCandidate}
+              onRetake={retake}
               onPair={() => navigate("sommelier")}
             />
-          ) : result ? (
-            <section className="result-empty">
-              <button className="text-button" onClick={() => setResult(null)}>
-                <ArrowLeft size={16} />К сканеру
-              </button>
-              <Empty
-                icon={ScanLine}
-                title={
-                  result.status === "uncertain"
-                    ? "Давайте посмотрим поближе"
-                    : "Пока не нашли это вино"
-                }
-                text={result.message}
-                action={
-                  <button
-                    className="primary-button"
-                    onClick={() => setResult(null)}
-                  >
-                    <Camera size={18} />
-                    Сделать другое фото
-                  </button>
-                }
-              />
-              {result.candidates.length > 0 && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <span className="eyebrow">МОЖЕТ БЫТЬ ИНТЕРЕСНО</span>
-                      <h2>Похожие вина из каталога</h2>
-                    </div>
-                  </div>
-                  <p className="muted">
-                    Это возможные альтернативы, а не подтверждённый результат.
-                  </p>
-                  <div className="wine-grid">
-                    {result.candidates.slice(0, 4).map((c) => card(c.wine))}
-                  </div>
-                </>
-              )}
-            </section>
+          ) : result && result.status !== "demo" ? (
+            <ResultChooser
+              result={result}
+              photo={photo}
+              onPick={pickCandidate}
+              onRetake={retake}
+              navigate={navigate}
+            />
           ) : page === "scanner" ? (
             <Scanner
+              key={pendingFile ? `retake-${pendingFile.name}-${pendingFile.lastModified}` : "scanner"}
               health={health}
               meta={meta}
-              onResult={showResult}
+              initialFile={pendingFile}
+              onResult={(value, file) => {
+                setPendingFile(null);
+                showResult(value, file);
+              }}
               navigate={navigate}
               card={card}
             />
@@ -427,6 +572,16 @@ export default function App() {
           <span>Открывайте. Узнавайте. Сохраняйте.</span>
         </footer>
       </div>
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="visually-hidden"
+        ref={retakeInput}
+        onChange={retaken}
+        aria-label="Сделать другое фото"
+        tabIndex={-1}
+      />
       <nav className="mobile-nav" aria-label="Мобильная навигация">
         {pages.map(({ id, name, icon: Icon }) => (
           <button
@@ -463,19 +618,26 @@ export default function App() {
 function Scanner({
   health,
   meta,
+  initialFile = null,
   onResult,
   navigate,
   card,
 }: {
   health: Health | null;
   meta: Meta | null;
-  onResult: (r: ScanResult) => void;
+  initialFile?: File | null;
+  onResult: (r: ScanResult, photo: File) => void;
   navigate: (p: Page) => void;
   card: (w: Wine) => ReactNode;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const camera = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(initialFile);
+  // Where the current photo came from, so "retake" reopens the same picker:
+  // the camera for a snapshot, the gallery for a chosen file.
+  const [source, setSource] = useState<"camera" | "file">(
+    initialFile ? "camera" : "file",
+  );
   const [preview, setPreview] = useState("");
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -500,6 +662,17 @@ function Scanner({
     setPreview(url);
     return () => URL.revokeObjectURL(url);
   }, [file]);
+  // On a short phone the hero pushes the photo and its two buttons below the
+  // fold; bring them up once a photo is chosen so "recognise" and "retake"
+  // are both in reach without hunting.
+  const previewActions = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!preview || !window.matchMedia("(max-width: 920px)").matches) return;
+    const frame = requestAnimationFrame(() =>
+      previewActions.current?.scrollIntoView({ block: "end", behavior: "smooth" }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [preview]);
   const selectFile = (value?: File) => {
     setError("");
     if (!value) return;
@@ -515,10 +688,17 @@ function Scanner({
     }
     setFile(value);
   };
-  const changed = (event: ChangeEvent<HTMLInputElement>) => {
-    selectFile(event.target.files?.[0]);
-    event.target.value = "";
-  };
+  const changed =
+    (from: "camera" | "file") => (event: ChangeEvent<HTMLInputElement>) => {
+      const chosen = event.target.files?.[0];
+      event.target.value = "";
+      if (!chosen) return;
+      setSource(from);
+      selectFile(chosen);
+    };
+  const openCamera = () => camera.current?.click();
+  const openFiles = () => input.current?.click();
+  const reopen = () => (source === "camera" ? openCamera() : openFiles());
   const scan = async () => {
     if (busy || !file) return;
     setBusy(true);
@@ -534,7 +714,7 @@ function Scanner({
         body,
         signal: controller.signal,
       });
-      if (active.current) onResult(response);
+      if (active.current) onResult(response, file);
     } catch (e) {
       if (active.current)
         setError(
@@ -591,7 +771,7 @@ function Scanner({
             accept="image/jpeg,image/png,image/webp"
             className="visually-hidden"
             ref={input}
-            onChange={changed}
+            onChange={changed("file")}
             aria-label="Выбрать фото этикетки"
           />
           <input
@@ -600,7 +780,7 @@ function Scanner({
             capture="environment"
             className="visually-hidden"
             ref={camera}
-            onChange={changed}
+            onChange={changed("camera")}
             aria-label="Сфотографировать этикетку"
           />
           <div
@@ -651,14 +831,26 @@ function Scanner({
                   или выберите его на устройстве
                 </p>
                 <button
-                  className="primary-button"
-                  onClick={() => input.current?.click()}
+                  className="primary-button desktop-upload"
+                  onClick={openFiles}
                   disabled={busy}
                 >
                   <Upload size={17} />
                   Загрузить фото
                   <ArrowUpRight size={17} />
                 </button>
+                {/* On a phone the camera is the point: it leads, the
+                    gallery follows, and drag-and-drop copy is hidden. */}
+                <div className="mobile-scan-actions">
+                  <button className="primary-button" onClick={openCamera} disabled={busy}>
+                    <Camera size={19} />
+                    Сфотографировать
+                  </button>
+                  <button className="secondary-button" onClick={openFiles} disabled={busy}>
+                    <ImagePlus size={18} />
+                    Выбрать из галереи
+                  </button>
+                </div>
                 <span className="file-hint">
                   JPG, PNG, WEBP · до {health?.max_upload_mb || 12} МБ
                 </span>
@@ -680,19 +872,29 @@ function Scanner({
             )}
           </div>
           {preview ? (
-            <button
-              className="primary-button scan-submit"
-              disabled={busy}
-              onClick={() => scan()}
-            >
-              <ScanLine size={18} />
-              Распознать вино
-              <ArrowRight size={18} />
-            </button>
+            <div className="preview-actions" ref={previewActions}>
+              <button
+                className="primary-button scan-submit"
+                disabled={busy}
+                onClick={() => scan()}
+              >
+                <ScanLine size={18} />
+                Распознать вино
+                <ArrowRight size={18} />
+              </button>
+              <button
+                className="secondary-button retake-button"
+                disabled={busy}
+                onClick={reopen}
+              >
+                {source === "camera" ? <Camera size={17} /> : <ImagePlus size={17} />}
+                {source === "camera" ? "Переснять" : "Выбрать другое"}
+              </button>
+            </div>
           ) : (
             <button
               className="camera-button"
-              onClick={() => camera.current?.click()}
+              onClick={openCamera}
               disabled={busy}
             >
               <Camera size={18} />
@@ -979,33 +1181,62 @@ function PageHeading({
 function WineDetail({
   wine,
   result,
+  photo,
+  picked,
   saved,
   onSave,
   onBack,
+  onPick,
+  onRetake,
   onPair,
 }: {
   wine: Wine;
   result: ScanResult | null;
+  photo: string;
+  picked: boolean;
   saved: boolean;
   onSave: () => void;
   onBack: () => void;
+  onPick: (wine: Wine) => void;
+  onRetake: () => void;
   onPair: () => void;
 }) {
+  const scanned = result !== null && result.status !== "demo";
+  // On held-out real photos the first answer is right about half the time,
+  // but the right wine is in the first three 69% of the time - so the
+  // alternatives are part of the answer, not an afterthought.
+  const alternatives = scanned
+    ? result.candidates.map((c) => c.wine).filter((w) => w.slug !== wine.slug).slice(0, 3)
+    : [];
   return (
     <section className="wine-detail">
-      <button className="text-button back-button" onClick={onBack}>
-        <ArrowLeft size={17} />
-        {result ? "К сканеру" : "Назад к винам"}
-      </button>
-      {result?.status === "matched" && (
-        <div className="result-notice">
+      <div className="detail-toolbar">
+        <button className="text-button back-button" onClick={onBack}>
+          <ArrowLeft size={17} />
+          {result ? "К сканеру" : "Назад к винам"}
+        </button>
+        {scanned && (
+          <button className="text-button retake-link" onClick={onRetake}>
+            <Camera size={17} />
+            Сделать другое фото
+          </button>
+        )}
+      </div>
+      {scanned && (picked || result.status === "matched") && (
+        <div className={`result-notice ${picked ? "is-picked" : ""}`}>
           <span>
-            <CheckCheck size={18} />
-            Ваше вино найдено
+            {picked ? <Check size={18} /> : <CheckCheck size={18} />}
+            {picked ? "Вы выбрали это вино из похожих" : "Ваше вино найдено"}
           </span>
-          {result.status === "matched" && (
-            <small>{(result.elapsed_ms / 1000).toFixed(2)} сек.</small>
-          )}
+          {!picked && <small>{(result.elapsed_ms / 1000).toFixed(2)} сек.</small>}
+        </div>
+      )}
+      {alternatives.length > 0 && (
+        <div className="alternatives">
+          <span className="alternatives-label">
+            {picked ? "Другие похожие вина" : "Не то вино? Возможно, это:"}
+          </span>
+          <CandidateList wines={alternatives} onPick={onPick} compact />
         </div>
       )}
       <div className="detail-grid">
@@ -1016,7 +1247,11 @@ function WineDetail({
           </span>
           <span className="detail-photo-word">wine</span>
           <WineImage wine={wine} />
-          <span className="detail-photo-caption">РОССИЙСКОЕ ВИНОДЕЛИЕ</span>
+          {photo ? (
+            <ScanPhoto src={photo} className="detail-scan-photo" />
+          ) : (
+            <span className="detail-photo-caption">РОССИЙСКОЕ ВИНОДЕЛИЕ</span>
+          )}
         </div>
         <div className="detail-copy">
           <div className="eyebrow">{wine.winery}</div>

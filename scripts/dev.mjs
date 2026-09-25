@@ -23,6 +23,11 @@ const api = spawn(
     "--port",
     "8000",
     "--reload",
+    // Watch only the API code. Without this uvicorn watches the whole repo,
+    // including .venv/, datasets/ and runs/ - a pip install or a training run
+    // then restarts the API (and reloads the models) over and over.
+    "--reload-dir",
+    "backend",
   ],
   { stdio: "inherit" },
 );

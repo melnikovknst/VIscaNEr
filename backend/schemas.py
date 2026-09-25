@@ -61,6 +61,19 @@ class ScanResult(BaseModel):
     metrics: dict = Field(default_factory=lambda: {"f1_top1": None, "f1_top5": None, "source": "not_evaluated"})
 
 
+class SommelierRequest(BaseModel):
+    question: str = Field(min_length=2, max_length=500)
+    wine_slug: str | None = Field(default=None, max_length=300)
+
+
+class SommelierAnswer(BaseModel):
+    answer: str
+    wines: list[Wine]
+    cited: list[int]
+    elapsed_ms: int
+    model: str
+
+
 class PairingRequest(BaseModel):
     dish: Literal["meat", "fish", "cheese", "vegetables", "dessert"]
     preference: Literal["any", "red", "white", "rose", "sparkling"] = "any"

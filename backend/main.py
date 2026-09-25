@@ -17,9 +17,11 @@ from starlette.concurrency import run_in_threadpool
 from backend.catalog import Catalog
 from backend.config import ROOT, Settings
 from backend.pairing import recommend
+from backend.sommelier import Sommelier
 from backend.metrics import read_metrics
 from backend.providers import ModelUnavailable, create_provider
-from backend.schemas import Match, PairingRequest, Prediction, ScanResult
+from backend.schemas import (Match, PairingRequest, Prediction, ScanResult, SommelierAnswer,
+                             SommelierRequest)
 from backend.storage import History
 
 logger = logging.getLogger(__name__)
@@ -135,6 +137,19 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
             logger.exception("Model initialization failed")
             app.state.provider = None
             app.state.model_error = "Модель не загрузилась. Проверьте настройки и журнал backend."
+        app.state.sommelier = None
+        app.state.sommelier_error = None
+        if settings.sommelier_enabled:
+            app.state.sommelier = Sommelier(settings, app.state.catalog)
+
+            # Warm up after startup so the scanner is never delayed by the LLM.
+            async def warm():
+                try:
+                    await run_in_threadpool(app.state.sommelier.load)
+                except Exception:
+                    logger.exception("Sommelier initialization failed")
+                    app.state.sommelier_error = "Сомелье временно недоступен."
+            app.state.sommelier_warmup = asyncio.create_task(warm())
         yield
 
     app = FastAPI(title="winescanner API", version="1.0.0", lifespan=lifespan,
@@ -246,6 +261,20 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
     @app.delete("/api/history", status_code=204)
     def clear_history(request: Request, response: Response):
         app.state.history.clear(session_id(request, response))
+
+    @app.get("/api/sommelier/status")
+    def sommelier_status():
+        sommelier = app.state.sommelier
+        return {"enabled": sommelier is not None, "ready": bool(sommelier and sommelier.ready),
+                "error": app.state.sommelier_error}
+
+    @app.post("/api/sommelier", response_model=SommelierAnswer)
+    async def sommelier(body: SommelierRequest):
+        if app.state.sommelier is None or app.state.sommelier_error:
+            raise HTTPException(503, app.state.sommelier_error or "Сомелье не подключён.")
+        if body.wine_slug and body.wine_slug not in app.state.catalog.wines:
+            raise HTTPException(404, "Вино не найдено")
+        return await run_in_threadpool(app.state.sommelier.ask, body.question.strip(), body.wine_slug)
 
     @app.post("/api/pairing")
     def pairing(body: PairingRequest):

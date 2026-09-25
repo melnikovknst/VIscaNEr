@@ -51,9 +51,8 @@ class RemoteProvider:
 
 class LocalProvider:
     def __init__(self, settings: Settings):
-        for path in (settings.checkpoint_path, settings.gallery_path):
-            if not path.is_file():
-                raise FileNotFoundError(f"Файл модели не найден: {path}")
+        if not settings.checkpoint_path.is_file():
+            raise FileNotFoundError(f"Файл модели не найден: {settings.checkpoint_path}")
         # Reuse exactly the architecture, state-key normalization and evaluation
         # transforms used by colleagues. A trained checkpoint includes the backbone;
         # no original safetensors or training-machine paths are needed at serving time.
@@ -77,9 +76,26 @@ class LocalProvider:
         self.model.load_state_dict(normalize_retrieval_checkpoint_state_dict(self.model, state), strict=True)
         self.model.to(self.device).eval()
         _, self.transform = build_transforms(size)
-        gallery = torch.load(settings.gallery_path, map_location="cpu", weights_only=True)
-        embeddings = gallery["embeddings"].float()
-        self.slugs = list(gallery["wine_slugs"])
+        gallery = (torch.load(settings.gallery_path, map_location="cpu", weights_only=True)
+                   if settings.gallery_path.is_file() else None)
+        if gallery is None or "signature" in gallery:
+            # infer_wine.py's cache: signed with the checkpoint, backbone and
+            # reference files. Let infer_wine itself load it, or rebuild it when
+            # the weights changed - a stale gallery would silently match the new
+            # model's queries against the old model's embeddings.
+            from infer_wine import (DEFAULT_DATASET_ZIP, DEFAULT_DINO_WEIGHTS, DEFAULT_REFS_ROOT,
+                                    build_or_load_gallery, ensure_references)
+            embeddings, self.slugs = build_or_load_gallery(
+                model=self.model, transform=self.transform,
+                refs=ensure_references(DEFAULT_REFS_ROOT, DEFAULT_DATASET_ZIP),
+                checkpoint=settings.checkpoint_path.resolve(), weights=DEFAULT_DINO_WEIGHTS,
+                cache_path=settings.gallery_path.resolve(), device=self.device, image_size=size,
+                batch_size=32, rebuild=False)
+            embeddings = embeddings.float().cpu()
+        else:
+            # A precomputed gallery file (README, "Вариант A"): used as is.
+            embeddings = gallery["embeddings"].float()
+            self.slugs = list(gallery["wine_slugs"])
         if (embeddings.ndim != 2 or len(embeddings) != len(self.slugs) or not len(self.slugs)
                 or len(set(self.slugs)) != len(self.slugs)
                 or embeddings.shape[1] != int(config.get("embedding_dim", 256))

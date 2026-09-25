@@ -136,15 +136,21 @@ test("upload is honest about the model and help is keyboard accessible", async (
     page.getByAltText("Выбранная фотография этикетки"),
   ).toBeVisible();
   // The preview step always offers a way back out.
-  await expect(page.getByRole("button", { name: "Выбрать другое" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Выбрать другое" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Распознать вино" }).click();
   if (health.model_ready) {
     // A real model answers with a card or with a choice - never an error -
     // and the visitor's photo stays on screen for comparison.
-    await expect(page.locator(".wine-detail, .result-chooser")).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator(".wine-detail, .result-chooser")).toBeVisible({
+      timeout: 60_000,
+    });
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(page.getByAltText("Ваше фото этикетки")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Сделать другое фото" }).first()).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Сделать другое фото" }).first(),
+    ).toBeVisible();
   } else {
     await expect(page.getByRole("alert")).toContainText(
       "Распознавание временно недоступно",
@@ -155,4 +161,66 @@ test("upload is honest about the model and help is keyboard accessible", async (
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("an uncertain answer offers the best guess first and the rest on request", async ({
+  page,
+  request,
+}) => {
+  const meta = await (await request.get("/api/catalog/meta")).json();
+  const wines = meta.featured.slice(0, 4);
+  await page.route("**/api/scan", (route) =>
+    route.fulfill({
+      json: {
+        id: "test",
+        status: "uncertain",
+        wine: null,
+        candidates: wines.map((wine: { slug: string }, i: number) => ({
+          wine,
+          similarity: 0.58 - i / 100,
+        })),
+        similarity: 0.58,
+        margin: 0.01,
+        elapsed_ms: 40,
+        model_version: "test",
+        provider: "local",
+        created_at: new Date().toISOString(),
+        message: "",
+        metrics: {},
+      },
+    }),
+  );
+  await page.goto("/");
+  const image = await request.get(meta.featured[0].image_url);
+  await page.getByLabel("Выбрать фото этикетки").setInputFiles({
+    name: "label.png",
+    mimeType: "image/png",
+    buffer: await image.body(),
+  });
+  await page.getByRole("button", { name: "Распознать вино" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Похоже, это оно" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: wines[0].name }),
+  ).toBeVisible();
+  // The other candidates are collapsed and unreachable until asked for.
+  const others = page.locator("#other-guesses");
+  await expect(others).toHaveAttribute("inert");
+  expect((await others.boundingBox())?.height ?? 0).toBeLessThan(2);
+  await page.getByRole("button", { name: "Другие варианты" }).click();
+  await expect(others).not.toHaveAttribute("inert");
+  await expect.poll(async () => (await others.boundingBox())?.height ?? 0).toBeGreaterThan(200);
+  await expect(
+    others.getByRole("button", { name: new RegExp(wines[1].name) }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Да, это оно" }).click();
+  await expect(
+    page.getByRole("heading", { name: wines[0].name }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBeTruthy();
 });

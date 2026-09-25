@@ -145,6 +145,10 @@ class LocalProvider:
 
 
 def create_provider(settings: Settings) -> Provider:
+    if settings.model_provider == "cascade":
+        from backend.cascade import CascadeProvider
+
+        return CascadeProvider(settings)
     if settings.model_provider == "local":
         return LocalProvider(settings)
     if settings.model_provider == "remote":

@@ -119,11 +119,12 @@ test("catalog filtering and useful food pairing", async ({
   ).toBeTruthy();
 });
 
-test("upload handles a missing model honestly and help is keyboard accessible", async ({
+test("upload is honest about the model and help is keyboard accessible", async ({
   page,
   request,
 }) => {
   await page.goto("/");
+  const health = await (await request.get("/api/health")).json();
   const meta = await (await request.get("/api/catalog/meta")).json();
   const image = await request.get(meta.featured[0].image_url);
   await page.getByLabel("Выбрать фото этикетки").setInputFiles({
@@ -134,11 +135,22 @@ test("upload handles a missing model honestly and help is keyboard accessible", 
   await expect(
     page.getByAltText("Выбранная фотография этикетки"),
   ).toBeVisible();
+  // The preview step always offers a way back out.
+  await expect(page.getByRole("button", { name: "Выбрать другое" })).toBeVisible();
   await page.getByRole("button", { name: "Распознать вино" }).click();
-  await expect(page.getByRole("alert")).toContainText(
-    "Распознавание временно недоступно",
-  );
-  await page.getByRole("button", { name: "Убрать фото" }).click();
+  if (health.model_ready) {
+    // A real model answers with a card or with a choice - never an error -
+    // and the visitor's photo stays on screen for comparison.
+    await expect(page.locator(".wine-detail, .result-chooser")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.getByAltText("Ваше фото этикетки")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Сделать другое фото" }).first()).toBeVisible();
+  } else {
+    await expect(page.getByRole("alert")).toContainText(
+      "Распознавание временно недоступно",
+    );
+    await page.getByRole("button", { name: "Убрать фото" }).click();
+  }
   await page.getByRole("button", { name: "Как это работает" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");

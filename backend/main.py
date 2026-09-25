@@ -76,27 +76,45 @@ def decode_image(content: bytes, settings: Settings) -> Image.Image:
 
 def resolve_prediction(prediction: Prediction, catalog: Catalog, settings: Settings, elapsed_ms: int) -> ScanResult:
     # Never skip an unknown top-1 and silently promote a lower-ranked identity.
-    unique = {c.slug: c for c in sorted(prediction.candidates, key=lambda c: c.similarity)}
-    candidates = sorted(unique.values(), key=lambda c: c.similarity, reverse=True)[:5]
+    if prediction.ranked:
+        # The provider already decided the order (a cascade may have swapped
+        # its top two); keep it, dropping only repeated slugs.
+        seen: set[str] = set()
+        candidates = [c for c in prediction.candidates if not (c.slug in seen or seen.add(c.slug))][:5]
+    else:
+        unique = {c.slug: c for c in sorted(prediction.candidates, key=lambda c: c.similarity)}
+        candidates = sorted(unique.values(), key=lambda c: c.similarity, reverse=True)[:5]
     if any(c.slug not in catalog.wines for c in candidates):
         raise ModelUnavailable("Каталог и модель не синхронизированы. В ответе есть неизвестное вино.")
     top = candidates[0] if candidates else None
-    margin = top.similarity - candidates[1].similarity if len(candidates) > 1 else None
+    if prediction.decision_margin is not None:
+        margin = prediction.decision_margin
+    else:
+        margin = top.similarity - candidates[1].similarity if len(candidates) > 1 else None
+    # Each stage is judged by its own separation. After the bottle model ran,
+    # stage 1 was a near tie by construction, so its margin cannot gate the answer.
+    required_margin = settings.min_resolver_margin if prediction.decision_basis == "resolver" else settings.min_margin
     status = "not_found"
     message = "Не удалось найти вино. Снимите этикетку крупнее, без бликов и соседних бутылок."
     wine = None
+    uncertain_message = "Есть несколько похожих этикеток. Снимите название и год крупнее — пока точный результат не подтверждён."
     if top and not prediction.abstain and top.similarity >= settings.min_similarity:
         # A single candidate does not demonstrate separation from near-duplicates.
-        if margin is not None and margin >= settings.min_margin:
+        if margin is not None and margin >= required_margin:
             status, wine, message = "matched", catalog.wines[top.slug], "Вино найдено в каталоге."
         else:
-            status = "uncertain"
-            message = "Есть несколько похожих этикеток. Снимите название и год крупнее — пока точный результат не подтверждён."
+            status, message = "uncertain", uncertain_message
+    elif (top and not prediction.abstain and settings.min_suggest_similarity is not None
+          and top.similarity >= settings.min_suggest_similarity):
+        # Too weak to answer, but the right wine is usually among the candidates:
+        # let the visitor pick rather than report a failure.
+        status, message = "uncertain", uncertain_message
     return ScanResult(id=str(uuid4()), status=status, wine=wine,
         candidates=[Match(wine=catalog.wines[c.slug], similarity=c.similarity) for c in candidates],
         similarity=top.similarity if top else None, margin=margin, elapsed_ms=elapsed_ms,
         model_version=prediction.model_version, provider=settings.model_provider,
-        created_at=datetime.now(timezone.utc).isoformat(), message=message)
+        created_at=datetime.now(timezone.utc).isoformat(), message=message,
+        decision_basis=prediction.decision_basis, pipeline=prediction.pipeline)
 
 
 def create_app(settings: Settings | None = None, provider_override=None) -> FastAPI:
@@ -110,7 +128,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
         app.state.inference_lock = asyncio.Lock()
         try:
             app.state.provider = provider_override or await run_in_threadpool(create_provider, settings)
-            if settings.model_provider == "local" and hasattr(app.state.provider, "slugs"):
+            if settings.model_provider in {"local", "cascade"} and hasattr(app.state.provider, "slugs"):
                 if set(app.state.provider.slugs) - app.state.catalog.wines.keys():
                     raise ValueError("Галерея содержит slug, отсутствующие в каталоге")
         except Exception:

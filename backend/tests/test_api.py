@@ -83,6 +83,59 @@ def test_open_set_and_near_duplicate_thresholds(settings, scores, expected):
         assert flat == {"slug": "red" if expected == "matched" else None}
 
 
+@pytest.mark.parametrize("scores,expected", [((.6, .3), "uncertain"), ((.45, .3), "not_found"), ((.92, .6), "matched")])
+def test_weak_but_plausible_answer_becomes_a_choice(settings, scores, expected):
+    settings = settings.model_copy(update={"min_suggest_similarity": .5})
+    with TestClient(create_app(settings, StubProvider(prediction(*scores)))) as client:
+        result = client.post("/api/scan", files={"file": ("a.jpg", photo())}).json()
+        assert result["status"] == expected
+        assert (result["wine"] is not None) == (expected == "matched")
+        assert client.post("/predict", files={"file": ("a.jpg", photo())}).json()["slug"] == (
+            "red" if expected == "matched" else None)
+
+
+def cascade(order, basis="label", margin=None, pipeline=None):
+    """A cascade response: candidates in final order, scores are stage-1 scores."""
+    return Prediction(candidates=[Candidate(slug=s, similarity=v) for s, v in order], model_version="cascade-test",
+                      ranked=True, decision_basis=basis, decision_margin=margin, pipeline=pipeline)
+
+
+def test_cascade_order_is_not_resorted_by_stage_one_score(settings):
+    # The bottle model swapped the pair: "white" wins although its stage-1
+    # score is lower. Re-sorting by score would silently undo that decision.
+    swapped = cascade([("white", .80), ("red", .81)], basis="resolver", margin=.05,
+                      pipeline={"resolver": {"invoked": True, "swapped": True}})
+    with TestClient(create_app(settings, StubProvider(swapped))) as client:
+        result = client.post("/api/scan", files={"file": ("a.jpg", photo())}).json()
+        assert result["status"] == "matched" and result["wine"]["slug"] == "white"
+        assert [c["wine"]["slug"] for c in result["candidates"]] == ["white", "red"]
+        assert result["decision_basis"] == "resolver"
+        assert result["pipeline"]["resolver"]["swapped"] is True
+
+
+@pytest.mark.parametrize("basis,margin,expected", [
+    # Stage 1 was a near tie by construction when the resolver ran; its own
+    # separation is what decides, against its own threshold.
+    ("resolver", .05, "matched"),
+    ("resolver", .005, "uncertain"),
+    # Without the resolver, the stage-1 margin must clear min_margin (0.04).
+    ("label", .10, "matched"),
+    ("label", .01, "uncertain"),
+])
+def test_each_stage_is_judged_by_its_own_margin(settings, basis, margin, expected):
+    settings.min_resolver_margin = .02
+    response = cascade([("red", .80), ("white", .795)], basis=basis, margin=margin)
+    with TestClient(create_app(settings, StubProvider(response))) as client:
+        assert client.post("/api/scan", files={"file": ("a.jpg", photo())}).json()["status"] == expected
+
+
+def test_cascade_duplicate_slugs_keep_first_position(settings):
+    response = cascade([("white", .80), ("red", .81), ("white", .70)], basis="resolver", margin=.05)
+    with TestClient(create_app(settings, StubProvider(response))) as client:
+        result = client.post("/api/scan", files={"file": ("a.jpg", photo())}).json()
+        assert [c["wine"]["slug"] for c in result["candidates"]] == ["white", "red"]
+
+
 def test_explicit_abstention_and_empty_candidates(settings):
     for result in [prediction(abstain=True), Prediction(), Prediction(candidates=[Candidate(slug="red", similarity=.99)])]:
         with TestClient(create_app(settings, StubProvider(result))) as client:

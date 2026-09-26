@@ -14,13 +14,15 @@ Outputs (images are shared through Git LFS):
   datasets/store_shelves_v1/queries/s-NNN.jpg
   datasets/store_shelves_v1/labels.csv
 
-    python -m scripts.build_store_shelves
+    python -m scripts.build_store_shelves                       # store_shelves_v1, s-NNN
+    python -m scripts.build_store_shelves --dataset store_shelves_v2 --prefix t
     python infer_wine.py datasets/store_shelves_v1/queries --top-k 5 \
         --output runs/inference/store_shelves_v1_bottle_pipeline.json
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 from pathlib import Path
@@ -28,11 +30,6 @@ from pathlib import Path
 from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "datasets/store_shelves_v1/source"
-QUERIES = ROOT / "datasets/store_shelves_v1/queries"
-POINTS = ROOT / "datasets/store_shelves_v1/points.csv"
-LABELS = ROOT / "datasets/store_shelves_v1/labels.csv"
-REVIEW = ROOT / "datasets/store_shelves_v1/review.json"
 
 # The marked bottle fills about this share of the frame width, as in a phone shot
 # of one bottle on a shelf.
@@ -57,10 +54,18 @@ def frame(image: Image.Image, x: float, y: float, bottle_w: float) -> Image.Imag
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--dataset", default="store_shelves_v1", help="folder under datasets/")
+    parser.add_argument("--prefix", default="s", help="query id prefix; must differ between datasets")
+    args = parser.parse_args()
+    base = ROOT / "datasets" / args.dataset
+    SOURCE, QUERIES, POINTS = base / "source", base / "queries", base / "points.csv"
+    LABELS, REVIEW = base / "labels.csv", base / "review.json"
+    qid = lambda n: f"{args.prefix}-{n:03d}"
     QUERIES.mkdir(parents=True, exist_ok=True)
     rows = list(csv.DictReader(POINTS.open(encoding="utf-8")))
-    reviews = json.loads(REVIEW.read_text(encoding="utf-8"))
-    query_ids = {f"s-{n:03d}" for n in range(1, len(rows) + 1)}
+    reviews = json.loads(REVIEW.read_text(encoding="utf-8")) if REVIEW.is_file() else {}
+    query_ids = {qid(n) for n in range(1, len(rows) + 1)}
     if set(reviews) - query_ids:
         raise ValueError("Review notes reference unknown query IDs")
     cache: dict[str, Image.Image] = {}
@@ -71,20 +76,20 @@ def main() -> None:
             with Image.open(SOURCE / src) as im:
                 cache[src] = ImageOps.exif_transpose(im).convert("RGB")
         shot = frame(cache[src], float(row["x"]), float(row["y"]), float(row["w"]))
-        name = f"s-{n:03d}.jpg"
+        name = f"{qid(n)}.jpg"
         shot.save(QUERIES / name, quality=92)
         status = row["status"]
-        needs_review = f"s-{n:03d}" in reviews
+        needs_review = qid(n) in reviews
         training_use = ("exclude" if status not in {"ok", "notcat"} else "review" if needs_review
                         else "catalog" if status == "ok" else "out_of_catalog")
-        out.append({"query_id": f"s-{n:03d}", "image_path": name, "status": status,
+        out.append({"query_id": qid(n), "image_path": name, "status": status,
                     "scored": status in {"ok", "notcat"},
                     "in_catalog": {"ok": True, "notcat": False}.get(status, ""),
                     "accepted_slugs": row["accepted_slugs"], "note": row["note"],
                     "source": src, "x": row["x"], "y": row["y"],
                     "needs_review": needs_review, "training_use": training_use})
     with LABELS.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, list(out[0]))
+        writer = csv.DictWriter(handle, list(out[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(out)
     print(f"{len(out)} shots -> {QUERIES}\n{LABELS}")

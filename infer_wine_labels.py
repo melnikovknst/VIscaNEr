@@ -89,7 +89,7 @@ def select_central_label(result: Any, width: int, height: int) -> tuple[dict[str
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return None, 0
-    names = result.names
+    names = getattr(result, "names", {0: "label"})
     name_items = names.items() if isinstance(names, dict) else enumerate(names)
     label_class_ids = {
         int(class_id)

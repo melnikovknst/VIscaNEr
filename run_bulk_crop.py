@@ -26,7 +26,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_INPUT_DIR = PROJECT_ROOT / "datasets" / "bottle_images_45k"
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "datasets" / "yolo_label_detector" / "crops"
 DEFAULT_DEBUG_DIR = PROJECT_ROOT / "datasets" / "yolo_label_detector" / "predictions_debug"
-DEFAULT_MODEL_PATH = PROJECT_ROOT / "models" / "yolo_label_detector" / "best.pt"
+DEFAULT_MODEL_PATH = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_MANIFEST_PATH = DEFAULT_INPUT_DIR / "bottle_images_manifest.csv"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 METADATA_COLUMNS = [
@@ -124,6 +124,17 @@ def extract_target_detection(
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return None, []
+    names = getattr(result, "names", {0: "label"})
+    name_items = names.items() if isinstance(names, dict) else enumerate(names)
+    label_class_ids = {
+        int(class_id)
+        for class_id, name in name_items
+        if str(name).lower() in {"label", "wine_label", "wine-label"}
+    }
+    if not label_class_ids and len(names) == 1:
+        label_class_ids = {0}
+    if not label_class_ids:
+        raise ValueError(f"YOLO has no label class: {names}")
     xyxy = boxes.xyxy.detach().cpu().numpy()
     confidence = boxes.conf.detach().cpu().numpy()
     classes = boxes.cls.detach().cpu().numpy().astype(int)
@@ -132,7 +143,7 @@ def extract_target_detection(
 
     for coordinates, score, class_id in zip(xyxy, confidence, classes):
         confidence_value = float(score)
-        if class_id != 0 or confidence_value < candidate_confidence:
+        if class_id not in label_class_ids or confidence_value < candidate_confidence:
             continue
         x1, y1, x2, y2 = (float(value) for value in coordinates)
         width = max(0.0, x2 - x1)

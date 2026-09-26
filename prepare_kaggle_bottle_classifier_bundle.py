@@ -60,7 +60,16 @@ def main() -> None:
         build = json.loads(summary.read_text(encoding="utf-8"))
         if not build.get("complete"):
             raise RuntimeError("Bottle crop dataset build_summary.json says complete=false")
-        for status in ("successful", "low_confidence"):
+        # Stage-II fusion evaluates the untouched remainder, not only the old
+        # bottle-classifier training subset. Keep every status that owns an
+        # actual input; failed detections use generated whole-photo fallbacks.
+        for status in (
+            "successful",
+            "low_confidence",
+            "partial",
+            "ambiguous",
+            "failed_original_fallback",
+        ):
             source_dir = dataset / status
             if not source_dir.is_dir():
                 continue

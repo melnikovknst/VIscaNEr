@@ -37,6 +37,9 @@ datasets/**/*
 !datasets/store_shelves_v2/labels.csv
 !datasets/store_shelves_v2/review.json
 !datasets/store_shelves_v2/README.md
+!datasets/store_shelves_catalog/queries/*.jpg
+!datasets/store_shelves_catalog/labels.csv
+!datasets/store_shelves_catalog/README.md
 
 # Model weights under models/ are versioned through Git LFS. Experiment runs
 # and temporary Kaggle staging folders remain local.

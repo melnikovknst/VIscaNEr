@@ -3,12 +3,12 @@ s-001,s-001.jpg,notcat,True,False,,«Белый Олень… ЦИМЛЯНСКО
 s-002,s-002.jpg,ok,True,True,czimlyanskoe-risling,«ЦИМЛЯНСКОЕ сухое белое РИСЛИНГ» (синяя этикетка с шашками); ценник «Цимлянские вина Цимлянское Рислинг бел/сух»,shelf-01.jpg,28,56,False,catalog
 s-003,s-003.jpg,notcat,True,False,,«КАГОР ВЫДЕРЖАННОЕ 2023 Кубань-Вино»; ценник «Кубань-Вино Кагор десертный выдержанное» - в каталоге нет,shelf-01.jpg,44,58,False,out_of_catalog
 s-004,s-004.jpg,notcat,True,False,,«Солнечная Долина КОКУР 2025 сухое белое»; ценник «Солнечная Долина Кокур бел/сух» - тихого Кокура СД в каталоге нет,shelf-01.jpg,61,60,False,out_of_catalog
-s-005,s-005.jpg,ok,True,True,solnechnaya-dolina-meganom-beloe-aligote-suhoe-13,«Солнечная Долина МЕГАНОМ 2025 сухое белое»; ценник «Солнечная Долина Меганом бел/сух»,shelf-01.jpg,76,60,False,catalog
+s-005,s-005.jpg,notcat,True,False,,"«Солнечная Долина МЕГАНОМ 2025 сухое белое»; ценник «Солнечная Долина Меганом бел/сух» | Редизайн, вне каталога: Меганом белое: на фото кремовая этикетка, в каталоге мятно-зелёная",shelf-01.jpg,76,60,False,out_of_catalog
 s-006,s-006.jpg,notcat,True,False,,«Солнечная Долина СОВИНЬОН 2023 сухое белое» - в каталоге нет; у края,shelf-01.jpg,93,60,False,out_of_catalog
 s-007,s-007.jpg,notcat,True,False,,"«COMO UNA MOTO Tempranillo, red semisweet, product of Spain» - импорт, в каталоге нет",shelf-02.jpg,62,7,False,out_of_catalog
 s-008,s-008.jpg,notcat,True,False,,«La SASTRERIA Garnacha Blanca 2023» (Испания) - в каталоге нет,shelf-02.jpg,76,7,False,out_of_catalog
 s-009,s-009.jpg,ok,True,True,kuban-vino-shato-tamane-selekt-ruzh-saperavi-krasnoe-suhoe-125,«CHATEAU TAMAGNE SELECT ROUGE 2024»; ценник «Chateau Tamagne Select Rouge крас/сух»,shelf-02.jpg,17,66,False,catalog
-s-010,s-010.jpg,ok,True,True,chateau-tamagne-select-blanc,"«CHATEAU TAMAGNE SELECT BLANC 2023 Chardonnay demi doux»; в каталоге Select Blanc (0,2 л)",shelf-02.jpg,31,66,True,review
+s-010,s-010.jpg,notcat,True,False,,"«CHATEAU TAMAGNE SELECT BLANC 2023 Chardonnay demi doux»; в каталоге Select Blanc (0,2 л) | Редизайн, вне каталога: Select Blanc: на фото чёрный квадрат, Chardonnay; каталожная карточка — 0,2 л Chardonnay–Sauvignon Blanc с золотым квадратом",shelf-02.jpg,31,66,False,out_of_catalog
 s-011,s-011.jpg,notcat,True,False,,«CHATEAU TAMAGNE SELECT ROSE 2024» - в каталоге нет,shelf-02.jpg,45,66,False,out_of_catalog
 s-012,s-012.jpg,ok,True,True,shato-taman-par-la-mer-czvajgelt,"«CHATEAU TAMAGNE Par La Mer ZWEIGELT, красное сухое 2023»",shelf-02.jpg,60,66,False,catalog
 s-013,s-013.jpg,notcat,True,False,,"«CHATEAU TAMAGNE ENO мерло, красное полусладкое 2022» - в каталоге из ENO только Amber и Траминер-Шардоне",shelf-02.jpg,75,66,False,out_of_catalog
@@ -28,8 +28,8 @@ s-026,s-026.jpg,notcat,True,False,,«Солнечная Долина СОВИН�
 s-027,s-027.jpg,notcat,True,False,,Солнечная Долина с фазаном «СУХОЕ КРАСНОЕ»; ценник «Солнечная Долина Крым ЗГУ крас/сух» - в каталоге только белое в этом дизайне,shelf-05.jpg,22,8,False,out_of_catalog
 s-028,s-028.jpg,ok,True,True,beloe-suhoe,Солнечная Долина с птицей и цветами «СУХОЕ БЕЛОЕ»; ценник «Солнечная Долина Крым ЗГУ бел/сух»,shelf-05.jpg,38,8,False,catalog
 s-029,s-029.jpg,notcat,True,False,,«VALIKO САПЕРАВИ красное сухое» - в каталоге нет,shelf-05.jpg,53,8,False,out_of_catalog
-s-030,s-030.jpg,ok,True,True,portvejn-krymskij,«ПОРТВЕЙН КРЫМСКИЙ Солнечной Долины 2015»,shelf-05.jpg,65,8,False,catalog
-s-031,s-031.jpg,ok,True,True,privat;solnechnaya-dolina-privat-kaberne-sovinon-krasnoe-sladkoe-155,«Солнечная Долина ПРИВАТ 2024 красное»; две карточки,shelf-05.jpg,81,8,False,catalog
+s-030,s-030.jpg,notcat,True,False,,"«ПОРТВЕЙН КРЫМСКИЙ Солнечной Долины 2015» | Редизайн, вне каталога: Портвейн Крымский Солнечной Долины: на фото коричневая этикетка, в каталоге сиреневая",shelf-05.jpg,65,8,False,out_of_catalog
+s-031,s-031.jpg,ok,True,True,solnechnaya-dolina-privat-kaberne-sovinon-krasnoe-sladkoe-155,«Солнечная Долина ПРИВАТ 2024 красное»; две карточки,shelf-05.jpg,81,8,False,catalog
 s-032,s-032.jpg,ok,True,True,derbent-vino-desono-merlo-krasnoe-suhoe-125,"«DESONO MERLOT, сделано в Дагестане»; ценник «Desono Merlot крас/сух»",shelf-05.jpg,20,66,False,catalog
 s-033,s-033.jpg,ok,True,True,derbent-vino-desono-shardone-beloe-suhoe-125,«DESONO CHARDONNAY»; ценник «Desono Chardonnay бел/сух»,shelf-05.jpg,45,66,False,catalog
 s-034,s-034.jpg,ok,True,True,derbent-vino-desono-risling-beloe-suhoe-125,«DESONO RIESLING»; ценник «Desono Riesling бел/сух»,shelf-05.jpg,60,66,False,catalog
@@ -46,7 +46,7 @@ s-044,s-044.jpg,notcat,True,False,,"«Высокий Берег КАБЕРНЕ �
 s-045,s-045.jpg,ok,True,True,kuban-vino-vysokiy-bereg-merlo-krasnoe-suhoe-135,"«Высокий Берег МЕРЛО 2025, сухое красное»",shelf-07.jpg,64,56,False,catalog
 s-046,s-046.jpg,ok,True,True,vysokij-bereg-czvajgelt,"«Высокий Берег ЦВАЙГЕЛЬТ 2024, сухое розовое»",shelf-07.jpg,79,60,False,catalog
 s-047,s-047.jpg,ok,True,True,olymp-winery-adagum-krasnostop-krasnostop-zolotovskiy-krasnoe-suhoe-11,«ADAGUM KRASNOSTOP сухое красное» (белая этикетка с пейзажем),shelf-08.jpg,12,8,False,catalog
-s-048,s-048.jpg,notcat,True,False,,«Адагум Каберне Совиньон» с часами и цветами; ценник «Адагум Каберне Совиньон крас/сух» - в каталоге Adagum Cabernet Sauvignon в другом дизайне,shelf-08.jpg,26,8,True,review
+s-048,s-048.jpg,notcat,True,False,,«Адагум Каберне Совиньон» с часами и цветами; ценник «Адагум Каберне Совиньон крас/сух» - в каталоге Adagum Cabernet Sauvignon в другом дизайне,shelf-08.jpg,26,8,False,out_of_catalog
 s-049,s-049.jpg,notcat,True,False,,«Адагум Красностоп сухое красное» с птицей; ценник «Адагум Красностоп» - этого дизайна в каталоге нет,shelf-08.jpg,38,8,False,out_of_catalog
 s-050,s-050.jpg,ok,True,True,olymp-winery-adagum-chardonnay-kuban-shardone-beloe-suhoe-11;olymp-winery-adagum-chardonnay-shardone-beloe-suhoe-11,«ADAGUM CHARDONNAY сухое белое»; ценник «Адагум Шардоне Кубань бел/сух»,shelf-08.jpg,51,8,False,catalog
 s-051,s-051.jpg,ok,True,True,olymp-winery-adagum-riesling-risling-beloe-suhoe-11,«ADAGUM RIESLING сухое белое»; ценник «Адагум Рислинг Кубань бел/сух»,shelf-08.jpg,64,8,False,catalog
@@ -66,17 +66,17 @@ s-064,s-064.jpg,notcat,True,False,,«FANAGORIA HAY-BAY Шардоне» в се�
 s-065,s-065.jpg,notcat,True,False,,«FANAGORIA HAY BAY Каберне Совиньон»; ценник «Fanagoria Hay Bay Каберне Совиньон крас/сух» - в каталоге нет,shelf-09.jpg,72,8,False,out_of_catalog
 s-066,s-066.jpg,notcat,True,False,,"«INKERMAN MUSCAT, полусладкое белое 2024, Winemaker's Selection» - в каталоге из этой серии Riesling и Саперави",shelf-09.jpg,7,62,False,out_of_catalog
 s-067,s-067.jpg,notcat,True,False,,"«INKERMAN PINOT NOIR, полусладкое красное 2024, Winemaker's Selection» - в каталоге нет",shelf-09.jpg,18,57,False,out_of_catalog
-s-068,s-068.jpg,ok,True,True,inkermanskiy-zmv-winemakers-selection-saperavi-krasnoe-polusladkoe-12,"«INKERMAN SAPERAVI 2024, Winemaker's Selection»; ценник «Inkerman Saperavi»",shelf-09.jpg,30,57,False,catalog
+s-068,s-068.jpg,notcat,True,False,,"«INKERMAN SAPERAVI 2024, Winemaker's Selection»; ценник «Inkerman Saperavi» | Редизайн, вне каталога: Inkerman Winemaker's Selection Saperavi: на фото кремовая этикетка и SAPERAVI латиницей, в каталоге зелёная и САПЕРАВИ",shelf-09.jpg,30,57,False,out_of_catalog
 s-069,s-069.jpg,notcat,True,False,,"«INKERMAN КАБЕРНЕ, сухое красное»; ценник «Inkerman Каберне крас/сух 0.7» - в каталоге нет",shelf-09.jpg,55,60,False,out_of_catalog
 s-070,s-070.jpg,notcat,True,False,,"«INKERMAN ПИННО, полусладкое красное» - в каталоге нет",shelf-09.jpg,75,60,False,out_of_catalog
-s-071,s-071.jpg,ok,True,True,solnechnaya-dolina-muskatnoe-festivalnoe-muskat-belyy-rozovoe-sladkoe-16,«Солнечная Долина МУСКАТНОЕ Фестивальное розовое»; ценник «Солнечная Долина Мускатное фестивальное роз.»,shelf-10.jpg,12,4,False,catalog
+s-071,s-071.jpg,notcat,True,False,,"«Солнечная Долина МУСКАТНОЕ Фестивальное розовое»; ценник «Солнечная Долина Мускатное фестивальное роз.» | Редизайн, вне каталога: Мускатное Фестивальное: на фото этикетка с лучами, в каталоге с фейерверком",shelf-10.jpg,12,4,False,out_of_catalog
 s-072,s-072.jpg,notcat,True,False,,«Кагор Солнечной Долины 2025»; ценник «Солнечная Долина Кагор крас.» - в каталоге нет,shelf-10.jpg,25,4,False,out_of_catalog
 s-073,s-073.jpg,notcat,True,False,,«Солнечная Долина Пти Вердо»; ценник «Солнечная Долина Пти Вердо крас/сух» - в каталоге нет,shelf-10.jpg,40,4,False,out_of_catalog
 s-074,s-074.jpg,notcat,True,False,,"«Солнечная Долина МЕГАНОМ 2025, Бастардо-Кефесия» (красное); ценник «Солнечная Долина Меганом крас/сух» - в каталоге только белый Меганом",shelf-10.jpg,55,4,False,out_of_catalog
 s-075,s-075.jpg,notcat,True,False,,«Солнечная Долина МЕРЛО 2023 сухое красное» - в каталоге нет,shelf-10.jpg,68,4,False,out_of_catalog
 s-076,s-076.jpg,notcat,True,False,,«Солнечная Долина КАРИНЬЯН 2024»; ценник «Солнечная Долина Кариньян крас/сух» - в каталоге нет,shelf-10.jpg,81,4,False,out_of_catalog
-s-077,s-077.jpg,ok,True,True,vino-suhoe-beloe-endemy-shardone;derbent-vino-endemy-shardone-beloe-suhoe-13,"«ЭНДЕМЫ ШАРДОНЕ белое сухое» - новый дизайн этикетки (геометрический сокол), в каталоге старый; ценник «Эндемы Шардоне бел/сух»",shelf-10.jpg,13,60,True,review
-s-078,s-078.jpg,ok,True,True,winemaker-selection,"«INKERMAN RIESLING 2025, полусухое белое, Winemaker's Selection»; ценник «Inkerman Riesling бел/п/сух»",shelf-10.jpg,39,60,False,catalog
+s-077,s-077.jpg,notcat,True,False,,"«ЭНДЕМЫ ШАРДОНЕ белое сухое» - новый дизайн этикетки (геометрический сокол), в каталоге старый; ценник «Эндемы Шардоне бел/сух» | Редизайн, вне каталога: Эндемы Шардоне: на фото геометрический сокол, в каталоге золотой орёл",shelf-10.jpg,13,60,False,out_of_catalog
+s-078,s-078.jpg,notcat,True,False,,"«INKERMAN RIESLING 2025, полусухое белое, Winemaker's Selection»; ценник «Inkerman Riesling бел/п/сух» | Редизайн, вне каталога: Inkerman Winemaker's Selection Riesling: этикетка обновлена (эмблема «19·61», WINEMAKER'S), в каталоге «SINCE 1961»",shelf-10.jpg,39,60,False,out_of_catalog
 s-079,s-079.jpg,notcat,True,False,,"«INKERMAN KOKUR BLANC 2025, Winemaker's Selection»; ценник «Inkerman Kokur Blanc бел/сух» - в каталоге нет",shelf-10.jpg,65,60,False,out_of_catalog
 s-080,s-080.jpg,notcat,True,False,,"«INKERMAN MUSCAT 2024, полусладкое белое, Winemaker's Selection» - в каталоге нет",shelf-10.jpg,77,60,False,out_of_catalog
 s-081,s-081.jpg,notcat,True,False,,"«INKERMAN PINOT NOIR 2024, полусладкое красное, Winemaker's Selection» - в каталоге нет; у края",shelf-10.jpg,91,55,False,out_of_catalog
@@ -106,14 +106,14 @@ s-104,s-104.jpg,ok,True,True,esse-merlo-krasnoe-suhoe-135,"Esse Мерло, чё
 s-105,s-105.jpg,ok,True,True,esse-odessa-black-odesskiy-chernyy-krasnoe-suhoe-12,«ODESSA BLACK ESSE UNPLUGGED Crimea 2022»,shelf-20.jpg,24,70,False,catalog
 s-106,s-106.jpg,ok,True,True,esse-merlo-krasnoe-suhoe-135,"Esse Мерло, чёрная этикетка; ценник «Вино Esse Мерло крас/сух»",shelf-20.jpg,55,56,False,catalog
 s-107,s-107.jpg,ok,True,True,esse-kaberne-sovinon-krasnoe-suhoe-14,"Esse Каберне Совиньон, чёрная этикетка; ценник «Esse Каберне Совиньон крас/сух»; бутылка у края",shelf-20.jpg,90,58,False,catalog
-s-108,s-108.jpg,ok,True,True,abrau-dyurso-abrau-kupazh-svetlyy-suhoe-shardone-beloe-125,"«ABRAU COLLECTION белое сухое», купажное, машина с грушей = каталожный «Абрау Купаж светлый сухое» (тот же рисунок)",shelf-21.jpg,7,15,False,catalog
+s-108,s-108.jpg,notcat,True,False,,"«ABRAU COLLECTION белое сухое», купажное, машина с грушей = каталожный «Абрау Купаж светлый сухое» (тот же рисунок) | Редизайн, вне каталога: Abrau Collection: этикетка с крупным ABRAU COLLECTION, в каталоге «Винный дом Абрау» — другая этикетка при том же рисунке",shelf-21.jpg,7,15,False,out_of_catalog
 s-109,s-109.jpg,notcat,True,False,,"«АБЗА, вино белое полусладкое» - в каталоге нет",shelf-21.jpg,17,15,False,out_of_catalog
 s-110,s-110.jpg,ok,True,True,massandra-portveyn-belyy-krymskiy-kokur-beloe-sladkoe-18,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ КРЫМСКИЙ»,shelf-21.jpg,28,15,False,catalog
 s-111,s-111.jpg,notcat,True,False,,«МАССАНДРА МУСКАТ 2025» (бордовая полоса); ценник «Массандра Мускат роз/сух» - в каталоге нет,shelf-21.jpg,39,15,False,out_of_catalog
 s-112,s-112.jpg,ok,True,True,massandra-muskatel-chernyy-krasnye-sorta-vinograda-krasnoe-sladkoe-16,«МАССАНДРА МУСКАТЕЛЬ ЧЕРНЫЙ 2024»; ценник «Массандра Мускатель черный крас.»,shelf-21.jpg,52,15,False,catalog
 s-113,s-113.jpg,ok,True,True,portvejn-surozh,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ СУРОЖ»; ценник «Массандра Портвейн Белый Сурож»,shelf-21.jpg,62,15,False,catalog
 s-114,s-114.jpg,ok,True,True,massandra-portveyn-belyy-alushta-belye-sorta-vinograda-beloe-sladkoe-17,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ АЛУШТА 2025»,shelf-21.jpg,73,15,False,catalog
-s-115,s-115.jpg,notcat,True,False,,«МАССАНДРА ПОРТВЕЙН РОЗОВЫЙ АЛУШТА 2023» - в каталоге только красный Алушта,shelf-21.jpg,85,15,True,review
+s-115,s-115.jpg,notcat,True,False,,«МАССАНДРА ПОРТВЕЙН РОЗОВЫЙ АЛУШТА 2023» - в каталоге только красный Алушта,shelf-21.jpg,85,15,False,out_of_catalog
 s-116,s-116.jpg,notcat,True,False,,"«SENSO ЗИНФАНДЕЛЬ, красное полусухое» (Il Senso); ценник «Il Senso Зинфандель крас/п/сух» - в каталоге нет",shelf-21.jpg,11,60,False,out_of_catalog
 s-117,s-117.jpg,ok,True,True,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,Покровская «Ркацители-Шардоне»; ценник «Покровское Ркацители-Шардоне Нижняя Волга бел/сух»,shelf-21.jpg,22,62,False,catalog
 s-118,s-118.jpg,ok,True,True,vinodelnya-pokrovskaya-risling-pokrovskoe-risling-reynskiy-beloe-suhoe-13,Покровская «РИСЛИНГ»; ценник «Покровское Рислинг Нижняя Волга бел/сух»,shelf-21.jpg,32,62,False,catalog
@@ -124,13 +124,13 @@ s-122,s-122.jpg,notcat,True,False,,"«FANAGORIA Авторское Сапера�
 s-123,s-123.jpg,ok,True,True,abrau-dyurso-risling-beloe-suhoe-12;abrau-dyurso-risling-beloe-suhoe-13,«Абрау-Дюрсо РИСЛИНГ» с орлом,shelf-22.jpg,9,15,False,catalog
 s-124,s-124.jpg,ok,True,True,abrau-dyurso-abrau-dyurso-pino-nuar-krasnoe-suhoe-13;abrau-dyurso-pino-nuar-krasnoe-suhoe-125;abrau-dyurso-pino-nuar-krasnoe-suhoe-12,«Абрау-Дюрсо ПИНО НУАР»; ценник «Абрау-Дюрсо Пино Нуар крас/сух»,shelf-22.jpg,22,15,False,catalog
 s-125,s-125.jpg,ok,True,True,abrau-dyurso-shardone-beloe-suhoe-13;abrau-dyurso-shardone-beloe-suhoe-12,«Абрау-Дюрсо ШАРДОНЕ»; ценник «Абрау-Дюрсо Шардоне бел/сух»,shelf-22.jpg,37,15,False,catalog
-s-126,s-126.jpg,ok,True,True,abrau-dyurso-abrau-kupazh-tyomnyy-suhoe-kaberne-sovinon-krasnoe-13,"«ABRAU COLLECTION красное сухое», купажное, машина с виноградом = каталожный «Абрау Купаж тёмный сухое» (тот же рисунок); ценник «Abrau Collection Купажное крас/сух»",shelf-22.jpg,49,15,False,catalog
-s-127,s-127.jpg,ok,True,True,abrau-dyurso-abrau-kupazh-svetlyy-suhoe-shardone-beloe-125,"«ABRAU COLLECTION белое сухое», купажное, машина с грушей = каталожный «Абрау Купаж светлый сухое» (тот же рисунок)",shelf-22.jpg,61,15,False,catalog
+s-126,s-126.jpg,notcat,True,False,,"«ABRAU COLLECTION красное сухое», купажное, машина с виноградом = каталожный «Абрау Купаж тёмный сухое» (тот же рисунок); ценник «Abrau Collection Купажное крас/сух» | Редизайн, вне каталога: Abrau Collection: красная этикетка ABRAU COLLECTION, в каталоге белая «Винный дом Абрау»",shelf-22.jpg,49,15,False,out_of_catalog
+s-127,s-127.jpg,notcat,True,False,,"«ABRAU COLLECTION белое сухое», купажное, машина с грушей = каталожный «Абрау Купаж светлый сухое» (тот же рисунок) | Редизайн, вне каталога: Abrau Collection: этикетка с крупным ABRAU COLLECTION, в каталоге «Винный дом Абрау» — другая этикетка при том же рисунке",shelf-22.jpg,61,15,False,out_of_catalog
 s-128,s-128.jpg,notcat,True,False,,"«АБЗА, вино белое полусладкое»; ценник «Ашамта Абза бел/п/сл» - в каталоге нет",shelf-22.jpg,72,15,False,out_of_catalog
 s-129,s-129.jpg,ok,True,True,massandra-portveyn-belyy-krymskiy-kokur-beloe-sladkoe-18,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ…»; ценник «Массандра Портвейн Крымский бел.»,shelf-22.jpg,84,15,False,catalog
 s-130,s-130.jpg,notcat,True,False,,«FANAGORIA VELVET SEASON CABERNET сладкое»; ценник «Velvet Season Каберне крас/сл 0.5» - в каталоге только Riesling и Muscat,shelf-22.jpg,12,60,False,out_of_catalog
-s-131,s-131.jpg,ok,True,True,fanagoriya-velvet-season-risling-beloe-sladkoe-12,«FANAGORIA VELVET SEASON RIESLING сладкое»,shelf-22.jpg,32,60,False,catalog
-s-132,s-132.jpg,ok,True,True,fanagoriya-velvet-season-muskat-ottonel-beloe-sladkoe-13,«FANAGORIA VELVET SEASON MUSCAT сладкое»,shelf-22.jpg,42,60,False,catalog
+s-131,s-131.jpg,notcat,True,False,,"«FANAGORIA VELVET SEASON RIESLING сладкое» | Редизайн, вне каталога: Velvet Season: на фото белая этикетка, в каталоге золотая (и эталонные фото карточек перепутаны)",shelf-22.jpg,32,60,False,out_of_catalog
+s-132,s-132.jpg,notcat,True,False,,"«FANAGORIA VELVET SEASON MUSCAT сладкое» | Редизайн, вне каталога: Velvet Season: на фото белая этикетка, в каталоге золотая (и эталонные фото карточек перепутаны)",shelf-22.jpg,42,60,False,out_of_catalog
 s-133,s-133.jpg,notcat,True,False,,«IL SENSO АППАССИМЕНТО красное сухое» - в каталоге нет,shelf-22.jpg,52,60,False,out_of_catalog
 s-134,s-134.jpg,notcat,True,False,,«IL SENSO ЗИНФАНДЕЛЬ красное полусухое» - в каталоге нет,shelf-22.jpg,62,60,False,out_of_catalog
 s-135,s-135.jpg,ok,True,True,vinodelnya-pokrovskaya-rkatsiteli-shardone-pokrovskoe-beloe-suhoe-13,Покровская «Ркацители-Шардоне»; ценник «Покровское Ркацители-Шардоне»,shelf-22.jpg,74,60,False,catalog
@@ -144,8 +144,8 @@ s-142,s-142.jpg,notcat,True,False,,"«INKERMAN РУБИН АНТИЧНЫЙ, су
 s-143,s-143.jpg,notcat,True,False,,«INKERMAN ШАРДОНЕ КАЧИНСКОЕ»; ценник «Inkerman Шардоне Качинское бел/сух» - в каталоге нет,shelf-23.jpg,28,60,False,out_of_catalog
 s-144,s-144.jpg,notcat,True,False,,"«CHATEAU FOROS Каберне, сухое красное, Крымское»; ценник «Chateau Foros Каберне крас/сух» - в каталоге нет",shelf-23.jpg,41,60,False,out_of_catalog
 s-145,s-145.jpg,notcat,True,False,,«FANAGORIA VELVET SEASON CABERNET сладкое» - в каталоге нет,shelf-23.jpg,65,60,False,out_of_catalog
-s-146,s-146.jpg,ok,True,True,fanagoriya-velvet-season-risling-beloe-sladkoe-12,«FANAGORIA VELVET SEASON RIESLING»,shelf-23.jpg,85,60,False,catalog
-s-147,s-147.jpg,ok,True,True,fanagoriya-velvet-season-muskat-ottonel-beloe-sladkoe-13,«FANAGORIA VELVET SEASON MUSCAT»; у края,shelf-23.jpg,95,60,False,catalog
+s-146,s-146.jpg,notcat,True,False,,"«FANAGORIA VELVET SEASON RIESLING» | Редизайн, вне каталога: Velvet Season: на фото белая этикетка, в каталоге золотая (и эталонные фото карточек перепутаны)",shelf-23.jpg,85,60,False,out_of_catalog
+s-147,s-147.jpg,notcat,True,False,,"«FANAGORIA VELVET SEASON MUSCAT»; у края | Редизайн, вне каталога: Velvet Season: на фото белая этикетка, в каталоге золотая (и эталонные фото карточек перепутаны)",shelf-23.jpg,95,60,False,out_of_catalog
 s-148,s-148.jpg,notcat,True,False,,«МАССАНДРА МЕРЛО 2025» - в каталоге нет,shelf-24.jpg,8,5,False,out_of_catalog
 s-149,s-149.jpg,ok,True,True,massandra-bastardo-bastardo-magarachskiy-krasnoe-sladkoe-16,«…МАССАНДРА» (оранжевая этикетка); ценник «Массандра Бастардо крас.»,shelf-24.jpg,24,5,False,catalog
 s-150,s-150.jpg,ok,True,True,massandra-muskat-belyy-krasnogo-kamnya-beloe-sladkoe-13,«МАССАНДРА МУСКАТ БЕЛЫЙ КРАСНОГО КАМНЯ»,shelf-24.jpg,38,5,False,catalog
@@ -158,7 +158,7 @@ s-156,s-156.jpg,ok,True,True,agora-pino-nuar,"«AGORA PINOT NOIR red semi-sweet 
 s-157,s-157.jpg,ok,True,True,massandra-kagor-gurzuf-saperavi-krasnoe-sladkoe-16,«МАССАНДРА КАГОР ГУРЗУФ 2024»,shelf-25.jpg,7,10,False,catalog
 s-158,s-158.jpg,notcat,True,False,,"«МАССАНДРА КАБЕРНЕ 2024, сухое красное»; ценник «Массандра Каберне крас/сух» - в каталоге нет",shelf-25.jpg,19,10,False,out_of_catalog
 s-159,s-159.jpg,notcat,True,False,,«МАССАНДРА МАДЕРА»; ценник «Массандра Мадера Массандра бел.» - в каталоге нет,shelf-25.jpg,33,10,False,out_of_catalog
-s-160,s-160.jpg,notcat,True,False,,«МАССАНДРА ПОРТВЕЙН … АЛУШТА 2025» (тёмная полоса); ценник «Массандра Портвейн Алушта крас.» - видимо розовый/красный Алушта; в каталоге красный Алушта в другом дизайне,shelf-25.jpg,45,10,True,review
+s-160,s-160.jpg,ok,True,True,massandra-portveyn-krasnyy-alushta-krasnye-sorta-vinograda-krasnoe-sladkoe-17,"«МАССАНДРА ПОРТВЕЙН … АЛУШТА 2025», чёрная верхняя полоса как у красного Алушты 2025 (t-007); ценник «Портвейн Алушта крас.»",shelf-25.jpg,45,10,False,catalog
 s-161,s-161.jpg,ok,True,True,massandra-kokur-desertnyy-surozh-beloe-sladkoe-16,«МАССАНДРА КОКУР ДЕСЕРТНЫЙ СУРОЖ»; ценник «Массандра Кокур Десертный Сурож»,shelf-25.jpg,57,10,False,catalog
 s-162,s-162.jpg,notcat,True,False,,«МАССАНДРА МЕРЛО 2025» - в каталоге нет,shelf-25.jpg,70,10,False,out_of_catalog
 s-163,s-163.jpg,ok,True,True,massandra-bastardo-bastardo-magarachskiy-krasnoe-sladkoe-16,«МАССАНДРА БАСТАРДО МАССАНДРА»; у края,shelf-25.jpg,94,10,False,catalog
@@ -170,7 +170,7 @@ s-168,s-168.jpg,notcat,True,False,,«FANAGORIA Номерной резерв К�
 s-169,s-169.jpg,ok,True,True,massandra-muskatel-chernyy-krasnye-sorta-vinograda-krasnoe-sladkoe-16,«МАССАНДРА МУСКАТЕЛЬ … 2024»; ценник «Массандра Мускатель черный»; у края,shelf-26.jpg,5,20,False,catalog
 s-170,s-170.jpg,ok,True,True,portvejn-surozh,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ СУРОЖ»; ценник «Массандра Портвейн Белый Сурож»,shelf-26.jpg,14,20,False,catalog
 s-171,s-171.jpg,ok,True,True,massandra-portveyn-belyy-alushta-belye-sorta-vinograda-beloe-sladkoe-17,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ АЛУШТА 2025»; ценник «Массандра Портвейн Алушта бел.»,shelf-26.jpg,24,20,False,catalog
-s-172,s-172.jpg,notcat,True,False,,«МАССАНДРА ПОРТВЕЙН РОЗОВЫЙ АЛУШТА 2023»; ценник «Массандра Портвейн Алушта роз.» - в каталоге нет,shelf-26.jpg,34,20,True,review
+s-172,s-172.jpg,notcat,True,False,,«МАССАНДРА ПОРТВЕЙН РОЗОВЫЙ АЛУШТА 2023»; ценник «Массандра Портвейн Алушта роз.» - в каталоге нет,shelf-26.jpg,34,20,False,out_of_catalog
 s-173,s-173.jpg,notcat,True,False,,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ ЮЖНОБЕРЕЖНЫЙ»; ценник «Массандра Портвейн Белый Южнобережный» - в каталоге нет,shelf-26.jpg,45,20,False,out_of_catalog
 s-174,s-174.jpg,ok,True,True,massandra-muskatel-rozovyy-belye-sorta-vinograda-rozovoe-sladkoe-16,«МАССАНДРА МУСКАТЕЛЬ МАССАНДРА РОЗОВЫЙ 2023»; ценник «Массандра Мускатель розовый роз.»,shelf-26.jpg,55,20,False,catalog
 s-175,s-175.jpg,notcat,True,False,,"«МАССАНДРА КАГОР 2024» (бордовая полоса) - в каталоге Кагор Гурзуф и Южнобережный, этот без названия",shelf-26.jpg,65,20,False,out_of_catalog

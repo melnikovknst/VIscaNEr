@@ -65,21 +65,17 @@ def _detections(detector, image: Image.Image, imgsz: int) -> list[dict[str, Any]
 
 
 def _pick_label(labels: list[dict[str, Any]], width: int, height: int) -> dict[str, Any] | None:
-    """The scanner is aimed at one bottle: prefer the confident label nearest the centre.
-
-    Distance is normalised by the frame so a slightly off-centre but clearly
-    detected label is not beaten by a faint one that happens to sit mid-frame.
-    """
+    """Prefer confidence plus proximity to the frame's vertical centre axis."""
     if not labels:
         return None
+    from yolo_target_selection import confidence_axis_score
 
-    def cost(item):
-        x1, y1, x2, y2 = item["box"]
-        dx = ((x1 + x2) / 2 - width / 2) / width
-        dy = ((y1 + y2) / 2 - height / 2) / height
-        return (dx * dx + dy * dy) ** 0.5 - 0.25 * item["confidence"]
-
-    return min(labels, key=cost)
+    return max(
+        labels,
+        key=lambda item: confidence_axis_score(
+            item["confidence"], item["box"], width
+        )[0],
+    )
 
 
 def _bottle_input(detector, image: Image.Image, label: dict[str, Any] | None):

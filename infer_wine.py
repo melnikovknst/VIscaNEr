@@ -20,6 +20,8 @@ from PIL import Image
 from tqdm.auto import tqdm
 from ultralytics import YOLO
 
+from yolo_target_selection import confidence_axis_score
+
 from dinov3_retrieval import (
     SUPPORTED_EXTENSIONS,
     build_transforms,
@@ -72,7 +74,7 @@ def select_target_detections(
     ambiguity_margin: float = DEFAULT_AMBIGUITY_MARGIN,
     duplicate_iou: float = DEFAULT_DUPLICATE_IOU,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
-    """Select confidence-first; return two only when confidence and geometry are close."""
+    """Select by confidence plus horizontal proximity to the target axis."""
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return [], [], {"ambiguous": False, "score_gap": None, "pair_iou": None}
@@ -80,8 +82,6 @@ def select_target_detections(
     confidences = boxes.conf.detach().float().cpu().numpy()
     classes = boxes.cls.detach().long().cpu().numpy()
     candidates: list[dict[str, Any]] = []
-    sigma_x, sigma_y = 0.24, 0.34
-    crosshair_sigma = 0.16
     for raw_box, raw_confidence, class_id in zip(
         coordinates, confidences, classes, strict=True
     ):
@@ -94,14 +94,11 @@ def select_target_detections(
         if width <= 0 or height <= 0:
             continue
 
-        center_x = (x1 + x2) * 0.5 / image_width
-        center_y = (y1 + y2) * 0.5 / image_height
-        center_score = math.exp(
-            -0.5
-            * (
-                ((center_x - crosshair_x) / sigma_x) ** 2
-                + ((center_y - crosshair_y) / sigma_y) ** 2
-            )
+        selection_score, axis_distance, axis_proximity = confidence_axis_score(
+            confidence,
+            (x1, y1, x2, y2),
+            image_width,
+            axis_x=crosshair_x,
         )
         nx1, ny1 = x1 / image_width, y1 / image_height
         nx2, ny2 = x2 / image_width, y2 / image_height
@@ -109,15 +106,15 @@ def select_target_detections(
         distance_y = max(ny1 - crosshair_y, 0.0, crosshair_y - ny2)
         crosshair_distance = math.hypot(distance_x, distance_y)
         crosshair_inside = crosshair_distance <= 1e-9
-        crosshair_score = math.exp(-0.5 * (crosshair_distance / crosshair_sigma) ** 2)
-        target_score = 0.90 * confidence + 0.08 * crosshair_score + 0.02 * center_score
-        selection_score = target_score
+        target_score = selection_score
         candidates.append(
             {
                 "confidence": confidence,
                 "box": (x1, y1, x2, y2),
                 "selection_score": selection_score,
                 "target_score": target_score,
+                "axis_distance": axis_distance,
+                "axis_proximity": axis_proximity,
                 "crosshair_inside": crosshair_inside,
                 "crosshair_distance": crosshair_distance,
             }
@@ -141,7 +138,7 @@ def select_target_detections(
         score_gap = abs(float(first["target_score"]) - float(second["target_score"]))
         pair_iou = box_iou(first["box"], second["box"])
         distance_gap = abs(
-            float(first["crosshair_distance"]) - float(second["crosshair_distance"])
+            float(first["axis_distance"]) - float(second["axis_distance"])
         )
         both_reliable = min(first["confidence"], second["confidence"]) >= ambiguity_confidence
         ambiguous = (
@@ -161,8 +158,8 @@ def select_target_detections(
             None
             if len(candidates) < 2
             else abs(
-                float(candidates[0]["crosshair_distance"])
-                - float(candidates[1]["crosshair_distance"])
+                float(candidates[0]["axis_distance"])
+                - float(candidates[1]["axis_distance"])
             )
         ),
         "ambiguity_margin": ambiguity_margin,

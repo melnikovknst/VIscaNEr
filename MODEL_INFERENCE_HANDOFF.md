@@ -26,10 +26,11 @@ Run:
 .venv/bin/python -m joint_yolo.infer /path/to/photo.jpg
 ```
 
-The helper ranks labels with 90% detector confidence and 10% smooth crosshair
-proximity; crossing the crosshair has no hard bonus. It returns one
-bottle/label pair normally and two only when both confidence-weighted scores
-and distances are close. Bottle confidence below `0.75` triggers the
+The helper ranks labels as `confidence + 0.20 × axis_proximity`. Proximity uses
+only the horizontal distance from the bbox centre to the vertical target axis;
+Y position and crossing the crosshair add no bonus. It returns one bottle/label
+pair normally and two only when both combined scores and axis distances are
+close. Bottle confidence below `0.75` triggers the
 complete-photo fallback for the bottle-side classifier input.
 
 ## 1. Whole-bottle pipeline (current main path)
@@ -48,9 +49,8 @@ Flow: **whole-bottle YOLO -> DINOv3-B/16 retrieval -> catalogue Top-K**.
 
 Important policy implemented in `infer_wine.py`:
 
-- the target score is confidence-first: 90% YOLO confidence, 8% smooth
-  crosshair proximity and 2% bbox-centre proximity; there is no hard bonus for
-  crossing the crosshair;
+- the target score is `YOLO confidence + 0.20 × vertical-axis proximity`;
+  vertical position and crossing the crosshair do not affect ranking;
 - when two distinct central boxes are genuinely ambiguous, both are passed to
   DINO and each catalogue identity receives the better of the two similarities;
 - if the selected bottle YOLO confidence is below `0.75`, the **complete source
@@ -80,8 +80,8 @@ Flow: **label YOLO -> DINOv3-B/16 trained on label crops -> catalogue Top-K**.
 | Fine-tuned label DINOv3-B/16 | `models/trained_checkpoints/dinov3_vitb16_labels_best_full.pt` |
 | Catalogue and RGB reference gallery archive | `datasets/wine-scanner_code-catalog.zip` |
 
-`infer_wine_labels.py` ranks labels with 90% detector confidence and 10% smooth
-centre proximity, adds `10%` padding, saves the exact DINO/OCR input under
+`infer_wine_labels.py` uses the same confidence + vertical-axis selector, adds
+`10%` padding, saves the exact DINO/OCR input under
 `runs/inference/label_crops/`, and emits Top-K JSON. If no label is detected,
 it uses the complete photo rather than crashing.
 

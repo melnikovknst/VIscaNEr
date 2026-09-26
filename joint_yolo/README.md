@@ -75,12 +75,12 @@ Re-run validation without training:
 .venv/bin/python -m joint_yolo.infer /path/to/photo.jpg
 ```
 
-The target label is selected confidence-first: detector confidence contributes
-90% of the score and smooth crosshair proximity only 10%. Crossing the
-crosshair gives no hard bonus. Its owning bottle is selected geometrically.
-Normally one `label_crop` + `bottle_crop` pair is returned. A second pair is
-emitted only when both confidence-weighted scores and crosshair distances are
-close. If bottle confidence is below `0.75`, the bottle-side image is the
+The target score is `confidence + 0.20 × axis_proximity`, where proximity uses
+only the horizontal distance from the label bbox centre to the vertical target
+axis. Y position and crossing the crosshair do not affect ranking. Its owning
+bottle is selected geometrically. Normally one `label_crop` + `bottle_crop`
+pair is returned. A second pair is emitted only when both combined scores and
+axis distances are close. If bottle confidence is below `0.75`, the bottle-side image is the
 complete source photo while the label crop remains available.
 
 ## 4. Visual crop audit

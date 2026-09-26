@@ -21,11 +21,11 @@ class FakeBoxes:
         return len(self.xyxy)
 
 
-def test_confidence_outranks_crosshair_hit_when_difference_is_large():
+def test_large_confidence_gap_outranks_axis_proximity():
     result = SimpleNamespace(
         boxes=FakeBoxes(
             boxes=[[0, 0, 40, 100], [45, 0, 100, 100]],
-            confidences=[0.99, 0.80],
+            confidences=[0.99, 0.70],
         )
     )
     selected, candidates = select_target_detection(
@@ -39,6 +39,45 @@ def test_confidence_outranks_crosshair_hit_when_difference_is_large():
     assert selected is not None
     assert selected["box"] == (0.0, 0.0, 40.0, 100.0)
     assert len(candidates) == 2
+
+
+def test_vertical_axis_corrects_modest_side_confidence_advantage():
+    result = SimpleNamespace(
+        boxes=FakeBoxes(
+            boxes=[[40, 0, 60, 100], [75, 0, 95, 100]],
+            confidences=[0.70, 0.80],
+        )
+    )
+    selected, candidates = select_target_detection(
+        result,
+        image_width=100,
+        image_height=100,
+        candidate_confidence=0.05,
+        crosshair_x=0.50,
+        crosshair_y=0.50,
+    )
+    assert len(candidates) == 2
+    assert selected is not None
+    assert selected["box"] == (40.0, 0.0, 60.0, 100.0)
+
+
+def test_vertical_position_does_not_affect_axis_score():
+    result = SimpleNamespace(
+        boxes=FakeBoxes(
+            boxes=[[40, 0, 60, 20], [40, 75, 60, 100]],
+            confidences=[0.70, 0.71],
+        )
+    )
+    selected, _ = select_target_detection(
+        result,
+        image_width=100,
+        image_height=100,
+        candidate_confidence=0.05,
+        crosshair_x=0.50,
+        crosshair_y=0.10,
+    )
+    assert selected is not None
+    assert selected["confidence"] > 0.70
 
 
 def test_two_equally_central_distinct_bottles_are_ambiguous():

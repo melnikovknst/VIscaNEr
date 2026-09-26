@@ -188,6 +188,7 @@ def infer_record(
         crosshair,
         math.hypot(image.width, image.height),
         ambiguity_margin,
+        image_width=image.width,
     )
     selected = []
     for label in selected_labels:

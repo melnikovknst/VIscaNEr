@@ -50,3 +50,34 @@ def test_label_inference_confidence_outranks_image_centre():
     assert count == 2
     assert selected is not None
     assert selected["confidence"] == pytest.approx(0.79)
+
+
+def test_bulk_crop_vertical_axis_beats_modest_side_confidence_advantage():
+    selected, candidates = extract_target_detection(
+        fake_result(
+            boxes=[[40, 0, 60, 30], [75, 70, 95, 100]],
+            confidences=[0.70, 0.80],
+        ),
+        image_width=100,
+        image_height=100,
+        candidate_confidence=0.05,
+        crosshair_x=0.50,
+        crosshair_y=0.50,
+    )
+    assert len(candidates) == 2
+    assert selected is not None
+    assert selected["box"] == (40.0, 0.0, 60.0, 30.0)
+
+
+def test_label_inference_ignores_vertical_position():
+    selected, count = select_central_label(
+        fake_result(
+            boxes=[[40, 0, 60, 20], [40, 80, 60, 100]],
+            confidences=[0.70, 0.71],
+        ),
+        width=100,
+        height=100,
+    )
+    assert count == 2
+    assert selected is not None
+    assert selected["confidence"] == pytest.approx(0.71)

@@ -19,6 +19,8 @@ import torch
 from tqdm.auto import tqdm
 from ultralytics import YOLO
 
+from yolo_target_selection import confidence_axis_score
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_INPUT_DIR = PROJECT_ROOT / "datasets" / "bottle_images_45k"
@@ -42,6 +44,8 @@ METADATA_COLUMNS = [
     "image_height",
     "num_detections",
     "selection_score",
+    "axis_distance",
+    "axis_proximity",
     "selection_margin",
     "center_score",
     "size_score",
@@ -59,6 +63,8 @@ METADATA_COLUMNS = [
     "secondary_x2",
     "secondary_y2",
     "secondary_selection_score",
+    "secondary_axis_distance",
+    "secondary_axis_proximity",
     "secondary_crosshair_inside",
     "secondary_crosshair_distance",
 ]
@@ -114,7 +120,7 @@ def extract_target_detection(
     crosshair_x: float,
     crosshair_y: float,
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
-    """Rank labels confidence-first, with crosshair geometry as a tie-breaker."""
+    """Rank labels by confidence plus proximity to the vertical target axis."""
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return None, []
@@ -122,7 +128,6 @@ def extract_target_detection(
     confidence = boxes.conf.detach().cpu().numpy()
     classes = boxes.cls.detach().cpu().numpy().astype(int)
     candidates: list[dict[str, Any]] = []
-    sigma_x, sigma_y = 0.24, 0.34
     crosshair_sigma = 0.16
 
     for coordinates, score, class_id in zip(xyxy, confidence, classes):
@@ -137,11 +142,13 @@ def extract_target_detection(
 
         center_x = ((x1 + x2) * 0.5) / image_width
         center_y = ((y1 + y2) * 0.5) / image_height
-        normalized_distance = (
-            ((center_x - crosshair_x) / sigma_x) ** 2
-            + ((center_y - crosshair_y) / sigma_y) ** 2
+        selection_score, axis_distance, axis_proximity = confidence_axis_score(
+            confidence_value,
+            (x1, y1, x2, y2),
+            image_width,
+            axis_x=crosshair_x,
         )
-        center_score = math.exp(-0.5 * normalized_distance)
+        center_score = axis_proximity
 
         normalized_x1 = x1 / image_width
         normalized_y1 = y1 / image_height
@@ -157,16 +164,13 @@ def extract_target_detection(
         size_score = min(1.0, math.sqrt(max(area_ratio, 0.0)) / 0.35)
         edge_clearance = min(center_x, 1.0 - center_x, center_y, 1.0 - center_y)
         edge_clearance_score = min(1.0, max(0.0, edge_clearance / 0.5))
-        selection_score = (
-            0.90 * confidence_value
-            + 0.08 * crosshair_score
-            + 0.02 * center_score
-        )
         candidates.append(
             {
                 "confidence": confidence_value,
                 "box": (x1, y1, x2, y2),
                 "selection_score": selection_score,
+                "axis_distance": axis_distance,
+                "axis_proximity": axis_proximity,
                 "center_score": center_score,
                 "size_score": size_score,
                 "edge_clearance_score": edge_clearance_score,
@@ -221,9 +225,9 @@ def ambiguous_secondary_candidate(
     if box_iou(primary["box"], secondary["box"]) >= 0.50:
         return None, "duplicate_overlap"
 
-    if secondary["crosshair_distance"] > ambiguity_max_distance:
+    if secondary["axis_distance"] > ambiguity_max_distance:
         return None, "secondary_too_far_from_crosshair"
-    distance_margin = abs(secondary["crosshair_distance"] - primary["crosshair_distance"])
+    distance_margin = abs(secondary["axis_distance"] - primary["axis_distance"])
     score_margin = primary["selection_score"] - secondary["selection_score"]
     if score_margin <= ambiguity_margin and distance_margin <= ambiguity_distance_margin:
         return secondary, "confidence_geometry_ambiguous"
@@ -533,6 +537,8 @@ def run_crop(
                 "image_height": image_height,
                 "num_detections": len(candidates),
                 "selection_score": "" if selected is None else f"{selected['selection_score']:.8f}",
+                "axis_distance": "" if selected is None else f"{selected['axis_distance']:.8f}",
+                "axis_proximity": "" if selected is None else f"{selected['axis_proximity']:.8f}",
                 "selection_margin": "" if selection_margin is None else f"{selection_margin:.8f}",
                 "center_score": "" if selected is None else f"{selected['center_score']:.8f}",
                 "size_score": "" if selected is None else f"{selected['size_score']:.8f}",
@@ -559,6 +565,12 @@ def run_crop(
                 "secondary_y2": "" if sy2 is None else sy2,
                 "secondary_selection_score": (
                     "" if secondary is None else f"{secondary['selection_score']:.8f}"
+                ),
+                "secondary_axis_distance": (
+                    "" if secondary is None else f"{secondary['axis_distance']:.8f}"
+                ),
+                "secondary_axis_proximity": (
+                    "" if secondary is None else f"{secondary['axis_proximity']:.8f}"
                 ),
                 "secondary_crosshair_inside": (
                     "" if secondary is None else int(secondary["crosshair_inside"])
@@ -607,6 +619,8 @@ def run_crop(
                 "image_height": image_height,
                 "num_detections": 0,
                 "selection_score": "",
+                "axis_distance": "",
+                "axis_proximity": "",
                 "selection_margin": "",
                 "center_score": "",
                 "size_score": "",
@@ -624,6 +638,8 @@ def run_crop(
                 "secondary_x2": "",
                 "secondary_y2": "",
                 "secondary_selection_score": "",
+                "secondary_axis_distance": "",
+                "secondary_axis_proximity": "",
                 "secondary_crosshair_inside": "",
                 "secondary_crosshair_distance": "",
             }

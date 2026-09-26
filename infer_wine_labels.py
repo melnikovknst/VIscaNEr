@@ -19,6 +19,8 @@ from PIL import Image
 from tqdm.auto import tqdm
 from ultralytics import YOLO
 
+from yolo_target_selection import confidence_axis_score
+
 from dinov3_retrieval import build_transforms, choose_device, load_trained_model, open_rgb
 from infer_wine import (
     autocast_context,
@@ -98,16 +100,18 @@ def select_central_label(result: Any, width: int, height: int) -> tuple[dict[str
             continue
         box = tuple(float(value) for value in raw_box)
         confidence = float(raw_conf)
-        cx = (box[0] + box[2]) * 0.5
-        cy = (box[1] + box[3]) * 0.5
-        distance = math.hypot((cx - width * 0.5) / width, (cy - height * 0.5) / height)
-        proximity = math.exp(-0.5 * (distance / 0.16) ** 2)
-        selection_score = 0.90 * confidence + 0.10 * proximity
+        selection_score, axis_distance, axis_proximity = confidence_axis_score(
+            confidence,
+            box,
+            width,
+        )
         detections.append(
             {
                 "box": box,
                 "confidence": confidence,
                 "selection_score": selection_score,
+                "axis_distance": axis_distance,
+                "axis_proximity": axis_proximity,
             }
         )
     return (

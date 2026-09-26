@@ -23,3 +23,8 @@
 *.safetensors filter=lfs diff=lfs merge=lfs -text
 *.ckpt filter=lfs diff=lfs merge=lfs -text
 *.gguf filter=lfs diff=lfs merge=lfs -text
+
+# Keep this dataset's small annotations readable on GitHub.
+/datasets/store_shelves_v1/*.csv -filter diff merge text eol=lf
+/datasets/store_shelves_v1/*.json -filter diff merge text eol=lf
+/datasets/store_shelves_v1/*.md -filter diff merge text eol=lf

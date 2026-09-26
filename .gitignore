@@ -23,6 +23,14 @@ datasets/**/*
 !datasets/**/*.tar.bz2
 !datasets/**/*.tar.xz
 
+# Shared, annotated store-shelf training set (images are stored in Git LFS).
+!datasets/store_shelves_v1/queries/*.jpg
+!datasets/store_shelves_v1/source/*.jpg
+!datasets/store_shelves_v1/labels.csv
+!datasets/store_shelves_v1/points.csv
+!datasets/store_shelves_v1/review.json
+!datasets/store_shelves_v1/README.md
+
 # Model weights under models/ are versioned through Git LFS. Experiment runs
 # and temporary Kaggle staging folders remain local.
 runs/**

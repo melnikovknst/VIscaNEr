@@ -28,3 +28,6 @@
 /datasets/store_shelves_v1/*.csv -filter diff merge text eol=lf
 /datasets/store_shelves_v1/*.json -filter diff merge text eol=lf
 /datasets/store_shelves_v1/*.md -filter diff merge text eol=lf
+/datasets/store_shelves_v2/*.csv -filter diff merge text eol=lf
+/datasets/store_shelves_v2/*.json -filter diff merge text eol=lf
+/datasets/store_shelves_v2/*.md -filter diff merge text eol=lf

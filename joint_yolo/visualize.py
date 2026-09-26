@@ -49,6 +49,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--confidence", type=float, default=0.05)
     parser.add_argument("--bottle-crop-threshold", type=float, default=0.75)
     parser.add_argument("--ambiguity-margin", type=float, default=0.06)
+    parser.add_argument(
+        "--include-id",
+        action="append",
+        default=[],
+        help="Always include this image stem in the HTML audit (repeatable).",
+    )
     return parser.parse_args()
 
 
@@ -121,7 +127,12 @@ def selected_confidences(record: dict[str, Any]) -> tuple[float, float]:
     return first["label_confidence"], -1.0 if bottle_confidence is None else bottle_confidence
 
 
-def select_mixed(records: list[dict[str, Any]], count: int, seed: int) -> list[dict[str, Any]]:
+def select_mixed(
+    records: list[dict[str, Any]],
+    count: int,
+    seed: int,
+    include_ids: list[str] | None = None,
+) -> list[dict[str, Any]]:
     count = min(count, len(records))
     selected: list[dict[str, Any]] = []
     selected_ids: set[str] = set()
@@ -135,6 +146,12 @@ def select_mixed(records: list[dict[str, Any]], count: int, seed: int) -> list[d
             selected.append(item)
             selected_ids.add(item["id"])
             limit -= 1
+
+    requested = set(include_ids or [])
+    missing = sorted(requested.difference(item["id"] for item in records))
+    if missing:
+        raise ValueError(f"Requested audit IDs are absent from the split: {missing}")
+    add([item for item in records if item["id"] in requested], len(requested))
 
     difficult = sorted(
         records,
@@ -342,7 +359,7 @@ def main() -> None:
         )
         if index % 10 == 0 or index == len(image_paths):
             print(f"AUDIT INFERENCE | {index}/{len(image_paths)}", flush=True)
-    chosen = select_mixed(records, args.n, args.seed)
+    chosen = select_mixed(records, args.n, args.seed, args.include_id)
     rows = [
         render_record(record, output, index, args.bottle_crop_threshold)
         for index, record in enumerate(chosen, start=1)

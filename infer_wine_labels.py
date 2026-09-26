@@ -101,8 +101,20 @@ def select_central_label(result: Any, width: int, height: int) -> tuple[dict[str
         cx = (box[0] + box[2]) * 0.5
         cy = (box[1] + box[3]) * 0.5
         distance = math.hypot((cx - width * 0.5) / width, (cy - height * 0.5) / height)
-        detections.append({"box": box, "confidence": confidence, "cost": distance - 0.25 * confidence})
-    return (min(detections, key=lambda item: item["cost"]) if detections else None), len(detections)
+        proximity = math.exp(-0.5 * (distance / 0.16) ** 2)
+        selection_score = 0.90 * confidence + 0.10 * proximity
+        detections.append(
+            {
+                "box": box,
+                "confidence": confidence,
+                "selection_score": selection_score,
+            }
+        )
+    return (
+        max(detections, key=lambda item: (item["selection_score"], item["confidence"]))
+        if detections
+        else None
+    ), len(detections)
 
 
 def save_model_input(image: Image.Image, source: Path, crops_dir: Path) -> Path:

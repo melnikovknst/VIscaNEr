@@ -6,8 +6,9 @@
 - `1`: `wine_label`.
 
 It performs both detections in one model forward. Use it through
-`joint_yolo/infer.py`; the inference layer selects the bottle/label pair nearest
-the camera crosshair and returns a second pair only for an ambiguous target.
+`joint_yolo/infer.py`; the inference layer ranks labels with 90% detector
+confidence and 10% smooth crosshair proximity. Crossing the crosshair has no
+hard bonus. A second pair is returned only for two genuinely close candidates.
 
 Training configuration and measured validation metrics are recorded in
 `metrics.json`. `last.pt` is retained for reproducible continuation, while

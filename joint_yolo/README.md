@@ -75,10 +75,12 @@ Re-run validation without training:
 .venv/bin/python -m joint_yolo.infer /path/to/photo.jpg
 ```
 
-The target label is selected relative to the crosshair. Its owning bottle is
-selected geometrically. Normally one `label_crop` + `bottle_crop` pair is
-returned. A second pair is emitted only when the crosshair is genuinely
-ambiguous. If bottle confidence is below `0.75`, the bottle-side image is the
+The target label is selected confidence-first: detector confidence contributes
+90% of the score and smooth crosshair proximity only 10%. Crossing the
+crosshair gives no hard bonus. Its owning bottle is selected geometrically.
+Normally one `label_crop` + `bottle_crop` pair is returned. A second pair is
+emitted only when both confidence-weighted scores and crosshair distances are
+close. If bottle confidence is below `0.75`, the bottle-side image is the
 complete source photo while the label crop remains available.
 
 ## 4. Visual crop audit
@@ -87,7 +89,7 @@ Generate a deterministic 20-case audit from the complete validation split. It
 mixes difficult and low-confidence cases with random examples:
 
 ```bash
-.venv/bin/python -m joint_yolo.visualize --n 20
+.venv/bin/python -m joint_yolo.visualize --n 20 --include-id exact_0065
 .venv/bin/python -m http.server 8771 --directory runs/joint_yolo/crop_audit
 ```
 

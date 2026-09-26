@@ -114,12 +114,7 @@ def extract_target_detection(
     crosshair_x: float,
     crosshair_y: float,
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
-    """Rank labels by proximity to the user's crosshair.
-
-    The product UI asks the user to place a central crosshair over the desired
-    label. A box containing that point always outranks boxes that do not. Other
-    signals only break ties or provide a fallback when the user misses.
-    """
+    """Rank labels confidence-first, with crosshair geometry as a tie-breaker."""
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return None, []
@@ -163,11 +158,9 @@ def extract_target_detection(
         edge_clearance = min(center_x, 1.0 - center_x, center_y, 1.0 - center_y)
         edge_clearance_score = min(1.0, max(0.0, edge_clearance / 0.5))
         selection_score = (
-            0.58 * crosshair_score
-            + 0.20 * center_score
-            + 0.08 * size_score
-            + 0.08 * confidence_value
-            + 0.06 * edge_clearance_score
+            0.90 * confidence_value
+            + 0.08 * crosshair_score
+            + 0.02 * center_score
         )
         candidates.append(
             {
@@ -185,7 +178,6 @@ def extract_target_detection(
 
     candidates.sort(
         key=lambda item: (
-            bool(item["crosshair_inside"]),
             item["selection_score"],
             item["confidence"],
         ),
@@ -217,7 +209,7 @@ def ambiguous_secondary_candidate(
     ambiguity_min_secondary_confidence: float,
     ambiguity_min_secondary_score: float,
 ) -> tuple[dict[str, Any] | None, str]:
-    """Return a second label only when crosshair targeting is genuinely ambiguous."""
+    """Return a second label only when two reliable candidates remain close."""
     if len(candidates) < 2:
         return None, "single_candidate"
 
@@ -229,24 +221,13 @@ def ambiguous_secondary_candidate(
     if box_iou(primary["box"], secondary["box"]) >= 0.50:
         return None, "duplicate_overlap"
 
-    primary_inside = bool(primary["crosshair_inside"])
-    secondary_inside = bool(secondary["crosshair_inside"])
-    if primary_inside:
-        if secondary_inside:
-            return secondary, "crosshair_inside_two_boxes"
-        return None, "clear_crosshair_hit"
-
-    # The crosshair missed every label. Return two only if both nearest labels
-    # are plausible and almost equally close to the target point.
     if secondary["crosshair_distance"] > ambiguity_max_distance:
         return None, "secondary_too_far_from_crosshair"
-    distance_margin = secondary["crosshair_distance"] - primary["crosshair_distance"]
+    distance_margin = abs(secondary["crosshair_distance"] - primary["crosshair_distance"])
     score_margin = primary["selection_score"] - secondary["selection_score"]
-    close_by_distance = distance_margin <= ambiguity_distance_margin
-    close_by_score = score_margin <= ambiguity_margin and distance_margin <= 2 * ambiguity_distance_margin
-    if close_by_distance or close_by_score:
-        return secondary, "crosshair_between_two_labels"
-    return None, "clear_nearest_label"
+    if score_margin <= ambiguity_margin and distance_margin <= ambiguity_distance_margin:
+        return secondary, "confidence_geometry_ambiguous"
+    return None, "clear_confidence_winner"
 
 
 def padded_box(

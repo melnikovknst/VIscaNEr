@@ -18,6 +18,9 @@ from ultralytics import YOLO
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 SUPPORTED = {".jpg", ".jpeg", ".png", ".webp"}
+CONFIDENCE_WEIGHT = 0.90
+PROXIMITY_WEIGHT = 0.10
+AMBIGUITY_DISTANCE_MARGIN = 0.08
 
 
 def choose_device(requested: str) -> str | int:
@@ -60,8 +63,8 @@ def padded_crop(image: Image.Image, box: tuple[float, float, float, float], padd
 
 def target_score(item: dict[str, Any], crosshair: tuple[float, float], diagonal: float) -> float:
     distance = point_box_distance(*crosshair, item["box"]) / max(diagonal, 1.0)
-    inside = distance <= 1e-12
-    return (1.0 if inside else 0.0) + 0.20 * item["confidence"] - distance
+    proximity = math.exp(-0.5 * (distance / 0.12) ** 2)
+    return CONFIDENCE_WEIGHT * item["confidence"] + PROXIMITY_WEIGHT * proximity
 
 
 def pair_bottle(label: dict[str, Any], bottles: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -134,8 +137,11 @@ def select_label_candidates(
     if len(ranked) >= 2:
         first_score = target_score(ranked[0], crosshair, diagonal)
         second_score = target_score(ranked[1], crosshair, diagonal)
+        first_distance = point_box_distance(*crosshair, ranked[0]["box"]) / max(diagonal, 1.0)
+        second_distance = point_box_distance(*crosshair, ranked[1]["box"]) / max(diagonal, 1.0)
         ambiguous = (
             first_score - second_score <= ambiguity_margin
+            and abs(first_distance - second_distance) <= AMBIGUITY_DISTANCE_MARGIN
             and box_iou(ranked[0]["box"], ranked[1]["box"]) < 0.50
         )
         if ambiguous:

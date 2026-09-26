@@ -21,7 +21,7 @@ class FakeBoxes:
         return len(self.xyxy)
 
 
-def test_crosshair_selects_containing_bottle_over_higher_confidence_neighbour():
+def test_confidence_outranks_crosshair_hit_when_difference_is_large():
     result = SimpleNamespace(
         boxes=FakeBoxes(
             boxes=[[0, 0, 40, 100], [45, 0, 100, 100]],
@@ -37,7 +37,7 @@ def test_crosshair_selects_containing_bottle_over_higher_confidence_neighbour():
         crosshair_y=0.50,
     )
     assert selected is not None
-    assert selected["box"] == (45.0, 0.0, 100.0, 100.0)
+    assert selected["box"] == (0.0, 0.0, 40.0, 100.0)
     assert len(candidates) == 2
 
 
@@ -62,7 +62,7 @@ def test_two_equally_central_distinct_bottles_are_ambiguous():
     assert context["ambiguous"]
 
 
-def test_bottle_containing_crosshair_does_not_trigger_second_bottle():
+def test_clear_confidence_winner_does_not_trigger_second_bottle():
     result = SimpleNamespace(
         boxes=FakeBoxes(
             boxes=[[25, 0, 75, 100], [76, 0, 100, 100]],
@@ -79,7 +79,7 @@ def test_bottle_containing_crosshair_does_not_trigger_second_bottle():
         ambiguity_confidence=0.75,
     )
     assert len(selected) == 1
-    assert selected[0]["box"] == (25.0, 0.0, 75.0, 100.0)
+    assert selected[0]["box"] == (76.0, 0.0, 100.0, 100.0)
     assert not context["ambiguous"]
 
 

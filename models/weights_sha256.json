@@ -47,7 +47,7 @@
   "trained_checkpoints/dinov3_vitb16_bottles_best_full.pt": {
     "bytes": 348559851,
     "role": "Best fully fine-tuned DINOv3-B/16 whole-bottle checkpoint",
-    "sha256": "a194a43b34971d1a4f9aa80f771450998f2dacd5ee7821771978f05853ceb108"
+    "sha256": "e48c525302a18a10dd0dd0669f72b34cf400a3d72c60d0156b6f368fc1d85353"
   },
   "trained_checkpoints/dinov3_vitb16_labels_best_full.pt": {
     "bytes": 348546935,

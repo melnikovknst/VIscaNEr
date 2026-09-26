@@ -1,4 +1,9 @@
 {
+  "dinov3_vitb16_bottles_best_full.pt": {
+    "sha256": "e48c525302a18a10dd0dd0669f72b34cf400a3d72c60d0156b6f368fc1d85353",
+    "bytes": 348559851,
+    "role": "Primary whole-bottle DINOv3-B/16 retrieval checkpoint"
+  },
   "dinov3_vitb16_labels_best_full.pt": {
     "sha256": "92388ea75c4648584187ac57c4d9d511b99df545f61c4e62df1454045a4cd560",
     "bytes": 348546935,

@@ -264,3 +264,6 @@ docker compose up --build
 - Один процесс backend и одна одновременная операция inference: конкурентный запрос получает `429`. Нагрузочная инфраструктура, публичная авторизация и распределённые очереди не входят в локальное демо.
 
 Архитектура — [ARCHITECTURE.md](ARCHITECTURE.md). Обучение label-DINO — [README_FULL_TRAINING.md](README_FULL_TRAINING.md). Whole-bottle ambiguity classifiers — [BOTTLE_CLASSIFIER.md](BOTTLE_CLASSIFIER.md). Датасеты и ограничения использования фотографий — [DATASETS.md](DATASETS.md).
+
+Точная карта актуальных YOLO/DINO/OCR inference-файлов и весов для передачи
+другому разработчику — [MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md).

@@ -1,0 +1,12 @@
+{
+  "PaddleOCR-VL-1.6.zip": {
+    "sha256": "70b97e7c8d8e9b3cef8820f47266840d505412984965c84c2a41a7cf46811db1",
+    "bytes": 1952160295,
+    "role": "Portable PaddleOCR-VL-1.6 model bundle for the optional label Top-5 OCR reranker"
+  },
+  "PaddleOCR-VL-1.6/model.safetensors": {
+    "sha256": "85a479d506a11e724e7285d395c551be69f41dbc16b6342d3cacfb189aed71db",
+    "bytes": 1917255968,
+    "role": "Primary PaddleOCR-VL-1.6 weights inside the portable archive"
+  }
+}

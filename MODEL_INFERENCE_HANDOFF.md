@@ -1,0 +1,104 @@
+# VIscaNEr model inference handoff
+
+All paths below are relative to the repository root. After cloning, run
+`git lfs pull`; otherwise large archives and checkpoints may remain LFS pointer
+files.
+
+## 1. Whole-bottle pipeline (current main path)
+
+Flow: **whole-bottle YOLO -> DINOv3-B/16 retrieval -> catalogue Top-K**.
+
+| Role | Repository path |
+|---|---|
+| Ready-to-run CLI and current selection policy | `infer_wine.py` |
+| DINO architecture, transforms and checkpoint loader | `dinov3_retrieval.py` |
+| Local loaders for the other researched DINO backbones | `deeptune_backbones.py` |
+| Fine-tuned bottle detector | `models/bottle_reranker/best_bottle_detector.pt` |
+| Original DINOv3-B/16 backbone | `models/dinov3/model.safetensors` |
+| Fine-tuned full-bottle DINOv3-B/16 | `models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt` |
+| Reference gallery and training-data archive | `datasets/bottle_classifier_crops.zip` |
+
+Important policy implemented in `infer_wine.py`:
+
+- the target is chosen relative to the user crosshair/image centre, not merely
+  by maximum YOLO confidence;
+- when two distinct central boxes are genuinely ambiguous, both are passed to
+  DINO and each catalogue identity receives the better of the two similarities;
+- if the selected bottle YOLO confidence is below `0.75`, the **complete source
+  photo** is passed to DINO instead of an unreliable bottle crop;
+- a confident bottle box receives `6%` padding;
+- DINO input is the project transform at `224x224`; ranking uses cosine
+  similarity against 2,103 reference identities.
+
+Run:
+
+```bash
+.venv/bin/python -m pip install -r requirements-inference.txt
+.venv/bin/python infer_wine.py /path/to/photo.jpg --top-k 5
+```
+
+## 2. Label pipeline
+
+Flow: **label YOLO -> DINOv3-B/16 trained on label crops -> catalogue Top-K**.
+
+| Role | Repository path |
+|---|---|
+| Ready-to-run label CLI | `infer_wine_labels.py` |
+| DINO architecture, transforms and checkpoint loader | `dinov3_retrieval.py` |
+| Local loaders for the other researched DINO backbones | `deeptune_backbones.py` |
+| Fine-tuned label detector | `models/yolo_label_detector/best.pt` |
+| Original DINOv3-B/16 backbone | `models/dinov3/model.safetensors` |
+| Fine-tuned label DINOv3-B/16 | `models/trained_checkpoints/dinov3_vitb16_labels_best_full.pt` |
+| Catalogue and RGB reference gallery archive | `datasets/wine-scanner_code-catalog.zip` |
+
+`infer_wine_labels.py` picks the central label with a small confidence bonus,
+adds `10%` padding, saves the exact DINO/OCR input under
+`runs/inference/label_crops/`, and emits Top-K JSON. If no label is detected,
+it uses the complete photo rather than crashing.
+
+Run:
+
+```bash
+.venv/bin/python infer_wine_labels.py /path/to/photo.jpg \
+  --top-k 5 --output runs/inference/labels_top5.json
+```
+
+## 3. Optional PaddleOCR-VL reranker for label Top-5
+
+| Role | Repository path |
+|---|---|
+| Portable OCR model archive | `models/paddleocr_vl/PaddleOCR-VL-1.6.zip` |
+| OCR execution and JSON output | `ocr_reranker/run_label_ocr.py` |
+| Pure Top-5 text-scoring/reranking logic | `ocr_reranker/reranker.py` |
+| Environment and commands | `ocr_reranker/README.md` |
+
+This OCR stage is **not a separately fine-tuned project model**. PaddleOCR-VL
+1.6 reads Cyrillic/Latin from the saved label input. Project code then compares
+that text only with the five DINO candidate slugs. Current experimental values
+are `alpha=0.90` and `evidence_gate=0.10`; they were selected on a calibration
+split of the 100 manually labelled real-photo audit and are not a final
+production threshold.
+
+There is therefore no custom OCR annotation dataset to transfer. The required
+runtime inputs are the pretrained OCR archive, the DINO Top-5 JSON, the saved
+label crops referenced by that JSON, and the catalogue reference slugs.
+
+## 4. Which checkpoint is which
+
+- `dinov3_vitb16_bottles_best_full.pt`: DINOv3-B/16, fully fine-tuned on
+  full-bottle inputs. Use with `infer_wine.py`.
+- `dinov3_vitb16_labels_best_full.pt`: DINOv3-B/16, fully fine-tuned on label
+  crops. Use with `infer_wine_labels.py` and optionally OCR.
+- `dinov3_vits16_bottles_best_full.pt`: older DINOv3-S/16 bottle resolver from
+  the abandoned cascade experiment; do not substitute it for either B model.
+- `model.safetensors`: original DINOv3-B backbone needed by the project loader;
+  it is not the trained retrieval checkpoint.
+
+## 5. Integrity checks
+
+Canonical hashes live in:
+
+- `models/weights_sha256.json` for YOLO, DINO backbones and trained models;
+- `models/trained_checkpoints/checkpoints_sha256.json` for retrieval checkpoints;
+- `models/paddleocr_vl/weights_sha256.json` for the OCR archive and its primary
+  safetensors file.

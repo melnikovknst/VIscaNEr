@@ -39,7 +39,7 @@ GENERATOR_ROOT = PROJECT_ROOT / "datasets" / "wine-scanner"
 SOURCE_MANIFEST = PROJECT_ROOT / "datasets" / "bottle_images_45k" / "bottle_images_manifest.csv"
 RENDER_MANIFEST = GENERATOR_ROOT / "data" / "trainset" / "manifest.csv"
 DEFAULT_BACKGROUND_DIR = PROJECT_ROOT / "datasets" / "bottle_images_45k"
-DEFAULT_MODEL = PROJECT_ROOT / "models" / "yolo_label_detector" / "best.pt"
+DEFAULT_MODEL = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_OUTPUT = PROJECT_ROOT / "datasets" / "dinov3_target_crops"
 
 METADATA_COLUMNS = [
@@ -246,6 +246,17 @@ def select_target_label(
     if boxes is None or len(boxes) == 0:
         return None, 0, 0
     image_height, image_width = target_mask.shape
+    names = getattr(result, "names", {0: "label"})
+    name_items = names.items() if isinstance(names, dict) else enumerate(names)
+    label_class_ids = {
+        int(class_id)
+        for class_id, name in name_items
+        if str(name).lower() in {"label", "wine_label", "wine-label"}
+    }
+    if not label_class_ids and len(names) == 1:
+        label_class_ids = {0}
+    if not label_class_ids:
+        raise ValueError(f"YOLO has no label class: {names}")
     coordinates = boxes.xyxy.detach().cpu().numpy()
     confidences = boxes.conf.detach().cpu().numpy()
     classes = boxes.cls.detach().cpu().numpy().astype(int)
@@ -253,7 +264,7 @@ def select_target_label(
     detections = 0
 
     for box, confidence, class_id in zip(coordinates, confidences, classes):
-        if class_id != 0:
+        if class_id not in label_class_ids:
             continue
         detections += 1
         confidence_value = float(confidence)

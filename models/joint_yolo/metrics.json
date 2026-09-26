@@ -1,0 +1,82 @@
+{
+  "model": "YOLO11n joint detector",
+  "classes": {
+    "0": "bottle",
+    "1": "wine_label"
+  },
+  "base_model": "models/bottle_reranker/best_bottle_detector.pt",
+  "best_checkpoint": "models/joint_yolo/best.pt",
+  "last_checkpoint": "models/joint_yolo/last.pt",
+  "best_sha256": "d075904403c998077fd74d8cb3faaf31e5fb73ccd66c4bdf383cb2fd2e0b45df",
+  "best_bytes": 5474522,
+  "epochs_requested": 100,
+  "epochs_completed": 29,
+  "best_epoch": 9,
+  "elapsed_seconds": 2151.9826231002808,
+  "device": "mps",
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.14.0",
+    "ultralytics": "8.4.154"
+  },
+  "validation": {
+    "precision": 0.9117651725598304,
+    "recall": 0.9320088144079037,
+    "map50": 0.9547737028530037,
+    "map50_95": 0.5839192647325417,
+    "by_class": {
+      "bottle": {
+        "precision": 0.9364665105218646,
+        "recall": 0.9953051643192489,
+        "map50": 0.9906321995318281,
+        "map50_95": 0.57725446544711
+      },
+      "wine_label": {
+        "precision": 0.887063834597796,
+        "recall": 0.8687124644965587,
+        "map50": 0.9189152061741792,
+        "map50_95": 0.5905840640179736
+      }
+    }
+  },
+  "train_config": {
+    "model": "models/bottle_reranker/best_bottle_detector.pt",
+    "data": "runs/joint_yolo/runtime_data.yaml",
+    "imgsz": 768,
+    "epochs": 100,
+    "batch": 16,
+    "patience": 20,
+    "device": "mps",
+    "workers": 2,
+    "project": "runs/joint_yolo",
+    "name": "yolo11n_bottle_label_joint",
+    "exist_ok": true,
+    "seed": 42,
+    "deterministic": true,
+    "optimizer": "AdamW",
+    "lr0": 0.001,
+    "lrf": 0.01,
+    "weight_decay": 0.01,
+    "warmup_epochs": 3.0,
+    "cos_lr": true,
+    "amp": true,
+    "cache": false,
+    "save": true,
+    "save_period": 10,
+    "plots": true,
+    "degrees": 4.0,
+    "translate": 0.08,
+    "scale": 0.25,
+    "shear": 1.0,
+    "perspective": 0.0005,
+    "hsv_h": 0.01,
+    "hsv_s": 0.3,
+    "hsv_v": 0.25,
+    "fliplr": 0.0,
+    "flipud": 0.0,
+    "mosaic": 0.2,
+    "close_mosaic": 15,
+    "mixup": 0.0,
+    "copy_paste": 0.0
+  }
+}

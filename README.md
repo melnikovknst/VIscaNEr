@@ -267,3 +267,6 @@ docker compose up --build
 
 Точная карта актуальных YOLO/DINO/OCR inference-файлов и весов для передачи
 другому разработчику — [MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md).
+
+Финальный однопроходный detector, одновременно возвращающий бутылку и её
+этикетку, находится в [joint_yolo/README.md](joint_yolo/README.md).

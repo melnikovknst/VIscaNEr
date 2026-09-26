@@ -40,3 +40,22 @@ Both use three private datasets: `viscaner-bottle-classifier-data`,
 
 The notebooks are source artifacts. Local validation checks their JSON and
 Python syntax; real execution requires Kaggle CUDA and the attached datasets.
+
+## Stage II fusion
+
+- `Fusion-Stage2A-Frozen.ipynb` — freezes the hard-fine-tuned label and bottle
+  DINOv3-B models, forms a Top-10 + Top-10 candidate union, trains Fusion MLP,
+  and fits CatBoostRanker as a control.
+- `Fusion-Stage2B-Joint.ipynb` — starts from Stage 2A, unfreezes the final two
+  blocks of **both DINOv3-B models**, and jointly trains them with the final
+  ranking loss plus two branch retrieval losses.
+
+Additional private inputs:
+
+- `viscaner-fusion-stage2-code`;
+- `viscaner-fusion-hardset-v1`;
+- completed outputs of both Stage-I hard-fine-tune notebooks;
+- the existing label and whole-bottle data datasets.
+
+Stage 2B additionally requires the saved output of Stage 2A. The notebooks do
+not clone GitHub and do not download model weights from a model hub.

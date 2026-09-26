@@ -55,6 +55,10 @@ bottle_reranker/outputs/
 # models/paddleocr_vl/PaddleOCR-VL-1.6.zip is the canonical Git/LFS artifact.
 models/paddleocr_vl/PaddleOCR-VL-1.6/
 
+# Local export directory from the latest joint-YOLO fine-tune. The canonical
+# best/last checkpoints are tracked under models/joint_yolo/.
+models/joint_yolo_manual_finetune/
+
 # Web app and local runtime state.
 node_modules/
 dist/

@@ -32,7 +32,7 @@ from dinov3_retrieval import (
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-DEFAULT_YOLO = PROJECT_ROOT / "models" / "bottle_reranker" / "best_bottle_detector.pt"
+DEFAULT_YOLO = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_DINO_WEIGHTS = PROJECT_ROOT / "models" / "dinov3" / "model.safetensors"
 DEFAULT_DINO_CHECKPOINT = (
     PROJECT_ROOT / "models" / "trained_checkpoints" / "dinov3_vitb16_bottles_best_full.pt"

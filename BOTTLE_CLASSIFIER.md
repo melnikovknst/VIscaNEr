@@ -6,7 +6,8 @@ ranking is ambiguous and a complete target bottle is visible.
 
 ## Build the crop dataset
 
-The builder uses `models/bottle_reranker/best_bottle_detector.pt`. It does not
+The builder uses the two-class joint detector at `models/joint_yolo/best.pt`
+(class 0 is `bottle`, class 1 is `wine_label`). It does not
 select the highest-confidence bottle blindly: a candidate must own the
 geometrically validated target-label centre. If the selected YOLO detection has
 confidence below `0.75`, its bounding box is not trusted and the original image

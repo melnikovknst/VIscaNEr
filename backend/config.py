@@ -28,8 +28,10 @@ class Settings(BaseSettings):
     resolver_backbone_path: Path | None = ROOT / "models/dinov3/model.safetensors"
     label_refs_root: Path = ROOT / "datasets/wine-scanner/data/refs/rgb"
     bottle_refs_root: Path | None = ROOT / "datasets/bottle_classifier_crops/refs"
-    label_detector_path: Path | None = ROOT / "models/yolo_label_detector/best.pt"
-    bottle_detector_path: Path | None = ROOT / "models/bottle_reranker/best_bottle_detector.pt"
+    # The current joint detector emits class 0=bottle and class 1=wine_label
+    # in one forward pass. Both branches intentionally point to the same file.
+    label_detector_path: Path | None = ROOT / "models/joint_yolo/best.pt"
+    bottle_detector_path: Path | None = ROOT / "models/joint_yolo/best.pt"
     # Stage-1 gap at or below which the bottle model is consulted. 0.01525 is
     # the value tune_cascade_threshold.py selected on val_seen.
     ambiguity_margin: float = Field(default=0.01525, ge=0, le=1)

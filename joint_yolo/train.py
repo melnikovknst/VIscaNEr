@@ -20,7 +20,7 @@ from ultralytics import YOLO, __version__ as ultralytics_version
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET = PROJECT_ROOT / "datasets" / "wine_bottle_label_joint"
-DEFAULT_BASE_MODEL = PROJECT_ROOT / "models" / "bottle_reranker" / "best_bottle_detector.pt"
+DEFAULT_BASE_MODEL = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_RUNS = PROJECT_ROOT / "runs" / "joint_yolo"
 DEFAULT_MODELS = PROJECT_ROOT / "models" / "joint_yolo"
 

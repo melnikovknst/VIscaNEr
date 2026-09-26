@@ -56,12 +56,23 @@ def _padded(box, width: int, height: int, fraction: float) -> tuple[int, int, in
             min(width, int(x2 + pad_x + 0.999)), min(height, int(y2 + pad_y + 0.999)))
 
 
-def _detections(detector, image: Image.Image, imgsz: int) -> list[dict[str, Any]]:
+def _detections(
+    detector,
+    image: Image.Image,
+    imgsz: int,
+    class_id: int,
+) -> list[dict[str, Any]]:
     result = detector.predict(image, imgsz=imgsz, conf=DETECTOR_CONF, verbose=False)[0]
     if result.boxes is None:
         return []
-    return [{"box": [float(v) for v in b.xyxy[0].tolist()], "confidence": float(b.conf.item())}
-            for b in result.boxes]
+    return [
+        {
+            "box": [float(v) for v in box.xyxy[0].tolist()],
+            "confidence": float(box.conf.item()),
+        }
+        for box in result.boxes
+        if int(box.cls.item()) == class_id
+    ]
 
 
 def _pick_label(labels: list[dict[str, Any]], width: int, height: int) -> dict[str, Any] | None:
@@ -265,7 +276,7 @@ class CascadeProvider:
         # ---- label crop ----------------------------------------------------
         label = None
         if self.label_detector is not None:
-            labels = _detections(self.label_detector, image, 640)
+            labels = _detections(self.label_detector, image, 768, class_id=1)
             label = _pick_label(labels, width, height)
             pipeline["labels_detected"] = len(labels)
         if label is not None:

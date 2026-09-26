@@ -106,7 +106,7 @@ s-104,s-104.jpg,ok,True,True,esse-merlo-krasnoe-suhoe-135,"Esse Мерло, чё
 s-105,s-105.jpg,ok,True,True,esse-odessa-black-odesskiy-chernyy-krasnoe-suhoe-12,«ODESSA BLACK ESSE UNPLUGGED Crimea 2022»,shelf-20.jpg,24,70,False,catalog
 s-106,s-106.jpg,ok,True,True,esse-merlo-krasnoe-suhoe-135,"Esse Мерло, чёрная этикетка; ценник «Вино Esse Мерло крас/сух»",shelf-20.jpg,55,56,False,catalog
 s-107,s-107.jpg,ok,True,True,esse-kaberne-sovinon-krasnoe-suhoe-14,"Esse Каберне Совиньон, чёрная этикетка; ценник «Esse Каберне Совиньон крас/сух»; бутылка у края",shelf-20.jpg,90,58,False,catalog
-s-108,s-108.jpg,notcat,True,False,,«ABRAU COLLECTION белое сухое» (с грушей) - в каталоге нет,shelf-21.jpg,7,15,False,out_of_catalog
+s-108,s-108.jpg,ok,True,True,abrau-dyurso-abrau-kupazh-svetlyy-suhoe-shardone-beloe-125,"«ABRAU COLLECTION белое сухое», купажное, машина с грушей = каталожный «Абрау Купаж светлый сухое» (тот же рисунок)",shelf-21.jpg,7,15,False,catalog
 s-109,s-109.jpg,notcat,True,False,,"«АБЗА, вино белое полусладкое» - в каталоге нет",shelf-21.jpg,17,15,False,out_of_catalog
 s-110,s-110.jpg,ok,True,True,massandra-portveyn-belyy-krymskiy-kokur-beloe-sladkoe-18,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ КРЫМСКИЙ»,shelf-21.jpg,28,15,False,catalog
 s-111,s-111.jpg,notcat,True,False,,«МАССАНДРА МУСКАТ 2025» (бордовая полоса); ценник «Массандра Мускат роз/сух» - в каталоге нет,shelf-21.jpg,39,15,False,out_of_catalog
@@ -124,8 +124,8 @@ s-122,s-122.jpg,notcat,True,False,,"«FANAGORIA Авторское Сапера�
 s-123,s-123.jpg,ok,True,True,abrau-dyurso-risling-beloe-suhoe-12;abrau-dyurso-risling-beloe-suhoe-13,«Абрау-Дюрсо РИСЛИНГ» с орлом,shelf-22.jpg,9,15,False,catalog
 s-124,s-124.jpg,ok,True,True,abrau-dyurso-abrau-dyurso-pino-nuar-krasnoe-suhoe-13;abrau-dyurso-pino-nuar-krasnoe-suhoe-125;abrau-dyurso-pino-nuar-krasnoe-suhoe-12,«Абрау-Дюрсо ПИНО НУАР»; ценник «Абрау-Дюрсо Пино Нуар крас/сух»,shelf-22.jpg,22,15,False,catalog
 s-125,s-125.jpg,ok,True,True,abrau-dyurso-shardone-beloe-suhoe-13;abrau-dyurso-shardone-beloe-suhoe-12,«Абрау-Дюрсо ШАРДОНЕ»; ценник «Абрау-Дюрсо Шардоне бел/сух»,shelf-22.jpg,37,15,False,catalog
-s-126,s-126.jpg,notcat,True,False,,«ABRAU COLLECTION красное сухое»; ценник «Abrau Collection Купажное крас/сух» - в каталоге нет,shelf-22.jpg,49,15,False,out_of_catalog
-s-127,s-127.jpg,notcat,True,False,,«ABRAU COLLECTION белое сухое» - в каталоге нет,shelf-22.jpg,61,15,False,out_of_catalog
+s-126,s-126.jpg,ok,True,True,abrau-dyurso-abrau-kupazh-tyomnyy-suhoe-kaberne-sovinon-krasnoe-13,"«ABRAU COLLECTION красное сухое», купажное, машина с виноградом = каталожный «Абрау Купаж тёмный сухое» (тот же рисунок); ценник «Abrau Collection Купажное крас/сух»",shelf-22.jpg,49,15,False,catalog
+s-127,s-127.jpg,ok,True,True,abrau-dyurso-abrau-kupazh-svetlyy-suhoe-shardone-beloe-125,"«ABRAU COLLECTION белое сухое», купажное, машина с грушей = каталожный «Абрау Купаж светлый сухое» (тот же рисунок)",shelf-22.jpg,61,15,False,catalog
 s-128,s-128.jpg,notcat,True,False,,"«АБЗА, вино белое полусладкое»; ценник «Ашамта Абза бел/п/сл» - в каталоге нет",shelf-22.jpg,72,15,False,out_of_catalog
 s-129,s-129.jpg,ok,True,True,massandra-portveyn-belyy-krymskiy-kokur-beloe-sladkoe-18,«МАССАНДРА ПОРТВЕЙН БЕЛЫЙ…»; ценник «Массандра Портвейн Крымский бел.»,shelf-22.jpg,84,15,False,catalog
 s-130,s-130.jpg,notcat,True,False,,«FANAGORIA VELVET SEASON CABERNET сладкое»; ценник «Velvet Season Каберне крас/сл 0.5» - в каталоге только Riesling и Muscat,shelf-22.jpg,12,60,False,out_of_catalog

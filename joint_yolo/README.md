@@ -80,3 +80,17 @@ selected geometrically. Normally one `label_crop` + `bottle_crop` pair is
 returned. A second pair is emitted only when the crosshair is genuinely
 ambiguous. If bottle confidence is below `0.75`, the bottle-side image is the
 complete source photo while the label crop remains available.
+
+## 4. Visual crop audit
+
+Generate a deterministic 20-case audit from the complete validation split. It
+mixes difficult and low-confidence cases with random examples:
+
+```bash
+.venv/bin/python -m joint_yolo.visualize --n 20
+.venv/bin/python -m http.server 8771 --directory runs/joint_yolo/crop_audit
+```
+
+Open `http://127.0.0.1:8771`. Each row shows the original with ground-truth and
+predicted boxes, the exact bottle-side input, the label crop, confidence,
+coordinates, selection mode and complete JSON metadata.

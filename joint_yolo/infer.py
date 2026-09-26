@@ -88,18 +88,13 @@ def save_crop(image: Image.Image, output: Path, stem: str) -> str:
     return str(path.resolve())
 
 
-def infer_one(
+def predict_detections(
     model: YOLO,
-    image_path: Path,
-    output: Path,
+    image: Image.Image,
     device: str | int,
     confidence: float,
-    bottle_crop_threshold: float,
-    ambiguity_margin: float,
-    crosshair_x: float,
-    crosshair_y: float,
-) -> dict[str, Any]:
-    image = Image.open(image_path).convert("RGB")
+) -> list[dict[str, Any]]:
+    """Run the joint detector once and return device-independent detections."""
     result = model.predict(
         source=image,
         imgsz=768,
@@ -118,24 +113,54 @@ def infer_one(
             strict=True,
         ):
             detections.append(
-                {"class_id": int(class_id), "confidence": float(score), "box": tuple(float(v) for v in box)}
+                {
+                    "class_id": int(class_id),
+                    "confidence": float(score),
+                    "box": tuple(float(value) for value in box),
+                }
             )
+    return detections
+
+
+def select_label_candidates(
+    labels: list[dict[str, Any]],
+    crosshair: tuple[float, float],
+    diagonal: float,
+    ambiguity_margin: float,
+) -> tuple[list[dict[str, Any]], bool]:
+    ranked = sorted(labels, key=lambda item: target_score(item, crosshair, diagonal), reverse=True)
+    selected = ranked[:1]
+    ambiguous = False
+    if len(ranked) >= 2:
+        first_score = target_score(ranked[0], crosshair, diagonal)
+        second_score = target_score(ranked[1], crosshair, diagonal)
+        ambiguous = (
+            first_score - second_score <= ambiguity_margin
+            and box_iou(ranked[0]["box"], ranked[1]["box"]) < 0.50
+        )
+        if ambiguous:
+            selected.append(ranked[1])
+    return selected, ambiguous
+
+
+def infer_one(
+    model: YOLO,
+    image_path: Path,
+    output: Path,
+    device: str | int,
+    confidence: float,
+    bottle_crop_threshold: float,
+    ambiguity_margin: float,
+    crosshair_x: float,
+    crosshair_y: float,
+) -> dict[str, Any]:
+    image = Image.open(image_path).convert("RGB")
+    detections = predict_detections(model, image, device, confidence)
     bottles = [item for item in detections if item["class_id"] == 0]
     labels = [item for item in detections if item["class_id"] == 1]
     crosshair = (image.width * crosshair_x, image.height * crosshair_y)
     diagonal = math.hypot(image.width, image.height)
-    labels.sort(key=lambda item: target_score(item, crosshair, diagonal), reverse=True)
-    selected = labels[:1]
-    ambiguous = False
-    if len(labels) >= 2:
-        first_score = target_score(labels[0], crosshair, diagonal)
-        second_score = target_score(labels[1], crosshair, diagonal)
-        ambiguous = (
-            first_score - second_score <= ambiguity_margin
-            and box_iou(labels[0]["box"], labels[1]["box"]) < 0.50
-        )
-        if ambiguous:
-            selected.append(labels[1])
+    selected, ambiguous = select_label_candidates(labels, crosshair, diagonal, ambiguity_margin)
     digest = hashlib.sha1(str(image_path.resolve()).encode("utf-8")).hexdigest()[:10]
     candidates: list[dict[str, Any]] = []
     for index, label in enumerate(selected, start=1):

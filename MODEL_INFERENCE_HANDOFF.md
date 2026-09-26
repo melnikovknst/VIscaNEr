@@ -4,6 +4,32 @@ All paths below are relative to the repository root. After cloning, run
 `git lfs pull`; otherwise large archives and checkpoints may remain LFS pointer
 files.
 
+## 0. Recommended shared detector (one forward)
+
+For new integration work, use the joint detector when both visual regions are
+needed. A single YOLO11n forward predicts `bottle` (class 0) and `wine_label`
+(class 1), then the inference helper pairs nested boxes and applies the same
+crosshair/ambiguity policy used by the product experiments.
+
+| Role | Repository path |
+|---|---|
+| One-forward inference and pair selection | `joint_yolo/infer.py` |
+| Dataset construction with provenance | `joint_yolo/build_dataset.py` |
+| Reproducible training entry point | `joint_yolo/train.py` |
+| Deployable checkpoint | `models/joint_yolo/best.pt` |
+| Portable two-class dataset | `datasets/wine_bottle_label_joint.zip` |
+| Full method and commands | `joint_yolo/README.md` |
+
+Run:
+
+```bash
+.venv/bin/python -m joint_yolo.infer /path/to/photo.jpg
+```
+
+The helper returns one bottle/label pair in the normal case and two only when
+the crosshair is genuinely ambiguous. Bottle confidence below `0.75` triggers
+the complete-photo fallback for the bottle-side classifier input.
+
 ## 1. Whole-bottle pipeline (current main path)
 
 Flow: **whole-bottle YOLO -> DINOv3-B/16 retrieval -> catalogue Top-K**.

@@ -14,12 +14,12 @@ import torch
 from PIL import Image
 from ultralytics import YOLO
 
+from yolo_target_selection import confidence_axis_score
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 SUPPORTED = {".jpg", ".jpeg", ".png", ".webp"}
-CONFIDENCE_WEIGHT = 0.90
-PROXIMITY_WEIGHT = 0.10
 AMBIGUITY_DISTANCE_MARGIN = 0.08
 
 
@@ -61,10 +61,28 @@ def padded_crop(image: Image.Image, box: tuple[float, float, float, float], padd
     return image.crop(tuple(crop_box)), crop_box
 
 
-def target_score(item: dict[str, Any], crosshair: tuple[float, float], diagonal: float) -> float:
-    distance = point_box_distance(*crosshair, item["box"]) / max(diagonal, 1.0)
-    proximity = math.exp(-0.5 * (distance / 0.12) ** 2)
-    return CONFIDENCE_WEIGHT * item["confidence"] + PROXIMITY_WEIGHT * proximity
+def target_score(
+    item: dict[str, Any],
+    crosshair: tuple[float, float],
+    diagonal: float,
+    image_width: float | None = None,
+) -> float:
+    """Confidence plus a bounded bonus for horizontal axis proximity.
+
+    ``diagonal`` remains in the signature for backward compatibility. Internal
+    callers pass ``image_width`` explicitly; legacy callers are assumed to use
+    a centred crosshair.
+    """
+    del diagonal
+    frame_width = float(image_width or max(2.0 * crosshair[0], 1.0))
+    axis_x = float(crosshair[0]) / frame_width
+    score, _, _ = confidence_axis_score(
+        item["confidence"],
+        item["box"],
+        frame_width,
+        axis_x=axis_x,
+    )
+    return score
 
 
 def pair_bottle(label: dict[str, Any], bottles: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -130,15 +148,23 @@ def select_label_candidates(
     crosshair: tuple[float, float],
     diagonal: float,
     ambiguity_margin: float,
+    image_width: float | None = None,
 ) -> tuple[list[dict[str, Any]], bool]:
-    ranked = sorted(labels, key=lambda item: target_score(item, crosshair, diagonal), reverse=True)
+    frame_width = float(image_width or max(2.0 * crosshair[0], 1.0))
+    axis_x = float(crosshair[0]) / frame_width
+
+    def score_and_distance(item: dict[str, Any]) -> tuple[float, float]:
+        score, distance, _ = confidence_axis_score(
+            item["confidence"], item["box"], frame_width, axis_x=axis_x
+        )
+        return score, distance
+
+    ranked = sorted(labels, key=lambda item: score_and_distance(item)[0], reverse=True)
     selected = ranked[:1]
     ambiguous = False
     if len(ranked) >= 2:
-        first_score = target_score(ranked[0], crosshair, diagonal)
-        second_score = target_score(ranked[1], crosshair, diagonal)
-        first_distance = point_box_distance(*crosshair, ranked[0]["box"]) / max(diagonal, 1.0)
-        second_distance = point_box_distance(*crosshair, ranked[1]["box"]) / max(diagonal, 1.0)
+        first_score, first_distance = score_and_distance(ranked[0])
+        second_score, second_distance = score_and_distance(ranked[1])
         ambiguous = (
             first_score - second_score <= ambiguity_margin
             and abs(first_distance - second_distance) <= AMBIGUITY_DISTANCE_MARGIN
@@ -166,7 +192,13 @@ def infer_one(
     labels = [item for item in detections if item["class_id"] == 1]
     crosshair = (image.width * crosshair_x, image.height * crosshair_y)
     diagonal = math.hypot(image.width, image.height)
-    selected, ambiguous = select_label_candidates(labels, crosshair, diagonal, ambiguity_margin)
+    selected, ambiguous = select_label_candidates(
+        labels,
+        crosshair,
+        diagonal,
+        ambiguity_margin,
+        image_width=image.width,
+    )
     digest = hashlib.sha1(str(image_path.resolve()).encode("utf-8")).hexdigest()[:10]
     candidates: list[dict[str, Any]] = []
     for index, label in enumerate(selected, start=1):

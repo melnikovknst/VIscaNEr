@@ -30,7 +30,7 @@ from ultralytics import YOLO
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-DEFAULT_MODEL = PROJECT_ROOT / "models" / "bottle_reranker" / "best_bottle_detector.pt"
+DEFAULT_MODEL = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_LABEL_METADATA = PROJECT_ROOT / "datasets" / "dinov3_target_crops" / "crops_metadata.csv"
 DEFAULT_SOURCE_MANIFEST = PROJECT_ROOT / "datasets" / "bottle_images_45k" / "bottle_images_manifest.csv"
 DEFAULT_REFS_ROOT = PROJECT_ROOT / "datasets" / "wine-scanner" / "data" / "refs" / "rgb"

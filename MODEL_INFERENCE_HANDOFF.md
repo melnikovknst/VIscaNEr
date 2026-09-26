@@ -42,7 +42,7 @@ Flow: **whole-bottle YOLO -> DINOv3-B/16 retrieval -> catalogue Top-K**.
 | Ready-to-run CLI and current selection policy | `infer_wine.py` |
 | DINO architecture, transforms and checkpoint loader | `dinov3_retrieval.py` |
 | Local loaders for the other researched DINO backbones | `deeptune_backbones.py` |
-| Fine-tuned bottle detector | `models/bottle_reranker/best_bottle_detector.pt` |
+| Joint bottle + label detector | `models/joint_yolo/best.pt` |
 | Original DINOv3-B/16 backbone | `models/dinov3/model.safetensors` |
 | Fine-tuned full-bottle DINOv3-B/16 | `models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt` |
 | Reference gallery and training-data archive | `datasets/bottle_classifier_crops.zip` |
@@ -75,7 +75,7 @@ Flow: **label YOLO -> DINOv3-B/16 trained on label crops -> catalogue Top-K**.
 | Ready-to-run label CLI | `infer_wine_labels.py` |
 | DINO architecture, transforms and checkpoint loader | `dinov3_retrieval.py` |
 | Local loaders for the other researched DINO backbones | `deeptune_backbones.py` |
-| Fine-tuned label detector | `models/yolo_label_detector/best.pt` |
+| Joint bottle + label detector | `models/joint_yolo/best.pt` |
 | Original DINOv3-B/16 backbone | `models/dinov3/model.safetensors` |
 | Fine-tuned label DINOv3-B/16 | `models/trained_checkpoints/dinov3_vitb16_labels_best_full.pt` |
 | Catalogue and RGB reference gallery archive | `datasets/wine-scanner_code-catalog.zip` |

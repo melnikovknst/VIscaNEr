@@ -45,14 +45,14 @@
     "sha256": "9a21ac3df0c63839d62612dda6f454d816c25611cc7a52966ed5a5a94921dc8b"
   },
   "joint_yolo/best.pt": {
-    "bytes": 5474522,
+    "bytes": 5490010,
     "role": "Best YOLO11n joint bottle and wine-label detector",
-    "sha256": "d075904403c998077fd74d8cb3faaf31e5fb73ccd66c4bdf383cb2fd2e0b45df"
+    "sha256": "4b88b58f1c5d752bc5eacd04d9d1d5854fed1310e6acad72443663a0adb12bde"
   },
   "joint_yolo/last.pt": {
-    "bytes": 5474522,
+    "bytes": 5490010,
     "role": "Last YOLO11n joint detector checkpoint",
-    "sha256": "329b7d0144b4aff11d845a3ddc1dddb5eae3ef9623c2ed33443b7dfef2a1f35d"
+    "sha256": "39812c80726b48f9366451d063c82f375a140a3ee53f2056edad4073ec504e42"
   },
   "trained_checkpoints/dinov3_vitb16_bottles_best_full.pt": {
     "bytes": 348559851,

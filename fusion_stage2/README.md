@@ -96,21 +96,22 @@ The existing bottle dataset needs a new version because Stage II also needs
 ```bash
 .venv/bin/kaggle datasets version \
   -p kaggle_upload/viscaner-bottle-classifier-data \
+  --dir-mode zip \
   -m "Add difficult bottle crops and original fallbacks for Stage II"
 ```
 
 Create the two new private datasets once:
 
 ```bash
-.venv/bin/kaggle datasets create -p kaggle_upload/viscaner-fusion-hardset-v1
-.venv/bin/kaggle datasets create -p kaggle_upload/viscaner-fusion-stage2-code
+.venv/bin/kaggle datasets create -p kaggle_upload/viscaner-fusion-hardset-v1 --dir-mode zip
+.venv/bin/kaggle datasets create -p kaggle_upload/viscaner-fusion-stage2-code --dir-mode zip
 ```
 
 For later code/data revisions, replace `datasets create` with:
 
 ```bash
-.venv/bin/kaggle datasets version -p kaggle_upload/viscaner-fusion-hardset-v1 -m "Refresh Stage II hard set"
-.venv/bin/kaggle datasets version -p kaggle_upload/viscaner-fusion-stage2-code -m "Refresh Stage II code"
+.venv/bin/kaggle datasets version -p kaggle_upload/viscaner-fusion-hardset-v1 --dir-mode zip -m "Upload Stage II hard-set images"
+.venv/bin/kaggle datasets version -p kaggle_upload/viscaner-fusion-stage2-code --dir-mode zip -m "Fix Stage II Kaggle dataset extraction"
 ```
 
 Only after both Stage-I notebooks show `COMPLETE`, upload/run Stage 2A:

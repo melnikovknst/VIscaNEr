@@ -83,6 +83,7 @@ def main() -> None:
         Path("ocr_reranker/reranker.py"),
         Path("fusion_stage2/__init__.py"),
         Path("fusion_stage2/core.py"),
+        Path("fusion_stage2/kaggle_io.py"),
         Path("fusion_stage2/train_fusion.py"),
         Path("fusion_stage2/README.md"),
         Path("kaggle_notebooks/Fusion-Stage2A-Frozen.ipynb"),

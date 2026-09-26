@@ -44,7 +44,7 @@
 - inference entrypoint: `infer_wine.py`;
 - DINO architecture/transforms: `dinov3_retrieval.py`;
 - локальные backbone loaders: `deeptune_backbones.py`;
-- YOLO бутылок: `models/bottle_reranker/best_bottle_detector.pt`;
+- joint YOLO бутылок и этикеток: `models/joint_yolo/best.pt`;
 - исходный DINOv3-B backbone: `models/dinov3/model.safetensors`;
 - обученный DINOv3-B: `models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt`;
 - gallery: `datasets/bottle_classifier_crops/refs/`, автоматически извлекается
@@ -127,7 +127,7 @@ VISCANER_MODEL_PROVIDER=local
 VISCANER_CHECKPOINT_PATH=models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt
 VISCANER_GALLERY_PATH=runs/inference/dinov3_vitb16_bottles_gallery.pt
 VISCANER_DEVICE=auto
-VISCANER_DETECTOR_PATH=models/bottle_reranker/best_bottle_detector.pt
+VISCANER_DETECTOR_PATH=models/joint_yolo/best.pt
 ```
 
 Потребуются обученный checkpoint и gallery, построенная именно этой версией

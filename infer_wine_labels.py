@@ -31,7 +31,7 @@ from infer_wine import (
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-DEFAULT_YOLO = PROJECT_ROOT / "models" / "yolo_label_detector" / "best.pt"
+DEFAULT_YOLO = PROJECT_ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_DINO_WEIGHTS = PROJECT_ROOT / "models" / "dinov3" / "model.safetensors"
 DEFAULT_DINO_CHECKPOINT = (
     PROJECT_ROOT / "models" / "trained_checkpoints" / "dinov3_vitb16_labels_best_full.pt"
@@ -89,6 +89,18 @@ def select_central_label(result: Any, width: int, height: int) -> tuple[dict[str
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return None, 0
+    names = result.names
+    name_items = names.items() if isinstance(names, dict) else enumerate(names)
+    label_class_ids = {
+        int(class_id)
+        for class_id, name in name_items
+        if str(name).lower() in {"label", "wine_label", "wine-label"}
+    }
+    # Backward compatibility for the historical one-class label detector.
+    if not label_class_ids and len(names) == 1:
+        label_class_ids = {0}
+    if not label_class_ids:
+        raise ValueError(f"YOLO has no label class: {names}")
     detections: list[dict[str, Any]] = []
     for raw_box, raw_conf, raw_class in zip(
         boxes.xyxy.detach().float().cpu().tolist(),
@@ -96,7 +108,7 @@ def select_central_label(result: Any, width: int, height: int) -> tuple[dict[str
         boxes.cls.detach().long().cpu().tolist(),
         strict=True,
     ):
-        if int(raw_class) != 0:
+        if int(raw_class) not in label_class_ids:
             continue
         box = tuple(float(value) for value in raw_box)
         confidence = float(raw_conf)

@@ -3,6 +3,7 @@
 
 # Local Python/Jupyter environment.
 .venv/
+.venv_paddleocr_vl/
 .ipynb_checkpoints/
 __pycache__/
 *.py[cod]
@@ -31,6 +32,10 @@ kaggle_recovered/
 # root. Canonical copies belong under models/ and are tracked through LFS.
 /yolo*.pt
 bottle_reranker/outputs/
+
+# PaddleOCR-VL is kept unpacked locally for inference.  The portable archive
+# models/paddleocr_vl/PaddleOCR-VL-1.6.zip is the canonical Git/LFS artifact.
+models/paddleocr_vl/PaddleOCR-VL-1.6/
 
 # Web app and local runtime state.
 node_modules/

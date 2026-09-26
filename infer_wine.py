@@ -42,6 +42,7 @@ DEFAULT_GALLERY_CACHE = (
 )
 DEFAULT_AMBIGUITY_MARGIN = 0.06
 DEFAULT_DUPLICATE_IOU = 0.80
+DEFAULT_AMBIGUITY_DISTANCE_MARGIN = 0.08
 
 
 def log(message: str) -> None:
@@ -71,7 +72,7 @@ def select_target_detections(
     ambiguity_margin: float = DEFAULT_AMBIGUITY_MARGIN,
     duplicate_iou: float = DEFAULT_DUPLICATE_IOU,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
-    """Select one central bottle, or two when the crosshair target is ambiguous."""
+    """Select confidence-first; return two only when confidence and geometry are close."""
     boxes = result.boxes
     if boxes is None or len(boxes) == 0:
         return [], [], {"ambiguous": False, "score_gap": None, "pair_iou": None}
@@ -109,18 +110,8 @@ def select_target_detections(
         crosshair_distance = math.hypot(distance_x, distance_y)
         crosshair_inside = crosshair_distance <= 1e-9
         crosshair_score = math.exp(-0.5 * (crosshair_distance / crosshair_sigma) ** 2)
-        target_score = 0.70 * crosshair_score + 0.30 * center_score
-        area_ratio = width * height / float(image_width * image_height)
-        size_score = min(1.0, math.sqrt(max(area_ratio, 0.0)) / 0.35)
-        edge_clearance = min(center_x, 1 - center_x, center_y, 1 - center_y)
-        edge_score = min(1.0, max(0.0, edge_clearance / 0.5))
-        selection_score = (
-            0.58 * crosshair_score
-            + 0.20 * center_score
-            + 0.08 * size_score
-            + 0.08 * confidence
-            + 0.06 * edge_score
-        )
+        target_score = 0.90 * confidence + 0.08 * crosshair_score + 0.02 * center_score
+        selection_score = target_score
         candidates.append(
             {
                 "confidence": confidence,
@@ -133,8 +124,6 @@ def select_target_detections(
         )
     candidates.sort(
         key=lambda item: (
-            bool(item["crosshair_inside"]),
-            item["target_score"],
             item["selection_score"],
             item["confidence"],
         ),
@@ -151,14 +140,14 @@ def select_target_detections(
         first, second = candidates[:2]
         score_gap = abs(float(first["target_score"]) - float(second["target_score"]))
         pair_iou = box_iou(first["box"], second["box"])
-        same_crosshair_relation = bool(first["crosshair_inside"]) == bool(
-            second["crosshair_inside"]
+        distance_gap = abs(
+            float(first["crosshair_distance"]) - float(second["crosshair_distance"])
         )
         both_reliable = min(first["confidence"], second["confidence"]) >= ambiguity_confidence
         ambiguous = (
-            same_crosshair_relation
-            and both_reliable
+            both_reliable
             and score_gap <= ambiguity_margin
+            and distance_gap <= DEFAULT_AMBIGUITY_DISTANCE_MARGIN
             and pair_iou < duplicate_iou
         )
         if ambiguous:
@@ -168,6 +157,14 @@ def select_target_detections(
         "ambiguous": ambiguous,
         "score_gap": score_gap,
         "pair_iou": pair_iou,
+        "distance_gap": (
+            None
+            if len(candidates) < 2
+            else abs(
+                float(candidates[0]["crosshair_distance"])
+                - float(candidates[1]["crosshair_distance"])
+            )
+        ),
         "ambiguity_margin": ambiguity_margin,
         "duplicate_iou": duplicate_iou,
     }

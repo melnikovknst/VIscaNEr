@@ -41,6 +41,14 @@ datasets/**/*
 !datasets/store_shelves_catalog/labels.csv
 !datasets/store_shelves_catalog/README.md
 
+# Holdout test set of store-shelf photos from the web; never train on it.
+!datasets/store_shelves_web/source/*.jpg
+!datasets/store_shelves_web/queries/*.jpg
+!datasets/store_shelves_web/sources.csv
+!datasets/store_shelves_web/points.csv
+!datasets/store_shelves_web/labels.csv
+!datasets/store_shelves_web/README.md
+
 # Model weights under models/ are versioned through Git LFS. Experiment runs
 # and temporary Kaggle staging folders remain local.
 runs/**

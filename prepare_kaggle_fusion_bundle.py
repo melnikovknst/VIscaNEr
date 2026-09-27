@@ -76,6 +76,7 @@ def main() -> None:
         Path("dinov3_retrieval.py"),
         Path("full_finetune.py"),
         Path("cascade_resolver/__init__.py"),
+        Path("cascade_resolver/config.py"),
         Path("cascade_resolver/modeling.py"),
         Path("bottle_classifier/__init__.py"),
         Path("bottle_classifier/local_backbone.py"),
@@ -120,7 +121,7 @@ def main() -> None:
             stage2a_kernel,
             project / "kaggle_notebooks" / "Fusion-Stage2A-Frozen.ipynb",
             {
-                "id": f"{args.kaggle_username}/viscaner-fusion-stage2a-frozen",
+                "id": f"{args.kaggle_username}/viscaner-fusion-stage-2a-frozen",
                 "title": "VIscaNEr Fusion Stage 2A Frozen",
                 "kernel_sources": [
                     "f1amex/viscaner-dinov3-b-bottles-hard-fine-tune",
@@ -132,12 +133,12 @@ def main() -> None:
             stage2b_kernel,
             project / "kaggle_notebooks" / "Fusion-Stage2B-Joint.ipynb",
             {
-                "id": f"{args.kaggle_username}/viscaner-fusion-stage2b-joint",
+                "id": f"{args.kaggle_username}/viscaner-fusion-stage-2b-joint",
                 "title": "VIscaNEr Fusion Stage 2B Joint",
                 "kernel_sources": [
                     "f1amex/viscaner-dinov3-b-bottles-hard-fine-tune",
                     "f1amex/viscaner-dinov3-b-labels-hard-fine-tune",
-                    f"{args.kaggle_username}/viscaner-fusion-stage2a-frozen",
+                    f"{args.kaggle_username}/viscaner-fusion-stage-2a-frozen",
                 ],
             },
         ),

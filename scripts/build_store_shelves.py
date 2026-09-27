@@ -16,6 +16,7 @@ Outputs (images are shared through Git LFS):
 
     python -m scripts.build_store_shelves                       # store_shelves_v1, s-NNN
     python -m scripts.build_store_shelves --dataset store_shelves_v2 --prefix t
+    python -m scripts.build_store_shelves --dataset store_shelves_web --prefix w --holdout
     python infer_wine.py datasets/store_shelves_v1/queries --top-k 5 \
         --output runs/inference/store_shelves_v1_bottle_pipeline.json
 """
@@ -57,6 +58,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dataset", default="store_shelves_v1", help="folder under datasets/")
     parser.add_argument("--prefix", default="s", help="query id prefix; must differ between datasets")
+    parser.add_argument("--holdout", action="store_true",
+                        help="test-only dataset: training_use=holdout for every scored shot")
     args = parser.parse_args()
     base = ROOT / "datasets" / args.dataset
     SOURCE, QUERIES, POINTS = base / "source", base / "queries", base / "points.csv"
@@ -81,6 +84,7 @@ def main() -> None:
         status = row["status"]
         needs_review = qid(n) in reviews
         training_use = ("exclude" if status not in {"ok", "notcat"} else "review" if needs_review
+                        else "holdout" if args.holdout
                         else "catalog" if status == "ok" else "out_of_catalog")
         out.append({"query_id": qid(n), "image_path": name, "status": status,
                     "scored": status in {"ok", "notcat"},

@@ -56,6 +56,14 @@ Outputs:
 
    Candidate unions are re-mined every three epochs. A final fresh gallery and
    candidate pass is run before the untouched test metrics are written.
+3. Stage 2C optionally adapts both branches and the MLP on the reviewed
+   `manual_211` catalog subset while retaining `hard_val` as a forgetting
+   guardrail.
+4. The Transformer experiment freezes the completed Stage-2C visual branches,
+   recomputes the same candidate features and replaces only the MLP scorer with
+   a two-layer, permutation-equivariant candidate Transformer. It trains on
+   `hard_train`, selects on `hard_val`, then reports an A/B comparison against
+   the frozen Fusion MLP on every untouched test split.
 
 The manifest currently has no verified OCR transcriptions. The MLP therefore
 receives `ocr_available=0` and `ocr_lexical_score=0`; this is an explicit
@@ -68,12 +76,14 @@ and `ocr_text` columns.
 Kaggle notebooks:
 
 - `kaggle_notebooks/Fusion-Stage2A-Frozen.ipynb`;
-- `kaggle_notebooks/Fusion-Stage2B-Joint.ipynb`.
+- `kaggle_notebooks/Fusion-Stage2B-Joint.ipynb`;
+- `kaggle_notebooks/Manual-Stage2C-Adaptation.ipynb`;
+- `kaggle_notebooks/Fusion-Transformer-Ranker.ipynb`.
 
 Run Stage 2B only after Stage 2A has completed and its saved output has been
 attached as an input.
 
-`prepare_kaggle_fusion_bundle.py` also creates two Kaggle CLI kernel folders
+`prepare_kaggle_fusion_bundle.py` also creates Kaggle CLI kernel folders
 with `kernel-metadata.json`. Pushing a kernel creates/updates a Kaggle notebook
 version and may start its execution, so do that only when the required upstream
 outputs are complete.

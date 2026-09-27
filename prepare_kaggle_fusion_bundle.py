@@ -41,10 +41,20 @@ def main() -> None:
     code_bundle = output / "viscaner-fusion-stage2-code"
     stage2a_kernel = output / "viscaner-fusion-stage2a-kernel"
     stage2b_kernel = output / "viscaner-fusion-stage2b-kernel"
+    stage2c_kernel = output / "viscaner-manual-stage2c-kernel"
+    checkpoint_export_kernel = output / "viscaner-stage2c-checkpoint-export-kernel"
+    transformer_kernel = output / "viscaner-fusion-transformer-kernel"
+    manual_eval_kernel = output / "viscaner-transformer-manual211-eval-kernel"
     recreate = (
-        (code_bundle, stage2a_kernel, stage2b_kernel)
+        (
+            code_bundle, stage2a_kernel, stage2b_kernel, stage2c_kernel,
+            checkpoint_export_kernel, transformer_kernel, manual_eval_kernel,
+        )
         if args.code_only
-        else (data_bundle, code_bundle, stage2a_kernel, stage2b_kernel)
+        else (
+            data_bundle, code_bundle, stage2a_kernel, stage2b_kernel, stage2c_kernel,
+            checkpoint_export_kernel, transformer_kernel, manual_eval_kernel,
+        )
     )
     for bundle in recreate:
         if bundle.exists():
@@ -86,9 +96,17 @@ def main() -> None:
         Path("fusion_stage2/core.py"),
         Path("fusion_stage2/kaggle_io.py"),
         Path("fusion_stage2/train_fusion.py"),
+        Path("fusion_stage2/build_manual_211_dataset.py"),
+        Path("fusion_stage2/train_manual_211_adaptation.py"),
+        Path("fusion_stage2/train_transformer_ranker.py"),
+        Path("fusion_stage2/evaluate_transformer_manual_211.py"),
         Path("fusion_stage2/README.md"),
         Path("kaggle_notebooks/Fusion-Stage2A-Frozen.ipynb"),
         Path("kaggle_notebooks/Fusion-Stage2B-Joint.ipynb"),
+        Path("kaggle_notebooks/Manual-Stage2C-Adaptation.ipynb"),
+        Path("kaggle_notebooks/Fusion-Transformer-Ranker.ipynb"),
+        Path("kaggle_notebooks/Transformer-Manual211-Eval.ipynb"),
+        Path("kaggle_notebooks/Stage2C-Checkpoint-Export.ipynb"),
     )
     for relative in code_files:
         source = project / relative
@@ -142,6 +160,66 @@ def main() -> None:
                 ],
             },
         ),
+        (
+            stage2c_kernel,
+            project / "kaggle_notebooks" / "Manual-Stage2C-Adaptation.ipynb",
+            {
+                "id": f"{args.kaggle_username}/viscaner-manual-stage-2c",
+                "title": "VIscaNEr Manual Stage 2C",
+                "kernel_sources": [
+                    "f1amex/viscaner-dinov3-b-bottles-hard-fine-tune",
+                    "f1amex/viscaner-dinov3-b-labels-hard-fine-tune",
+                    f"{args.kaggle_username}/viscaner-fusion-stage-2b-joint",
+                ],
+                "dataset_sources": common_datasets + [
+                    f"{args.kaggle_username}/viscaner-manual-211",
+                ],
+            },
+        ),
+        (
+            checkpoint_export_kernel,
+            project / "kaggle_notebooks" / "Stage2C-Checkpoint-Export.ipynb",
+            {
+                "id": f"{args.kaggle_username}/viscaner-stage-2c-checkpoint-export",
+                "title": "VIscaNEr Stage 2C Checkpoint Export",
+                "kernel_sources": [],
+                "dataset_sources": [],
+                "enable_gpu": False,
+            },
+        ),
+        (
+            transformer_kernel,
+            project / "kaggle_notebooks" / "Fusion-Transformer-Ranker.ipynb",
+            {
+                "id": f"{args.kaggle_username}/viscaner-fusion-transformer-ranker",
+                "title": "VIscaNEr Fusion Transformer Ranker",
+                "kernel_sources": [
+                    "f1amex/viscaner-dinov3-b-bottles-hard-fine-tune",
+                    "f1amex/viscaner-dinov3-b-labels-hard-fine-tune",
+                    f"{args.kaggle_username}/viscaner-stage-2c-checkpoint-export",
+                ],
+            },
+        ),
+        (
+            manual_eval_kernel,
+            project / "kaggle_notebooks" / "Transformer-Manual211-Eval.ipynb",
+            {
+                "id": f"{args.kaggle_username}/viscaner-transformer-manual-211-evaluation",
+                "title": "VIscaNEr Transformer Manual-211 Evaluation",
+                "kernel_sources": [
+                    "f1amex/viscaner-dinov3-b-bottles-hard-fine-tune",
+                    "f1amex/viscaner-dinov3-b-labels-hard-fine-tune",
+                    f"{args.kaggle_username}/viscaner-stage-2c-checkpoint-export",
+                    f"{args.kaggle_username}/viscaner-fusion-transformer-ranker",
+                ],
+                "dataset_sources": [
+                    f"{args.kaggle_username}/viscaner-fusion-stage2-code",
+                    f"{args.kaggle_username}/viscaner-manual-211",
+                    f"{args.kaggle_username}/viscaner-dinov3-data",
+                    f"{args.kaggle_username}/viscaner-bottle-classifier-data",
+                ],
+            },
+        ),
     )
     for kernel_dir, notebook, specific in kernels:
         link_or_copy(notebook, kernel_dir / notebook.name)
@@ -151,9 +229,9 @@ def main() -> None:
             "language": "python",
             "kernel_type": "notebook",
             "is_private": True,
-            "enable_gpu": True,
+            "enable_gpu": specific.get("enable_gpu", True),
             "enable_internet": True,
-            "dataset_sources": common_datasets,
+            "dataset_sources": specific.get("dataset_sources", common_datasets),
             "competition_sources": [],
         }
         (kernel_dir / "kernel-metadata.json").write_text(
@@ -164,6 +242,10 @@ def main() -> None:
     print(f"Code bundle: {code_bundle}")
     print(f"Stage 2A kernel: {stage2a_kernel}")
     print(f"Stage 2B kernel: {stage2b_kernel}")
+    print(f"Stage 2C kernel: {stage2c_kernel}")
+    print(f"Checkpoint export kernel: {checkpoint_export_kernel}")
+    print(f"Transformer kernel: {transformer_kernel}")
+    print(f"Manual-211 evaluator kernel: {manual_eval_kernel}")
 
 
 if __name__ == "__main__":

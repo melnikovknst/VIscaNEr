@@ -8,26 +8,22 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Sequence
 
 import pandas as pd
 
 
-def _first_file(candidates: Iterable[Path]) -> Path:
-    candidates = tuple(candidates)
-    for candidate in candidates:
-        if candidate.is_file():
-            return candidate.resolve()
-    raise FileNotFoundError(f"None of the candidate files exists: {list(candidates)}")
+def _resolve_crop(crop_root: Path, status: str, recorded: str, portable: str, hard_root: Path) -> Path:
+    """Build a crop path without a remote filesystem stat for every row.
 
+    Kaggle's input mount makes tens of thousands of ``is_file`` calls extremely
+    slow.  The manifest already fixes the layout, so path construction is
+    deterministic; ``combine_frames`` performs a bounded integrity sample.
+    """
 
-def _resolve_crop(root: Path, status: str, recorded: str, portable: str, hard_root: Path) -> Path:
     if portable:
-        candidate = hard_root / portable
-        if candidate.is_file():
-            return candidate.resolve()
-    name = Path(recorded).name
-    return _first_file((root / "crops" / status / name, root / status / name))
+        return hard_root / portable
+    return crop_root / status / Path(recorded).name
 
 
 def resolve_refs(root: Path) -> tuple[list[str], list[str]]:
@@ -55,6 +51,8 @@ def _load_manifest(
     hard_root = hard_root.resolve()
     label_root = label_data_root.resolve()
     bottle_root = bottle_data_root.resolve()
+    label_crop_root = label_root / "crops" if (label_root / "crops").is_dir() else label_root
+    bottle_crop_root = bottle_root / "crops" if (bottle_root / "crops").is_dir() else bottle_root
     frame = pd.read_csv(manifest_path.resolve(), low_memory=False).fillna("")
     required = {
         "source_relative_path", "wine_slug", "fusion_split",
@@ -68,14 +66,14 @@ def _load_manifest(
         raise ValueError("Five-stream manifest contains duplicate source_relative_path rows")
     frame["label_path"] = frame.apply(
         lambda row: str(_resolve_crop(
-            label_root, str(row["label_status"]), str(row["label_recorded_path"]),
+            label_crop_root, str(row["label_status"]), str(row["label_recorded_path"]),
             str(row["portable_label_path"]), hard_root,
         )),
         axis=1,
     )
     frame["bottle_path"] = frame.apply(
         lambda row: str(_resolve_crop(
-            bottle_root, str(row["bottle_status"]), str(row["bottle_recorded_path"]),
+            bottle_crop_root, str(row["bottle_status"]), str(row["bottle_recorded_path"]),
             str(row["portable_bottle_path"]), hard_root,
         )),
         axis=1,
@@ -151,8 +149,13 @@ def combine_frames(*frames: pd.DataFrame) -> pd.DataFrame:
     frame = pd.concat(frames, ignore_index=True)
     if frame["sample_id"].duplicated().any():
         raise ValueError("Combined dataset contains duplicate sample_id values")
+    # Check a deterministic spread rather than issuing 80k+ serial stat calls
+    # against Kaggle's read-only FUSE mount. Image decoding still fails loudly
+    # later if any non-sampled manifest entry is broken.
+    sample_count = min(64, len(frame))
+    indices = sorted({round(i * (len(frame) - 1) / max(sample_count - 1, 1)) for i in range(sample_count)})
     for column in ("label_path", "bottle_path"):
-        missing = [value for value in frame[column] if not Path(value).is_file()]
+        missing = [frame.at[index, column] for index in indices if not Path(frame.at[index, column]).is_file()]
         if missing:
             raise FileNotFoundError(f"Missing {column}: {missing[:3]}")
     return frame.reset_index(drop=True)

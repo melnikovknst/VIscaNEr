@@ -31,7 +31,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", type=Path, default=Path(__file__).resolve().parent)
     parser.add_argument("--output-root", type=Path)
-    parser.add_argument("--kaggle-username", default="konstantinmelnikof")
+    parser.add_argument(
+        "--publish-username",
+        default="konstantinmelnikof",
+        help="Kaggle account that will own the new code/checkpoint/OCR datasets and notebook.",
+    )
+    parser.add_argument(
+        "--data-owner",
+        default="konstantinmelnikof",
+        help="Kaggle account that owns the existing crop datasets shared with the runner.",
+    )
     args = parser.parse_args()
     project = args.project_root.resolve()
     output = (args.output_root or project / "kaggle_upload").resolve()
@@ -70,7 +79,7 @@ def main() -> None:
     (code / "dataset-metadata.json").write_text(
         json.dumps({
             "title": "VIscaNEr Stage-2C residual Transformer code",
-            "id": f"{args.kaggle_username}/viscaner-stage2c-residual-code",
+            "id": f"{args.publish_username}/viscaner-stage2c-residual-code",
             "licenses": [{"name": "other"}],
         }, indent=2), encoding="utf-8",
     )
@@ -88,7 +97,7 @@ def main() -> None:
     (stage2c / "dataset-metadata.json").write_text(
         json.dumps({
             "title": "VIscaNEr complete Stage-2C DINO-B checkpoint",
-            "id": f"{args.kaggle_username}/viscaner-stage2c-checkpoint",
+            "id": f"{args.publish_username}/viscaner-stage2c-checkpoint",
             "licenses": [{"name": "other"}],
         }, indent=2), encoding="utf-8",
     )
@@ -108,7 +117,7 @@ def main() -> None:
     (ocr_weights / "dataset-metadata.json").write_text(
         json.dumps({
             "title": "VIscaNEr EasyOCR Russian English weights",
-            "id": f"{args.kaggle_username}/viscaner-easyocr-ru-en-weights",
+            "id": f"{args.publish_username}/viscaner-easyocr-ru-en-weights",
             "licenses": [{"name": "other"}],
         }, indent=2), encoding="utf-8",
     )
@@ -116,7 +125,7 @@ def main() -> None:
     notebook = project / "kaggle_notebooks" / "FiveStream-Stage2C-Residual.ipynb"
     link_or_copy(notebook, kernel / notebook.name)
     metadata = {
-        "id": f"{args.kaggle_username}/viscaner-stage2c-residual-transformer",
+        "id": f"{args.publish_username}/viscaner-stage2c-residual-transformer",
         "title": "VIscaNEr Stage-2C Residual Transformer",
         "code_file": notebook.name,
         "language": "python",
@@ -125,13 +134,13 @@ def main() -> None:
         "enable_gpu": True,
         "enable_internet": True,
         "dataset_sources": [
-            f"{args.kaggle_username}/viscaner-stage2c-residual-code",
-            f"{args.kaggle_username}/viscaner-stage2c-checkpoint",
-            f"{args.kaggle_username}/viscaner-easyocr-ru-en-weights",
-            f"{args.kaggle_username}/viscaner-fusion-hardset-v1",
-            f"{args.kaggle_username}/viscaner-dinov3-data",
-            f"{args.kaggle_username}/viscaner-bottle-classifier-data",
-            f"{args.kaggle_username}/viscaner-manual-211",
+            f"{args.publish_username}/viscaner-stage2c-residual-code",
+            f"{args.publish_username}/viscaner-stage2c-checkpoint",
+            f"{args.publish_username}/viscaner-easyocr-ru-en-weights",
+            f"{args.data_owner}/viscaner-fusion-hardset-v1",
+            f"{args.data_owner}/viscaner-dinov3-data",
+            f"{args.data_owner}/viscaner-bottle-classifier-data",
+            f"{args.data_owner}/viscaner-manual-211",
         ],
         "kernel_sources": [],
         "competition_sources": [],

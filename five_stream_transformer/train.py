@@ -306,11 +306,6 @@ def main() -> None:
         "Transformer=random initialization | data=stored 45k crops + stored Manual-211 crops",
         flush=True,
     )
-    label_model, bottle_model, stage2c_info = load_stage2c_models(
-        args.stage2c_checkpoint, device, args.image_size
-    )
-    print("STAGE2C | " + json.dumps(stage2c_info, ensure_ascii=False), flush=True)
-
     hard = load_hard_rows(
         args.hard_manifest, args.hard_root, args.label_data_root, args.bottle_data_root
     )
@@ -331,6 +326,14 @@ def main() -> None:
             "ocr_rows": int(frame["ocr_text"].str.strip().ne("").sum()),
         }, ensure_ascii=False), flush=True,
     )
+
+    print("DINO | loading both complete frozen Stage-2C branches after OCR release", flush=True)
+    gc.collect()
+    torch.cuda.empty_cache()
+    label_model, bottle_model, stage2c_info = load_stage2c_models(
+        args.stage2c_checkpoint, device, args.image_size
+    )
+    print("STAGE2C | " + json.dumps(stage2c_info, ensure_ascii=False), flush=True)
 
     cache_path = output / f"features_stage2c_{stage2c_info['sha256'][:12]}.pt"
     if cache_path.is_file():

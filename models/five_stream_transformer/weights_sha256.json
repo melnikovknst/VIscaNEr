@@ -1,0 +1,7 @@
+{
+  "residual_best.pt": "0402644f90b71aac7fc64fc270b2c0d1e4539f331a10a58189c798c62469da2e",
+  "gallery_features.pt": "511a3047c43c87bb629f70439b6c79d1a09a6b571773dbfe0bfec41c94cf2b7f",
+  "source_kaggle_kernel": "konstantinmelnikof/viscaner-stage-2c-residual-transformer",
+  "checkpoint_epoch": 3,
+  "stage2c_source_sha256": "f037ecd909f28ddadb782602a6ea079bddd5afd549fe351dad892ed9d2665c6e"
+}

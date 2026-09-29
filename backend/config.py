@@ -1,3 +1,4 @@
+"""Service settings. Every field can be set from the environment as VISCANER_<NAME> or in .env."""
 from pathlib import Path
 from typing import Literal
 
@@ -10,64 +11,38 @@ ROOT = Path(__file__).resolve().parents[1]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="VISCANER_", env_file=ROOT / ".env", extra="ignore")
 
-    model_provider: Literal["demo", "local", "cascade", "five_stream", "remote"] = "demo"
-    catalog_path: Path = ROOT / "datasets/wine-scanner/data/catalog.csv"
-    catalog_archive: Path = ROOT / "datasets/wine-scanner_code-catalog.zip"
-    refs_root: Path = ROOT / "datasets/wine-scanner/data/refs"
+    # five_stream: the recognition pipeline. demo: catalog only, uploads return 503.
+    model_provider: Literal["five_stream", "demo"] = "five_stream"
+    device: str = "auto"  # auto | cuda | cpu
+    catalog_archive: Path = ROOT / "data/catalog.zip"
     data_dir: Path = ROOT / "backend/data"
-    checkpoint_path: Path = ROOT / "models/dinov3_retrieval/best.pt"
-    gallery_path: Path = ROOT / "runs/dinov3_retrieval/gallery_embeddings.pt"
-    detector_path: Path | None = None
-    # Two-stage cascade (provider "cascade"). Defaults point at the checkpoints
-    # the colleagues pushed and the galleries those checkpoints were trained on.
-    primary_checkpoint: Path = ROOT / "models/trained_checkpoints/dinov3_vitb16_labels_best_full.pt"
-    # Whole-bottle resolver. vitb16 is built the way it was trained: the pinned
-    # DINOv3-B backbone via deeptune_backbones, then the fine-tuned checkpoint.
-    resolver_checkpoint: Path | None = ROOT / "models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt"
-    resolver_variant: Literal["vitb16", "vits16"] = "vitb16"
-    resolver_backbone_path: Path | None = ROOT / "models/dinov3/model.safetensors"
-    label_refs_root: Path = ROOT / "datasets/wine-scanner/data/refs/rgb"
-    bottle_refs_root: Path | None = ROOT / "datasets/bottle_classifier_crops/refs"
-    # The current joint detector emits class 0=bottle and class 1=wine_label
-    # in one forward pass. Both branches intentionally point to the same file.
-    label_detector_path: Path | None = ROOT / "models/joint_yolo/best.pt"
-    bottle_detector_path: Path | None = ROOT / "models/joint_yolo/best.pt"
-    # Stage-1 gap at or below which the bottle model is consulted. 0.01525 is
-    # the value tune_cascade_threshold.py selected on val_seen.
-    ambiguity_margin: float = Field(default=0.01525, ge=0, le=1)
-    # Separation the bottle model must show before its answer is accepted.
-    min_resolver_margin: float = Field(default=0.02, ge=0, le=2)
-    # Five-stream Transformer (provider "five_stream", MODEL_INFERENCE_HANDOFF.md).
-    # Its confidence is the softmax over the Transformer's ranking logits of the
-    # top-10 candidates - not the cosine similarity the other providers report,
-    # so it has its own thresholds. Chosen on store_shelves_v1 (126 catalog /
-    # 126 out-of-catalog shelf crops): at 0.45 top-1 drops 58.7% -> 54.8% while
-    # 51.6% of out-of-catalog wines get null; on store_shelves_web top-1 is
-    # 56.9% (60.0% unthresholded), on Manual-211 out-of-catalog 45.9% null.
-    five_stream_min_confidence: float = Field(default=0.45, ge=0, le=1)
-    # Below min_confidence but at or above this, candidates are offered as a choice.
-    five_stream_min_suggest_confidence: float | None = Field(default=0.20, ge=0, le=1)
-    device: str = "auto"
-    remote_url: str = ""
-    remote_api_key: SecretStr = SecretStr("")
-    timeout_seconds: float = Field(default=30, gt=0, le=300)
-    min_similarity: float = Field(default=0.65, ge=-1, le=1)
-    min_margin: float = Field(default=0.04, ge=0, le=2)
-    # Below min_similarity but at or above this, the top candidates are offered as a
-    # choice instead of "not found". None = no such band.
-    min_suggest_similarity: float | None = Field(default=None, ge=-1, le=1)
+
+    # When to answer. Confidence is the softmax over the Transformer's top-10
+    # ranking logits. Chosen on store_shelves_v1 (126 catalog / 126 out-of-catalog
+    # shelf photos, never used in training): at 0.45 top-1 drops 58.7% -> 54.8%
+    # while 51.6% of out-of-catalog wines get an honest null.
+    min_confidence: float = Field(default=0.45, ge=0, le=1)
+    # Between this and min_confidence the site asks "which of these is yours?";
+    # below it, "not recognised". None disables the choice.
+    min_suggest_confidence: float | None = Field(default=0.20, ge=0, le=1)
+    # Required gap between the top two confidences. Softmax already accounts for
+    # the runner-up, so 0 by default.
+    min_margin: float = Field(default=0.0, ge=0, le=1)
+
     max_upload_mb: int = Field(default=12, ge=1, le=30)
     max_pixels: int = Field(default=24_000_000, ge=1)
     history_limit: int = Field(default=100, ge=1, le=1000)
-    # Local LLM sommelier (backend/sommelier.py). Off unless the weights are present.
+    timeout_seconds: float = Field(default=30, gt=0, le=300)
+
+    # Sommelier (backend/sommelier.py): bge-m3 retrieval over the catalog, then an
+    # LLM explains the choice. openrouter: any chat model via the OpenRouter API.
+    # local: YandexGPT-5 Lite, 4-bit on the GPU (weights are not in the repo).
     sommelier_enabled: bool = False
-    # Who writes the answer. Retrieval (bge-m3 over the catalog) always runs locally.
-    # local: YandexGPT-5 Lite, 4-bit, ~6.5 GB GPU. openrouter: any chat model via
-    # the OpenRouter API; no LLM weights are loaded.
-    sommelier_backend: Literal["local", "openrouter"] = "local"
+    sommelier_backend: Literal["openrouter", "local"] = "openrouter"
     openrouter_api_key: SecretStr = SecretStr("")
     openrouter_model: str = "anthropic/claude-sonnet-5.5"
     openrouter_url: str = "https://openrouter.ai/api/v1/chat/completions"
     sommelier_llm_path: Path = ROOT / "models/llm/yandexgpt5-lite-8b-instruct"
-    sommelier_embedder_path: Path = ROOT / "models/llm/bge-m3"
-    sommelier_profiles_path: Path = ROOT / "runs/sommelier/profiles.jsonl"
+    # A local directory or a Hugging Face model id (downloaded once, ~2.3 GB).
+    sommelier_embedder: str = "BAAI/bge-m3"
+    sommelier_profiles_path: Path = ROOT / "data/sommelier/profiles.jsonl"

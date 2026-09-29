@@ -14,7 +14,7 @@ import torch
 from PIL import Image
 from ultralytics import YOLO
 
-from yolo_target_selection import confidence_axis_score
+from joint_yolo.target_selection import confidence_axis_score
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

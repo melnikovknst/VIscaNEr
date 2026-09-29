@@ -38,8 +38,8 @@ DEFAULT_YOLO = ROOT / "models" / "joint_yolo" / "best.pt"
 DEFAULT_STAGE2C = ROOT / "models" / "stage2c" / "manual_stage2c_best.pt"
 DEFAULT_TRANSFORMER = ROOT / "models" / "five_stream_transformer" / "residual_best.pt"
 DEFAULT_OCR = ROOT / "models" / "easyocr_ru_en"
-DEFAULT_GALLERIES_ZIP = ROOT / "datasets" / "inference_galleries.zip"
-DEFAULT_GALLERIES_ROOT = ROOT / "datasets" / "inference_galleries"
+DEFAULT_GALLERIES_ZIP = ROOT / "data" / "inference_galleries.zip"
+DEFAULT_GALLERIES_ROOT = ROOT / "data" / "inference_galleries"
 DEFAULT_CACHE = ROOT / "models" / "five_stream_transformer" / "gallery_features.pt"
 SUPPORTED = {".jpg", ".jpeg", ".png", ".webp"}
 

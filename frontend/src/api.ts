@@ -15,8 +15,8 @@ export interface ScanResult {
   id: string;
   status: "matched" | "uncertain" | "not_found" | "demo";
   wine: Wine | null;
-  candidates: { wine: Wine; similarity: number }[];
-  similarity: number | null;
+  candidates: { wine: Wine; confidence: number }[];
+  confidence: number | null;
   margin: number | null;
   elapsed_ms: number;
   model_version: string;

@@ -1,5 +1,0 @@
-paddlepaddle==3.2.1
-paddleocr[doc-parser]>=3.7,<4
-mlx-vlm>=0.7,<1
-rapidfuzz>=3.14,<4
-Unidecode>=1.4,<2

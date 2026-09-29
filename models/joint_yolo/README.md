@@ -12,8 +12,7 @@ position and crossing the crosshair do not affect ranking. A second pair is
 returned only for two genuinely close candidates.
 
 Training configuration and measured validation metrics are recorded in
-`metrics.json`. `last.pt` is retained for reproducible continuation, while
-production inference should use `best.pt`.
+`metrics.json`; `last.pt` and the training code live on the `development` branch.
 
 Current checkpoint: 150 deep-adaptation epochs, best epoch 148. Validation:
 Precision 0.9878, Recall 0.9099, mAP50 0.9281, mAP50-95 0.8665. The 211 new

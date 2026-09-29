@@ -1,86 +1,23 @@
-# macOS metadata.
-.DS_Store
-
-# Local Python/Jupyter environment.
+# Python
 .venv/
-.venv_paddleocr_vl/
-.ipynb_checkpoints/
 __pycache__/
 *.py[cod]
+.pytest_cache/
 
-# Keep dataset contents and generated dataset artifacts out of Git.
-datasets/**/*
-
-# Keep directory traversal open so archives can be explicitly tracked anywhere
-# under datasets/. Git LFS rules in .gitattributes apply to these archives.
-!datasets/**/
-!datasets/**/*.zip
-!datasets/**/*.7z
-!datasets/**/*.rar
-!datasets/**/*.tar
-!datasets/**/*.tar.gz
-!datasets/**/*.tgz
-!datasets/**/*.tar.bz2
-!datasets/**/*.tar.xz
-!datasets/inference_galleries.sha256.json
-
-# Shared, annotated store-shelf training set (images are stored in Git LFS).
-!datasets/store_shelves_v1/queries/*.jpg
-!datasets/store_shelves_v1/source/*.jpg
-!datasets/store_shelves_v1/labels.csv
-!datasets/store_shelves_v1/points.csv
-!datasets/store_shelves_v1/review.json
-!datasets/store_shelves_v1/README.md
-!datasets/store_shelves_v2/source/*.jpg
-!datasets/store_shelves_v2/queries/*.jpg
-!datasets/store_shelves_v2/sources.json
-!datasets/store_shelves_v2/points.csv
-!datasets/store_shelves_v2/labels.csv
-!datasets/store_shelves_v2/review.json
-!datasets/store_shelves_v2/README.md
-!datasets/store_shelves_catalog/queries/*.jpg
-!datasets/store_shelves_catalog/labels.csv
-!datasets/store_shelves_catalog/README.md
-
-# Holdout test set of store-shelf photos from the web; never train on it.
-!datasets/store_shelves_web/source/*.jpg
-!datasets/store_shelves_web/queries/*.jpg
-!datasets/store_shelves_web/sources.csv
-!datasets/store_shelves_web/points.csv
-!datasets/store_shelves_web/labels.csv
-!datasets/store_shelves_web/README.md
-
-# Model weights under models/ are versioned through Git LFS. Experiment runs
-# and temporary Kaggle staging folders remain local.
-runs/**
-kaggle_upload/
-kaggle_recovered/
-# Ultralytics may auto-download duplicate base weights into the repository
-# root. Canonical copies belong under models/ and are tracked through LFS.
-/yolo*.pt
-bottle_reranker/outputs/
-
-# PaddleOCR-VL is kept unpacked locally for inference.  The portable archive
-# models/paddleocr_vl/PaddleOCR-VL-1.6.zip is the canonical Git/LFS artifact.
-models/paddleocr_vl/PaddleOCR-VL-1.6/
-
-# Local export directory from the latest joint-YOLO fine-tune. The canonical
-# best/last checkpoints are tracked under models/joint_yolo/.
-models/joint_yolo_manual_finetune/
-
-# Web app and local runtime state.
+# Node / web build
 node_modules/
 dist/
 *.tsbuildinfo
-.env
-.env.*
-!.env.example
-.pytest_cache/
-backend/data/
-tmp/
-.npm-cache/
 test-results/
 playwright-report/
 
-# Local LLM weights (15 GB, third-party licence): downloaded per machine, never committed.
+# Runtime state and local settings
+.env
+backend/data/
+tmp/
+# Unpacked from data/inference_galleries.zip on the first start.
+data/inference_galleries/
+# Optional local YandexGPT weights for the sommelier (15 GB, never committed).
 models/llm/
+
+.DS_Store

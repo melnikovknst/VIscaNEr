@@ -1,26 +1,20 @@
+"""The wine catalog: data/catalog.zip holds catalog.csv and one WebP photo per wine."""
 import csv
 import io
 from functools import lru_cache
-from pathlib import Path
 from urllib.parse import quote
 from zipfile import ZipFile
 
 from backend.config import Settings
 from backend.schemas import Wine
 
-ARCHIVE_PREFIX = "wine-scanner/data/"
-
 
 class Catalog:
     def __init__(self, settings: Settings):
-        self.settings = settings
-        if settings.catalog_path.is_file():
-            text = settings.catalog_path.read_text(encoding="utf-8-sig")
-        elif settings.catalog_archive.is_file():
-            with ZipFile(settings.catalog_archive) as archive:
-                text = archive.read(ARCHIVE_PREFIX + "catalog.csv").decode("utf-8-sig")
-        else:
-            raise FileNotFoundError("Каталог не найден. Скачайте datasets/wine-scanner_code-catalog.zip через Git LFS.")
+        if not settings.catalog_archive.is_file():
+            raise FileNotFoundError(f"Каталог не найден: {settings.catalog_archive}. Выполните git lfs pull.")
+        self.archive = ZipFile(settings.catalog_archive)
+        text = self.archive.read("catalog.csv").decode("utf-8-sig")
         self.wines: dict[str, Wine] = {}
         for row in csv.DictReader(io.StringIO(text)):
             slug = row["slug"]
@@ -42,23 +36,14 @@ class Catalog:
                 and all(word in self.search_text[w.slug] for word in words)]
         return {"items": rows[offset:offset + limit], "total": len(rows), "offset": offset, "limit": limit}
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=256)
     def image(self, slug: str) -> tuple[bytes, str]:
         if slug not in self.wines:
             raise KeyError(slug)
-        variants = [("rgba", "webp", "image/webp"), ("rgba", "png", "image/png"), ("rgb", "jpg", "image/jpeg")]
-        for directory, extension, mime in variants:
-            path = self.settings.refs_root / directory / f"{slug}.{extension}"
-            if path.is_file():
-                return path.read_bytes(), mime
-        if self.settings.catalog_archive.is_file():
-            with ZipFile(self.settings.catalog_archive) as archive:
-                for directory, extension, mime in variants:
-                    try:
-                        return archive.read(f"{ARCHIVE_PREFIX}refs/{directory}/{slug}.{extension}"), mime
-                    except KeyError:
-                        pass
-        raise FileNotFoundError(slug)
+        try:
+            return self.archive.read(f"images/{slug}.webp"), "image/webp"
+        except KeyError:
+            raise FileNotFoundError(slug) from None
 
     def featured(self) -> list[Wine]:
         picks = []

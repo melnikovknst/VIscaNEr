@@ -170,9 +170,9 @@ class Sommelier:
                 item = json.loads(line)
                 if not item["problems"] and item["slug"] in self.catalog.wines:
                     self.profiles[item["slug"]] = item["profile"]
-            self.embed_tokenizer = AutoTokenizer.from_pretrained(self.settings.sommelier_embedder_path)
+            self.embed_tokenizer = AutoTokenizer.from_pretrained(self.settings.sommelier_embedder)
             self.embedder = AutoModel.from_pretrained(
-                self.settings.sommelier_embedder_path,
+                self.settings.sommelier_embedder,
                 dtype=torch.float16 if self.device == "cuda" else torch.float32).to(self.device).eval()
             self.embeddings, self.slugs = self._index()
             if not self.remote:

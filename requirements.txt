@@ -1,31 +1,16 @@
-# Core ML stack. A fresh project .venv is used so the system PyTorch is not replaced.
-torch>=2.6,<3
-torchvision>=0.21,<1
-ultralytics>=8.3,<9
-transformers>=5.6,<6
-safetensors>=0.5,<1
-scikit-learn>=1.5,<2
-joblib>=1.4,<2
-
-# Image processing, data handling, and notebook visuals.
-opencv-python>=4.10,<5
-Pillow>=10.4,<13
-matplotlib>=3.9,<4
-pandas>=2.2,<4
-numpy>=1.26,<3
-PyYAML>=6.0,<7
-tqdm>=4.66,<5
-
-# Reproducible Jupyter environment and project kernel.
-jupyterlab>=4.2,<5
-ipykernel>=6.29,<8
-ipython>=8.27,<10
-nbformat>=5.10,<6
-nbclient>=0.10,<1
-ipywidgets>=8.1,<9
-
-# Local browser UI for fast, persistent dataset curation decisions.
-streamlit>=1.49,<2
-
-# Lightweight regression checks for the retrieval and cascade logic.
-pytest>=8.3,<10
+# Runtime dependencies. torch/torchvision are installed separately so the same
+# list serves both GPU (CUDA 12.8) and CPU builds - see Dockerfile and README.
+fastapi==0.141.1
+uvicorn==0.53.0
+python-multipart==0.0.32
+pydantic==2.13.5
+pydantic-settings==2.15.0
+httpx==0.28.1
+Pillow==12.3.0
+numpy==2.5.3
+tqdm==4.70.1
+ultralytics==8.4.161
+transformers==5.17.0
+safetensors==0.8.0
+easyocr==1.7.2
+Unidecode==1.4.0

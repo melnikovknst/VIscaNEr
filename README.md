@@ -1,291 +1,198 @@
-# winescanner · сканер российских вин
+<div align="center">
 
-Веб-приложение для знакомства с российскими винами: мобильный интерфейс, загрузка этикетки, карточка вина, каталог, коллекция, история и подбор вина к блюду. Исходный пайплайн обучения DINOv3 сохранён без изменений.
+# 🍷 winescanner
 
-Каталог и 2103 фотографии настоящие. Пользовательский интерфейс показывает сканер, каталог и карточки без технических статусов и демонстрационных сценариев. Актуальные веса inference хранятся в Git LFS; до подключения локального или удалённого провайдера загрузка возвращает понятное сообщение о временной недоступности и предлагает поиск по каталогу. Случайные результаты, фиктивные проценты точности и рейтинги не используются.
+**Сфотографируйте этикетку — и узнайте вино.**<br>
+Сканер российских вин: 2 103 вина из каталога «Своё вино», ответ за доли секунды,<br>
+честное «не знаю» для вин, которых в каталоге нет, и сомелье, который подберёт вино к ужину.
 
-## Актуальный ML pipeline
+[![CI](https://github.com/melnikovknst/VIscaNEr/actions/workflows/ci.yml/badge.svg)](https://github.com/melnikovknst/VIscaNEr/actions/workflows/ci.yml)
+![Python 3.13](https://img.shields.io/badge/python-3.13-3776AB?logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.11-EE4C2C?logo=pytorch&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-one%20command-2496ED?logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-Текущий выбранный pipeline — residual five-stream Transformer поверх двух
-замороженных Stage-2C DINOv3-B:
+<img src="docs/img/result.png" alt="Результат распознавания: Цимлянское Рислинг найдено за 0.16 секунды" width="900">
+
+</div>
+
+---
+
+## 🚀 Запуск одной командой
+
+Ubuntu 22.04 / 24.04, нужны только `git` и `sudo`:
+
+```bash
+git clone https://github.com/melnikovknst/VIscaNEr.git && cd VIscaNEr && ./run.sh
+```
+
+`run.sh` сам:
+
+1. поставит Docker и Git LFS, если их нет;
+2. скачает веса моделей и каталог (~1 ГБ);
+3. соберёт образ **на GPU**, если есть видеокарта NVIDIA с NVIDIA Container Toolkit, иначе **на CPU**;
+4. дождётся загрузки моделей и напечатает адреса.
+
+Первый запуск занимает 5–10 минут (сборка образа), следующие — секунды.
+
+| Что | Где |
+|---|---|
+| Сайт | http://127.0.0.1:8080 |
+| Эндпоинт для проверки | `POST http://127.0.0.1:8080/v1/eval/predict` |
+| Документация API (Swagger) | http://127.0.0.1:8080/docs |
+
+```bash
+./run.sh logs     # журнал
+./run.sh stop     # остановить
+./run.sh --cpu    # принудительно на CPU
+```
+
+## 🧪 Проверка скриптом организаторов
+
+Сервис принимает фотографию в multipart-поле `image` и возвращает top-1 `slug`:
+
+```bash
+curl -F image=@photo.jpg http://127.0.0.1:8080/v1/eval/predict
+# {"slug":"czimlyanskoe-risling"}
+```
+
+Если вина нет в каталоге или модель не уверена, ответ — `{"slug":null}`: честный отказ
+вместо угадывания.
+
+```bash
+./participant_test.sh \
+  --images-dir ./queries \
+  --manifest ./queries.tsv \
+  --endpoint 'http://127.0.0.1:8080/v1/eval/predict' \
+  --output ./predictions.jsonl
+```
+
+Запросы обрабатываются строго по одному: 0.1–0.4 с на фото на RTX 5070. На CPU
+сервис тоже работает, но медленнее.
+
+## ✨ Что умеет
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/home.png" alt="Главная страница сканера"></td>
+<td width="50%"><img src="docs/img/catalog.png" alt="Каталог вин"></td>
+</tr>
+</table>
+
+- **Сканер этикетки** — загрузите фото или снимите камерой телефона. Можно снимать
+  прямо на полке магазина: сканер выбирает бутылку у центра кадра.
+- **Честные ответы** — уверенно узнанное вино открывается сразу. Если похожих
+  этикеток несколько, сайт предлагает выбрать из кандидатов, а не выдаёт догадку за ответ.
+- **Каталог** на 2 103 вина с поиском по названию, винодельне, сорту и региону.
+- **«К столу»** — подбор вина к блюду. С включённым сомелье выбор объясняет
+  языковая модель, опираясь только на данные каталога; без него работают редакционные правила.
+- **Коллекция и история** сканирований — в браузере посетителя, без регистрации.
+
+## 🧠 Как это работает
+
+```mermaid
+flowchart LR
+    A[📷 Фото] --> B["YOLO11n<br/>бутылка + этикетка<br/>за один проход"]
+    B --> C["DINOv3-B<br/>этикетка"]
+    B --> D["DINOv3-B<br/>бутылка целиком"]
+    B --> E["EasyOCR<br/>ru + en"]
+    C --> F["Кандидаты<br/>top-12 от каждой ветки<br/>≤ 36 вин"]
+    D --> F
+    E --> F
+    F --> G["Residual<br/>Transformer<br/>5 потоков признаков"]
+    G --> H{"уверенность<br/>≥ 0.45?"}
+    H -- да --> I["✅ slug"]
+    H -- нет --> J["🤷 null"]
+```
+
+1. **Детектор** (YOLO11n, дообучен на размеченных фото полок) за один проход находит
+   бутылки и этикетки и выбирает цель: уверенность детектора плюс бонус за близость
+   к вертикальной оси кадра — туда, куда человек наводит камеру.
+2. **Два энкодера DINOv3-B/16**, дообученных на поиск по каталогу: один сравнивает
+   этикетку с эталонными этикетками каталога, второй — бутылку целиком (форма, цвет
+   стекла, капсула).
+3. **EasyOCR** читает текст этикетки; его символьные n-граммы сравниваются с названиями вин.
+4. Каждая ветка предлагает 12 ближайших вин, объединённый пул (до 36) переранжирует
+   **residual Transformer**: он видит все пять потоков признаков запроса и кандидатов
+   и учится исправлять ошибки отдельных веток.
+5. **Уверенность** — softmax по логитам top-10 кандидатов. Ниже порога 0.45 сервис
+   отвечает `null`.
+
+Подробности, форматы весов и обоснование порога — в [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## 📊 Качество
+
+Замеры на фотографиях, которые **не участвовали в обучении**: полки разных магазинов,
+найденные в интернете, и отдельная съёмка полок, из которой в обучение не попал ни один кадр.
+
+| Набор | Фото | Top-1 без порога | Top-1 с порогом 0.45 | Честный `null` для вин вне каталога |
+|---|---:|---:|---:|---:|
+| Полки магазинов из интернета | 130 | 60.0 % | 56.9 % | — |
+| Съёмка полок, вина из каталога | 126 | 58.7 % | 54.8 % | — |
+| Съёмка полок, вина вне каталога | 126 | — | — | 51.6 % |
+
+На полках из интернета правильное вино входит в top-5 кандидатов в 84.6 % случаев,
+в top-10 — в 89.2 %: именно их сайт предлагает выбрать, когда не уверен.
+
+Порог 0.45 — компромисс: он отдаёт ~4 п.п. top-1 ради того, чтобы на половину вин
+вне каталога сервис честно ответил «не знаю». Порог настраивается в `.env`
+(`VISCANER_MIN_CONFIDENCE`): выше — больше честных отказов, ниже — больше ответов.
+
+## ⚙️ Настройки
+
+`run.sh` при первом запуске создаёт `.env` из [.env.example](.env.example). После
+правки перезапустите `./run.sh`.
+
+| Переменная | По умолчанию | Смысл |
+|---|---|---|
+| `PORT` | `8080` | Порт сайта и API |
+| `VISCANER_DEVICE` | `auto` | `auto`, `cuda` или `cpu` |
+| `VISCANER_MIN_CONFIDENCE` | `0.45` | Ниже — `/v1/eval/predict` отвечает `null` |
+| `VISCANER_MIN_SUGGEST_CONFIDENCE` | `0.20` | Ниже — сайт не предлагает кандидатов |
+| `VISCANER_SOMMELIER_ENABLED` | `false` | Включить сомелье на языковой модели |
+| `VISCANER_OPENROUTER_API_KEY` | — | Ключ [OpenRouter](https://openrouter.ai/keys) для сомелье |
+| `VISCANER_OPENROUTER_MODEL` | `anthropic/claude-sonnet-5.5` | Любая чат-модель OpenRouter |
+
+Сомелье по умолчанию выключен, потому что ему нужен ключ API и интернет. С ним
+вкладка «К столу» и карточки вин получают чат, который подбирает вина из каталога
+и объясняет выбор. Поиск по каталогу (bge-m3) идёт локально, во внешний API уходит
+только генерация ответа.
+
+## 🗂 Структура
 
 ```text
-фотография пользователя
-  → один joint YOLO11n forward: bottle + wine_label
-  → DINOv3-B Stage-2C по whole-bottle crop
-  → DINOv3-B Stage-2C по label crop
-  → EasyOCR ru+en по label crop
-  → объединённый пул кандидатов
-  → residual five-stream Transformer
-  → top-k wine_slug
+├── run.sh                    запуск одной командой
+├── Dockerfile, compose*.yaml сборка: React-фронтенд + FastAPI + модели в одном образе
+├── backend/                  FastAPI: сканирование, каталог, история, сомелье, подбор к столу
+├── five_stream_transformer/  инференс: энкодеры DINOv3, OCR-признаки, Transformer
+├── joint_yolo/               детектор бутылки и этикетки, выбор цели в кадре
+├── frontend/                 React + TypeScript + Vite
+├── models/                   веса (Git LFS, ~0.9 ГБ) с описанием и SHA-256
+├── data/                     каталог, эталонные галереи, профили вин для сомелье
+└── docs/                     архитектура и скриншоты
 ```
 
-Пользователь наводит центральное перекрестье на этикетку нужной бутылки. YOLO
-кандидаты получают оценку `confidence + 0.20 × axis_proximity`, где
-`axis_proximity` зависит только от горизонтального расстояния центра bbox до
-вертикальной оси перекрестья. Координата Y и сам факт пересечения bbox с
-перекрестьем бонуса не дают. Поэтому небольшой перевес confidence у явно
-боковой бутылки может быть исправлен, но слабая центральная детекция не победит
-сильную только за счёт геометрии. Если две разные уверенные детекции близки и
-по итоговой оценке, и по расстоянию до вертикальной оси, обе бутылки проходят
-через DINO в одном batch. Для каждого `wine_slug` берётся
-максимальная cosine similarity из двух бутылок, после чего строится единый top-k.
-Во всех остальных случаях DINO получает только одну бутылку. Дальше применяется
-та же политика, на которой собран новый датасет целых бутылок:
-
-- YOLO confidence `>= 0.75` — в DINO передаётся crop бутылки с padding `6%`;
-- YOLO confidence `< 0.75` — в DINO передаётся исходная фотография целиком;
-- если YOLO ничего не нашёл — исходная фотография также передаётся целиком;
-- второй DINO-вход включается только для двух различных боксов с confidence
-  `>= 0.75`, близкими итоговыми scores и расстояниями до вертикальной оси;
-- обе DINO получают square-padded изображение `224×224`;
-- Transformer получает два признака до retrieval-голов, два 256-мерных
-  retrieval embedding и 512-мерный OCR embedding;
-- итоговый `score` является ranking logit, а не вероятностью.
-
-Используемые файлы:
-
-- inference entrypoint: `five_stream_transformer/infer.py`;
-- DINO architecture/transforms: `five_stream_transformer/dino.py`;
-- Transformer architecture: `five_stream_transformer/model.py`;
-- joint YOLO бутылок и этикеток: `models/joint_yolo/best.pt`;
-- полный Stage-2C обеих DINO-B: `models/stage2c/manual_stage2c_best.pt`;
-- residual Transformer: `models/five_stream_transformer/residual_best.pt`;
-- предвычисленные gallery features: `models/five_stream_transformer/gallery_features.pt`;
-- локальные OCR weights: `models/easyocr_ru_en/`;
-- обе galleries: `datasets/inference_galleries.zip`.
-
-После клонирования нужно получить LFS-файлы и установить inference-зависимости:
+## 🛠 Разработка без Docker
 
 ```bash
-git lfs pull
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-inference.txt
+python3 -m venv .venv && source .venv/bin/activate
+pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
+pip install -r requirements.txt pytest
+npm ci && npm run build          # фронтенд в dist/, его отдаёт тот же сервер
+uvicorn backend.main:app --port 8080
 ```
 
-Один снимок:
+`npm run dev` поднимает фронтенд с горячей перезагрузкой на :5173 и API на :8000.
+Тесты: `pytest backend five_stream_transformer joint_yolo`.
 
-```bash
-.venv/bin/python -m five_stream_transformer.infer /path/to/photo.jpg --top-k 5
-```
+## 🔬 История исследований
 
-Целая директория с сохранением JSON:
+Обучение моделей, разметка данных, ноутбуки Kaggle, датасеты и все промежуточные
+эксперименты (каскады, классификаторы бутылок, fusion-MLP) лежат в ветке
+[`development`](https://github.com/melnikovknst/VIscaNEr/tree/development).
 
-```bash
-.venv/bin/python -m five_stream_transformer.infer /path/to/photos \
-  --top-k 5 \
-  --output runs/inference/predictions.json
-```
+---
 
-Репозиторий содержит совместимый предвычисленный gallery cache; при его
-отсутствии или несовпадении подписи обе DINO автоматически перестроят features.
-`device=auto` выбирает CUDA, затем MPS, затем CPU. Полная карта
-файлов и инструкция для backend — [MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md).
-
-## Быстрый запуск
-
-Нужны Python 3.11–3.13 и Node.js 22.12+ (проверено на Python 3.13 и Node 24). Выполняйте команды из корня репозитория.
-
-```powershell
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
-npm.cmd ci
-Copy-Item .env.example .env
-npm.cmd run dev
-```
-
-Открыть **http://127.0.0.1:5173**. Одна команда запускает Vite и FastAPI. Windows: используйте `npm.cmd`, если PowerShell блокирует `npm.ps1`. Если `python` не находится в PATH, укажите полный путь к интерпретатору.
-
-На Linux/macOS: `python3 -m venv .venv`, `.venv/bin/pip install -r backend/requirements.txt`, `npm ci`, `cp .env.example .env`, `npm run dev`.
-
-Каталог загружается прямо из `datasets/wine-scanner_code-catalog.zip`, распаковка не нужна. Если вместо архива лежит указатель LFS:
-
-```sh
-git lfs pull --include="datasets/wine-scanner_code-catalog.zip"
-```
-
-### Одна точка входа для демонстрации
-
-```powershell
-npm.cmd run build
-.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
-```
-
-Интерфейс: **http://127.0.0.1:8000**. Swagger: **http://127.0.0.1:8000/docs**. Все шрифты и изображения локальные; в demo/local режимах внешний интернет приложению не нужен. Ссылка «Карточка источника» открывает исходную запись во внешнем каталоге.
-
-Для телефона в той же сети запустите backend с `--host 0.0.0.0` и откройте `http://<IP-компьютера>:8000`. Кнопка камеры использует системный выбор фото с `capture="environment"`; на компьютере и в некоторых браузерах откроется выбор файла. Продаж и оплаты в приложении нет.
-
-## Подключение модели
-
-### Актуальный five-stream Transformer
-
-Для нового backend использовать `FiveStreamInferencePipeline` из
-`five_stream_transformer/infer.py`; готовые команды и все пути приведены в
-[MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md). Существующий
-`LocalProvider` ниже оставлен для совместимости со старым bottle-only режимом и
-не является новым Transformer pipeline. Transformer можно встроить напрямую в
-GPU-процесс или вынести в отдельный HTTP inference service и подключить как
-`remote` provider.
-
-### Legacy-вариант A — bottle-only LocalProvider
-
-Установить дополнительные зависимости (на машине с GPU заранее выбрать подходящую CUDA-сборку PyTorch):
-
-```powershell
-.venv\Scripts\python.exe -m pip install -r backend/requirements-local.txt
-```
-
-В `.env`:
-
-```dotenv
-VISCANER_MODEL_PROVIDER=local
-VISCANER_CHECKPOINT_PATH=models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt
-VISCANER_GALLERY_PATH=runs/inference/dinov3_vitb16_bottles_gallery.pt
-VISCANER_DEVICE=auto
-VISCANER_DETECTOR_PATH=models/joint_yolo/best.pt
-```
-
-Потребуются обученный checkpoint и gallery, построенная именно этой версией
-модели. Gallery cache автоматически создаётся первым запуском `infer_wine.py`.
-Web-provider использует тот же confidence + vertical-axis YOLO selector,
-fallback `< 0.75` и DINOv3-B, что и основной CLI. Исходный
-`model.safetensors` backend-провайдеру отдельно не требуется: обученный
-checkpoint содержит backbone.
-
-Форматы из текущего обучения:
-
-- `best.pt`: `model_state_dict`, `config`, `epoch` (обычный deployable checkpoint, **не** `last.pt` со всем состоянием optimizer/RNG).
-- `gallery_embeddings.pt`: `embeddings` `[N,D]`, `wine_slugs` `[N]`; `labels` и `paths` могут присутствовать. Одна строка на уникальный slug, все slug должны существовать в каталоге.
-- `DEVICE=auto` выбирает CUDA, затем MPS, затем CPU. Можно указать `cpu` или `cuda:0`.
-
-Модель загружается и прогревается один раз при старте. YOLO выбирает целевую
-бутылку прежде всего по confidence; уверенный box кропается, а при confidence
-ниже `0.75` используется исходное фото. После замены весов перезапустите
-backend. `/api/health` покажет ошибку загрузки, а каталог останется доступен.
-
-### Вариант B — HTTP API коллег
-
-```dotenv
-VISCANER_MODEL_PROVIDER=remote
-VISCANER_REMOTE_URL=http://127.0.0.1:9000/predict
-VISCANER_REMOTE_API_KEY=
-VISCANER_TIMEOUT_SECONDS=30
-```
-
-Backend отправляет **POST multipart/form-data**: поле `file` — нормализованное JPEG, поле `top_k=5`. При наличии ключа добавляет `Authorization: Bearer ...`. `REMOTE_URL` — полный URL обработчика, суффикс не дописывается. Пример ответа:
-
-```json
-{
-  "model_version": "dinov3-run-2026-09-20",
-  "abstain": false,
-  "candidates": [
-    {"slug": "slug-iz-catalog-csv", "similarity": 0.91},
-    {"slug": "drugoy-slug-iz-catalog-csv", "similarity": 0.72}
-  ]
-}
-```
-
-Нужны до пяти реальных кандидатов и **cosine similarity в диапазоне [-1,1]**. Значения не являются вероятностями. Один кандидат без ближайшего конкурента не подтверждает достаточный отрыв и приводит к `uncertain`. `abstain=true` принудительно означает отсутствие достоверного результата. Пустой список допустим. Неизвестный slug, некорректный ответ, таймаут и ошибка сети возвращают понятный `503`; demo-подмена не выполняется. Если API коллег отличается, точка адаптации — `RemoteProvider.predict()` в `backend/providers.py`.
-
-В remote-режиме `model_status=configured` означает корректную настройку, а не проверенную доступность внешнего сервиса; фактический ответ проверяется при сканировании.
-
-## API
-
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET | `/api/health` | Режим, готовность модели, число вин |
-| POST | `/api/scan` | Фото в поле `file` → карточка, top-5, similarity, margin, время, метрики |
-| POST | `/predict` | Фото в поле `file` → строго `{"slug":"..."}` или `{"slug":null}` |
-| POST | `/api/demo` | Технический пример для интеграции, не используется пользовательским интерфейсом |
-| GET | `/api/catalog?q=рислинг&category=Белое&offset=0&limit=24` | Поиск/фильтр/пагинация |
-| GET | `/api/catalog/meta` | Категории, число вин и виноделен, подборка |
-| GET | `/api/catalog/{slug}` | Карточка вина |
-| GET | `/api/catalog/{slug}/image` | Фото из локального каталога |
-| GET / DELETE | `/api/history` | История текущей cookie-сессии / её очистка |
-| POST | `/api/pairing` | `{ "dish": "fish", "preference": "any" }` → вина к блюду |
-| GET | `/api/metrics` | Результаты измеренного прогона или `null` до оценки |
-
-```sh
-curl -F "file=@label.jpg" http://127.0.0.1:8000/predict
-```
-
-На Windows используйте `curl.exe`. Алиас `/api/predict` поддерживает тот же формат. Название multipart-поля проверяйте по скрипту кейсодержателя, когда он будет передан: сейчас согласованный контракт — `file`. `/predict` не пишет историю. В режиме demo он возвращает `503`, а не выдуманный slug.
-
-Состояния `/api/scan`: `matched` — одна итоговая карточка, `uncertain` — недостаточный отрыв, `not_found` — низкое сходство/отказ. Похожие вина показываются только при отсутствии подтверждённого совпадения. Уверенный результат сразу открывает одну карточку.
-
-## Настройки
-
-Все параметры имеют префикс `VISCANER_`; шаблон — `.env.example`.
-
-| Переменная | По умолчанию | Значение |
-|---|---|---|
-| `MODEL_PROVIDER` | `demo` | `demo`, `local`, `remote` |
-| `MIN_SIMILARITY` | `0.65` | Минимальный cosine score |
-| `MIN_MARGIN` | `0.04` | Минимальная разница top-1 и top-2 |
-| `MAX_UPLOAD_MB` | `12` | Ограничение фото |
-| `MAX_PIXELS` | `24000000` | Защита от чрезмерного разрешения |
-| `DATA_DIR` | `backend/data` | SQLite-история и отчёт оценки |
-| `HISTORY_LIMIT` | `100` | Последних результатов на сессию |
-| `CATALOG_PATH` | `datasets/wine-scanner/data/catalog.csv` | CSV имеет приоритет перед архивом |
-| `CATALOG_ARCHIVE` | `datasets/wine-scanner_code-catalog.zip` | Архив каталога и изображений |
-| `REFS_ROOT` | `datasets/wine-scanner/data/refs` | Распакованные `rgba/*.webp`, `rgb/*.jpg` |
-
-Пороги предварительные: коллеги должны откалибровать их на отложенных полевых фото. **Точность 90–100% и SLA 3 секунды пока не измерены.**
-
-## Оценка и проверки
-
-```powershell
-.venv\Scripts\python.exe -m pip install -r backend/requirements-dev.txt
-.venv\Scripts\python.exe -m pytest backend/tests -q
-npm.cmd run build
-# При запущенном backend в demo-режиме, в отдельном терминале:
-npm.cmd run test:e2e
-```
-
-Браузерные тесты запускаются в изолированном Edge (нужен установленный Microsoft Edge), проверяют desktop и iPhone viewport. Скриншоты — `tmp/ui-*.png`. Для CI с Chromium замените `channel` в `playwright.config.ts` и установите браузер через `npx playwright install chromium`.
-
-После подключения реальной модели распакуйте `datasets/real_photos_v4.zip` и запустите:
-
-```powershell
-.venv\Scripts\python.exe -m scripts.evaluate_api --labels datasets/real_photos_v4/labels.csv --images datasets/real_photos_v4/queries
-```
-
-Исходные метки `real_photos_v4` местами ошибочны. Переразметка всех 918 фото лежит в
-`evaluation/relabel/` (журнал решений с причинами) и экспортируется в
-`evaluation/real_photos_v4_relabeled.csv`: у фото с несколькими бутылками или с
-дублирующимися карточками каталога несколько верных ответов, фото без целевой бутылки
-исключены. Пороги подбираются на половине `selection`, честная цифра — на `report`:
-
-```powershell
-.venv\Scripts\python.exe -m scripts.evaluate_relabeled
-.venv\Scripts\python.exe -m scripts.evaluate_api --labels evaluation/real_photos_v4_relabeled.csv --images datasets/real_photos_v4/queries --split report
-```
-
-Скрипт считает top-1 micro-F1, set-retrieval micro-F1@5, Recall@5, точность с учётом честных отказов, coverage, медиану и p95 времени. Ошибки не выбрасываются из знаменателя; при них код выхода 1. Формулы сохранены в отчёте. **F1@5 и Recall@5 — разные метрики**: для сравнения с организаторами используйте их окончательное определение и официальный оценщик.
-
-Отчёт `backend/data/evaluation.json` доступен в `/api/metrics` и в ответах сканера, с флагом соответствия версии модели. Без прогона F1 равен `null`: по одному запросу без правильного ответа измерить F1 нельзя. Demo-режим оценщик отклоняет.
-
-## Docker
-
-```sh
-docker compose up --build
-```
-
-Открыть `http://127.0.0.1:8000`. Архив каталога монтируется read-only; история — в named volume. Этот лёгкий образ рассчитан на **demo/remote**. Локальную GPU-модель запускайте нативно или отдельным inference-сервисом: CUDA-окружение зависит от машины. Конфигурация Docker добавлена, запуск Docker в текущем окружении не проверялся.
-
-## Границы текущей версии
-
-- Актуальные YOLO, Stage-2C DINO-B, EasyOCR и residual Transformer веса переданы через Git LFS; единый локальный inference CLI проверен end-to-end. Интеграция этого класса в конкретный production HTTP runtime остаётся задачей backend-развёртывания.
-- В CSV нет рейтинга Роскачества: карточка честно показывает отсутствие данных.
-- «К столу» использует понятные правила по стилям вина, а не LLM; это общие сочетания, не индивидуальная оценка конкретной бутылки.
-- Коллекция хранится в localStorage, история — в SQLite по HttpOnly cookie. Авторизации и синхронизации между устройствами нет. История ограничена 100 записями/сессию; записи старше 30 дней удаляются при следующей записи.
-- Фото не сохраняются в приложении; multipart может временно буферизоваться библиотекой. В remote-режиме нормализованное фото передаётся только настроенному сервису модели.
-- Один процесс backend и одна одновременная операция inference: конкурентный запрос получает `429`. Нагрузочная инфраструктура, публичная авторизация и распределённые очереди не входят в локальное демо.
-
-Архитектура — [ARCHITECTURE.md](ARCHITECTURE.md). Обучение label-DINO — [README_FULL_TRAINING.md](README_FULL_TRAINING.md). Whole-bottle ambiguity classifiers — [BOTTLE_CLASSIFIER.md](BOTTLE_CLASSIFIER.md). Датасеты и ограничения использования фотографий — [DATASETS.md](DATASETS.md).
-
-Точная карта актуальных YOLO/DINO/OCR inference-файлов и весов для передачи
-другому разработчику — [MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md).
-
-Финальный однопроходный detector, одновременно возвращающий бутылку и её
-этикетку, находится в [joint_yolo/README.md](joint_yolo/README.md).
+<div align="center">
+Кейс «Своё вино» · РСХБ.Цифра · ЛЦТ 2026 · <a href="LICENSE">MIT</a>
+</div>

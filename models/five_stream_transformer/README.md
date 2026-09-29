@@ -8,7 +8,7 @@ It is not a standalone image encoder. It must be loaded with:
 - `models/stage2c/manual_stage2c_best.pt` — both complete frozen DINOv3-B branches;
 - `models/joint_yolo/best.pt` — joint bottle/label detector;
 - `models/easyocr_ru_en/` — local-only Russian/English OCR weights;
-- `datasets/inference_galleries.zip` — aligned 2,103-label and bottle references.
+- `data/inference_galleries.zip` — aligned 2,103-label and bottle references.
 
 `gallery_features.pt` is the matching precomputed gallery cache. It makes the
 first server start fast; the inference code validates its Stage-2C and gallery
@@ -22,5 +22,5 @@ The checkpoint expects five streams and a candidate pool of at most 36 wines:
 4. label retrieval embedding, 256 values;
 5. OCR character-ngram embedding, 512 values.
 
-Use `python -m five_stream_transformer.infer`; do not load this file through
-the legacy `infer_wine.py` bottle-only entrypoint.
+Use `python -m five_stream_transformer.infer` or `FiveStreamInferencePipeline`
+from that module; the web service loads it through `backend/providers.py`.

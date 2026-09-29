@@ -18,7 +18,6 @@ from backend.catalog import Catalog
 from backend.config import ROOT, Settings
 from backend.pairing import recommend, recommend_llm
 from backend.sommelier import Sommelier, SommelierUnavailable
-from backend.metrics import read_metrics
 from backend.providers import ModelUnavailable, create_provider
 from backend.schemas import (Match, PairingRequest, Prediction, ScanResult, SommelierAnswer,
                              SommelierRequest)
@@ -77,51 +76,33 @@ def decode_image(content: bytes, settings: Settings) -> Image.Image:
 
 
 def resolve_prediction(prediction: Prediction, catalog: Catalog, settings: Settings, elapsed_ms: int) -> ScanResult:
-    # Never skip an unknown top-1 and silently promote a lower-ranked identity.
-    if prediction.ranked:
-        # The provider already decided the order (a cascade may have swapped
-        # its top two); keep it, dropping only repeated slugs.
-        seen: set[str] = set()
-        candidates = [c for c in prediction.candidates if not (c.slug in seen or seen.add(c.slug))][:5]
-    else:
-        unique = {c.slug: c for c in sorted(prediction.candidates, key=lambda c: c.similarity)}
-        candidates = sorted(unique.values(), key=lambda c: c.similarity, reverse=True)[:5]
+    # Keep the pipeline's order, dropping repeated slugs. Never skip an unknown
+    # top-1 and silently promote a lower-ranked wine.
+    seen: set[str] = set()
+    candidates = [c for c in prediction.candidates if not (c.slug in seen or seen.add(c.slug))][:5]
     if any(c.slug not in catalog.wines for c in candidates):
         raise ModelUnavailable("Каталог и модель не синхронизированы. В ответе есть неизвестное вино.")
     top = candidates[0] if candidates else None
-    if prediction.decision_margin is not None:
-        margin = prediction.decision_margin
-    else:
-        margin = top.similarity - candidates[1].similarity if len(candidates) > 1 else None
-    # Each stage is judged by its own separation. After the bottle model ran,
-    # stage 1 was a near tie by construction, so its margin cannot gate the answer.
-    required_margin = settings.min_resolver_margin if prediction.decision_basis == "resolver" else settings.min_margin
-    min_similarity, min_suggest = settings.min_similarity, settings.min_suggest_similarity
-    if settings.model_provider == "five_stream":
-        # A softmax confidence already accounts for the runner-up; no separate margin gate.
-        min_similarity, min_suggest = settings.five_stream_min_confidence, settings.five_stream_min_suggest_confidence
-        required_margin = 0.0
+    margin = top.confidence - candidates[1].confidence if len(candidates) > 1 else None
     status = "not_found"
     message = "Не удалось найти вино. Снимите этикетку крупнее, без бликов и соседних бутылок."
     wine = None
     uncertain_message = "Есть несколько похожих этикеток. Снимите название и год крупнее — пока точный результат не подтверждён."
-    if top and not prediction.abstain and top.similarity >= min_similarity:
-        # A single candidate does not demonstrate separation from near-duplicates.
-        if margin is not None and margin >= required_margin:
+    if top and not prediction.abstain and top.confidence >= settings.min_confidence:
+        if margin is None or margin >= settings.min_margin:
             status, wine, message = "matched", catalog.wines[top.slug], "Вино найдено в каталоге."
         else:
             status, message = "uncertain", uncertain_message
-    elif (top and not prediction.abstain and min_suggest is not None
-          and top.similarity >= min_suggest):
-        # Too weak to answer, but the right wine is usually among the candidates:
+    elif (top and not prediction.abstain and settings.min_suggest_confidence is not None
+          and top.confidence >= settings.min_suggest_confidence):
+        # Too weak to answer, but the right wine is often among the candidates:
         # let the visitor pick rather than report a failure.
         status, message = "uncertain", uncertain_message
     return ScanResult(id=str(uuid4()), status=status, wine=wine,
-        candidates=[Match(wine=catalog.wines[c.slug], similarity=c.similarity) for c in candidates],
-        similarity=top.similarity if top else None, margin=margin, elapsed_ms=elapsed_ms,
+        candidates=[Match(wine=catalog.wines[c.slug], confidence=c.confidence) for c in candidates],
+        confidence=top.confidence if top else None, margin=margin, elapsed_ms=elapsed_ms,
         model_version=prediction.model_version, provider=settings.model_provider,
-        created_at=datetime.now(timezone.utc).isoformat(), message=message,
-        decision_basis=prediction.decision_basis, pipeline=prediction.pipeline)
+        created_at=datetime.now(timezone.utc).isoformat(), message=message, pipeline=prediction.pipeline)
 
 
 def create_app(settings: Settings | None = None, provider_override=None) -> FastAPI:
@@ -135,7 +116,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
         app.state.inference_lock = asyncio.Lock()
         try:
             app.state.provider = provider_override or await run_in_threadpool(create_provider, settings)
-            if settings.model_provider in {"local", "cascade", "five_stream"} and hasattr(app.state.provider, "slugs"):
+            if hasattr(app.state.provider, "slugs"):
                 if set(app.state.provider.slugs) - app.state.catalog.wines.keys():
                     raise ValueError("Галерея содержит slug, отсутствующие в каталоге")
         except Exception:
@@ -158,7 +139,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
         yield
 
     app = FastAPI(title="winescanner API", version="1.0.0", lifespan=lifespan,
-                  description="Сканер российских вин. /predict — плоский ответ для оценщика; /api/scan — полная карточка.")
+                  description="Сканер российских вин. /v1/eval/predict — top-1 slug для проверки; /api/scan — полная карточка.")
     app.add_middleware(BodyLimitMiddleware, limit=settings.max_upload_mb * 1024 * 1024 + 65536)
 
     @app.exception_handler(ModelUnavailable)
@@ -177,7 +158,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
     def health():
         ready = app.state.provider is not None and settings.model_provider != "demo"
         return {"status": "ok", "provider": settings.model_provider, "model_ready": ready,
-                "model_status": "error" if app.state.model_error else ("demo" if settings.model_provider == "demo" else "configured" if settings.model_provider == "remote" else "ready"),
+                "model_status": "error" if app.state.model_error else ("demo" if settings.model_provider == "demo" else "ready"),
                 "message": app.state.model_error, "catalog_count": len(app.state.catalog.items),
                 "max_upload_mb": settings.max_upload_mb}
 
@@ -185,10 +166,6 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
     def catalog(q: str = Query("", max_length=200), category: str = "",
                 offset: int = Query(0, ge=0), limit: int = Query(24, ge=1, le=100)):
         return app.state.catalog.search(q, category, offset, limit)
-
-    @app.get("/api/metrics")
-    def metrics():
-        return read_metrics(settings.data_dir / "evaluation.json")
 
     @app.get("/api/catalog/meta")
     def catalog_meta():
@@ -232,10 +209,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
             except Exception as exc:
                 logger.exception("Inference failed")
                 raise ModelUnavailable("Не удалось обработать фото. Проверьте сервис модели и попробуйте снова.") from exc
-        result = resolve_prediction(prediction, app.state.catalog, settings, round((time.perf_counter() - start) * 1000))
-        report = read_metrics(settings.data_dir / "evaluation.json")
-        result.metrics = {**report, "matches_model_version": prediction.model_version in report.get("model_versions", [])}
-        return result
+        return resolve_prediction(prediction, app.state.catalog, settings, round((time.perf_counter() - start) * 1000))
 
     @app.post("/api/scan", response_model=ScanResult)
     async def scan(request: Request, response: Response, file: UploadFile = File(...)):
@@ -249,7 +223,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
     @app.post("/api/predict", include_in_schema=False)
     async def predict(image: UploadFile | None = File(None), file: UploadFile | None = File(None)):
         # The organisers' participant_test.sh sends the multipart field "image";
-        # "file" is kept for the earlier evaluator contract.
+        # "file" is accepted as well. null is an honest "not in the catalog".
         upload = image or file
         if upload is None:
             raise HTTPException(422, "Передайте изображение в multipart-поле image.")
@@ -259,7 +233,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
     @app.post("/api/demo", response_model=ScanResult)
     def demo(request: Request, response: Response):
         result = ScanResult(id=str(uuid4()), status="demo", wine=app.state.catalog.featured()[0],
-            candidates=[], similarity=None, margin=None, elapsed_ms=0, model_version="example",
+            candidates=[], confidence=None, margin=None, elapsed_ms=0, model_version="example",
             provider="demo", created_at=datetime.now(timezone.utc).isoformat(),
             message="Пример карточки из каталога. Это демонстрация интерфейса, а не результат распознавания.")
         app.state.history.save(session_id(request, response), result)

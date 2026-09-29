@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    name: Python tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -r requirements.txt pytest
+      - run: pytest backend five_stream_transformer joint_yolo -q
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+  launcher:
+    name: run.sh lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n run.sh && shellcheck run.sh
+
+  docker:
+    name: Docker image (CPU)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --build-arg TORCH_INDEX=https://download.pytorch.org/whl/cpu -t winescanner .
+      - name: Pipeline modules import inside the image
+        run: docker run --rm winescanner python -c "import backend.main, five_stream_transformer.infer, joint_yolo.infer, easyocr; print('ok')"

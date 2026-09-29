@@ -19,28 +19,23 @@ class Wine(BaseModel):
 
 class Candidate(BaseModel):
     slug: str = Field(min_length=1, max_length=300)
-    similarity: float = Field(ge=-1, le=1, allow_inf_nan=False)
+    # Softmax over the Transformer's top-10 ranking logits: 0..1, not a calibrated probability.
+    confidence: float = Field(ge=0, le=1, allow_inf_nan=False)
 
 
 class Prediction(BaseModel):
+    # Best first, as the recognition pipeline ranked them.
     candidates: list[Candidate] = Field(default_factory=list, max_length=20)
     model_version: str = Field(default="unknown", max_length=100)
-    # Explicit abstention from an upstream detector takes precedence over scores.
+    # The pipeline found nothing to rank.
     abstain: bool = False
-    # A cascade returns candidates already in their final order: re-sorting by
-    # stage-1 similarity would undo a stage-2 decision.
-    ranked: bool = False
-    # Which stage made the call, and the margin that stage decided by. Absent
-    # for single-stage providers, where top1 - top2 similarity is the margin.
-    decision_basis: Literal["label", "resolver"] = "label"
-    decision_margin: float | None = Field(default=None, ge=0, le=2, allow_inf_nan=False)
-    # Boxes, detector confidences and stage-2 details, for the result screen.
+    # Detections, OCR text and raw logits, for debugging the result screen.
     pipeline: dict | None = None
 
 
 class Match(BaseModel):
     wine: Wine
-    similarity: float
+    confidence: float
 
 
 class ScanResult(BaseModel):
@@ -48,17 +43,14 @@ class ScanResult(BaseModel):
     status: Literal["matched", "uncertain", "not_found", "demo"]
     wine: Wine | None
     candidates: list[Match]
-    similarity: float | None
+    confidence: float | None
     margin: float | None
     elapsed_ms: int
     model_version: str
     provider: str
     created_at: str
     message: str
-    decision_basis: Literal["label", "resolver"] = "label"
     pipeline: dict | None = None
-    # F1 is a dataset metric, never an individual prediction probability.
-    metrics: dict = Field(default_factory=lambda: {"f1_top1": None, "f1_top5": None, "source": "not_evaluated"})
 
 
 class SommelierRequest(BaseModel):

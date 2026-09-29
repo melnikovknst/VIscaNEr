@@ -1,0 +1,10 @@
+# Added by run.sh when an NVIDIA GPU and the NVIDIA Container Toolkit are available.
+services:
+  winescanner:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

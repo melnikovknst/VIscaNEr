@@ -154,6 +154,15 @@ def test_cascade_duplicate_slugs_keep_first_position(settings):
         assert [c["wine"]["slug"] for c in result["candidates"]] == ["white", "red"]
 
 
+def test_organisers_eval_endpoint_takes_the_image_field(client):
+    # participant_test.sh: POST multipart "image" to /v1/eval/predict, top-1 {"slug": ...}.
+    response = client.post("/v1/eval/predict", files={"image": ("q.jpg", photo(), "image/jpeg")})
+    assert response.status_code == 200 and response.json() == {"slug": "red"}
+    assert client.post("/predict", files={"image": ("q.jpg", photo())}).json() == {"slug": "red"}
+    assert client.post("/v1/eval/predict", files={"other": ("q.jpg", photo())}).status_code == 422
+    assert len(client.get("/api/history").json()["items"]) == 0  # Evaluation doesn't pollute history.
+
+
 def test_explicit_abstention_and_empty_candidates(settings):
     for result in [prediction(abstain=True), Prediction(), Prediction(candidates=[Candidate(slug="red", similarity=.99)])]:
         with TestClient(create_app(settings, StubProvider(result))) as client:

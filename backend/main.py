@@ -244,10 +244,16 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
         await run_in_threadpool(app.state.history.save, sid, result)
         return result
 
+    @app.post("/v1/eval/predict")
     @app.post("/predict")
     @app.post("/api/predict", include_in_schema=False)
-    async def predict(file: UploadFile = File(...)):
-        result = await scan_image(file)
+    async def predict(image: UploadFile | None = File(None), file: UploadFile | None = File(None)):
+        # The organisers' participant_test.sh sends the multipart field "image";
+        # "file" is kept for the earlier evaluator contract.
+        upload = image or file
+        if upload is None:
+            raise HTTPException(422, "Передайте изображение в multipart-поле image.")
+        result = await scan_image(upload)
         return {"slug": result.wine.slug if result.wine else None}
 
     @app.post("/api/demo", response_model=ScanResult)

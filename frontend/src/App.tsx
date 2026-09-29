@@ -1655,9 +1655,11 @@ function SommelierChat({
             {wine ? "Сомелье подскажет, как его подать" : "Что будем пить сегодня?"}
           </h2>
           <small>
-            {status.ready
-              ? "Локальная модель YandexGPT-5 Lite. Отвечает только по данным каталога."
-              : "Сомелье просыпается — это займёт около минуты…"}
+            {!status.ready
+              ? "Сомелье просыпается — это займёт около минуты…"
+              : status.remote
+                ? "Языковая модель через OpenRouter. Отвечает только по данным каталога."
+                : "Локальная модель YandexGPT-5 Lite. Отвечает только по данным каталога."}
           </small>
         </div>
       </div>
@@ -2030,12 +2032,28 @@ function Sommelier({ card }: { card: (wine: Wine) => ReactNode }) {
             </span>
             <div>
               <h2>{result.title}</h2>
-              <p>{result.explanation}</p>
+              {result.cited ? (
+                <SommelierText
+                  text={result.explanation}
+                  numbers={new Map(result.cited.map((n, index) => [n, index + 1]))}
+                />
+              ) : (
+                <p>{result.explanation}</p>
+              )}
               <small>{result.note}</small>
             </div>
           </div>
           {result.wines.length ? (
-            <div className="wine-grid">{result.wines.map(card)}</div>
+            <div className={`wine-grid ${result.cited ? "sommelier-wines" : ""}`}>
+              {result.cited
+                ? result.wines.map((w, index) => (
+                    <div key={w.slug} className="sommelier-pick">
+                      <span className="sommelier-cite">{index + 1}</span>
+                      {card(w)}
+                    </div>
+                  ))
+                : result.wines.map(card)}
+            </div>
           ) : (
             <Empty
               icon={WineIcon}

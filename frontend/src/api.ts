@@ -48,6 +48,8 @@ export interface SommelierStatus {
   enabled: boolean;
   ready: boolean;
   error: string | null;
+  remote?: boolean;
+  model?: string | null;
 }
 export interface SommelierAnswer {
   answer: string;
@@ -62,6 +64,9 @@ export interface Pairing {
   temperature: string;
   note: string;
   wines: Wine[];
+  /** "llm": explanation is the sommelier's answer with [N] citations of `cited`. */
+  method?: "editorial_rules" | "llm";
+  cited?: number[];
 }
 
 export async function api<T>(

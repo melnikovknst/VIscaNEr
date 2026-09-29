@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="VISCANER_", env_file=ROOT / ".env", extra="ignore")
 
-    model_provider: Literal["demo", "local", "cascade", "remote"] = "demo"
+    model_provider: Literal["demo", "local", "cascade", "five_stream", "remote"] = "demo"
     catalog_path: Path = ROOT / "datasets/wine-scanner/data/catalog.csv"
     catalog_archive: Path = ROOT / "datasets/wine-scanner_code-catalog.zip"
     refs_root: Path = ROOT / "datasets/wine-scanner/data/refs"
@@ -37,6 +37,16 @@ class Settings(BaseSettings):
     ambiguity_margin: float = Field(default=0.01525, ge=0, le=1)
     # Separation the bottle model must show before its answer is accepted.
     min_resolver_margin: float = Field(default=0.02, ge=0, le=2)
+    # Five-stream Transformer (provider "five_stream", MODEL_INFERENCE_HANDOFF.md).
+    # Its confidence is the softmax over the Transformer's ranking logits of the
+    # top-10 candidates - not the cosine similarity the other providers report,
+    # so it has its own thresholds. Chosen on store_shelves_v1 (126 catalog /
+    # 126 out-of-catalog shelf crops): at 0.45 top-1 drops 58.7% -> 54.8% while
+    # 51.6% of out-of-catalog wines get null; on store_shelves_web top-1 is
+    # 56.9% (60.0% unthresholded), on Manual-211 out-of-catalog 45.9% null.
+    five_stream_min_confidence: float = Field(default=0.45, ge=0, le=1)
+    # Below min_confidence but at or above this, candidates are offered as a choice.
+    five_stream_min_suggest_confidence: float | None = Field(default=0.20, ge=0, le=1)
     device: str = "auto"
     remote_url: str = ""
     remote_api_key: SecretStr = SecretStr("")
@@ -51,6 +61,13 @@ class Settings(BaseSettings):
     history_limit: int = Field(default=100, ge=1, le=1000)
     # Local LLM sommelier (backend/sommelier.py). Off unless the weights are present.
     sommelier_enabled: bool = False
+    # Who writes the answer. Retrieval (bge-m3 over the catalog) always runs locally.
+    # local: YandexGPT-5 Lite, 4-bit, ~6.5 GB GPU. openrouter: any chat model via
+    # the OpenRouter API; no LLM weights are loaded.
+    sommelier_backend: Literal["local", "openrouter"] = "local"
+    openrouter_api_key: SecretStr = SecretStr("")
+    openrouter_model: str = "anthropic/claude-sonnet-5.5"
+    openrouter_url: str = "https://openrouter.ai/api/v1/chat/completions"
     sommelier_llm_path: Path = ROOT / "models/llm/yandexgpt5-lite-8b-instruct"
     sommelier_embedder_path: Path = ROOT / "models/llm/bge-m3"
     sommelier_profiles_path: Path = ROOT / "runs/sommelier/profiles.jsonl"

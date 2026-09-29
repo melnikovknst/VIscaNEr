@@ -12,6 +12,25 @@ RULES = {
 PREFERENCES = {"red": "Красное", "white": "Белое", "rose": "Розовое", "sparkling": "Игристое"}
 
 
+DISHES = {"meat": "мясу и блюдам на гриле", "fish": "рыбе и морепродуктам", "cheese": "сырной тарелке",
+          "vegetables": "овощам на гриле и салатам", "dessert": "десерту"}
+STYLES = {"red": "красное", "white": "белое", "rose": "розовое", "sparkling": "игристое"}
+
+
+def pairing_question(request: PairingRequest) -> str:
+    style = STYLES.get(request.preference, "")
+    return f"Подбери {style + ' ' if style else ''}вино к {DISHES[request.dish]}."
+
+
+def recommend_llm(sommelier, request: PairingRequest):
+    """The same choice through the LLM sommelier: wines picked for the dish, with reasons."""
+    answer = sommelier.ask(pairing_question(request))
+    _, title, _, temperature = RULES[request.dish]
+    return {"title": title, "explanation": answer["answer"], "temperature": temperature,
+            "note": "Рекомендация сомелье по данным каталога. Учитывайте соус и способ приготовления.",
+            "method": "llm", "model": answer["model"], "wines": answer["wines"], "cited": answer["cited"]}
+
+
 def recommend(catalog: Catalog, request: PairingRequest):
     category, title, explanation, temperature = RULES[request.dish]
     if request.preference != "any":

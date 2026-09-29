@@ -129,6 +129,24 @@ def test_each_stage_is_judged_by_its_own_margin(settings, basis, margin, expecte
         assert client.post("/api/scan", files={"file": ("a.jpg", photo())}).json()["status"] == expected
 
 
+@pytest.mark.parametrize("probs,expected", [
+    # Softmax confidence, no margin gate: a clear-enough top-1 is answered even
+    # when the runner-up is close.
+    ((.50, .45), "matched"),
+    ((.30, .10), "uncertain"),
+    ((.15, .10), "not_found"),
+])
+def test_five_stream_uses_its_own_confidence_thresholds(settings, probs, expected):
+    settings = settings.model_copy(update={"model_provider": "five_stream"})
+    response = Prediction(candidates=[Candidate(slug="red", similarity=probs[0]),
+                                      Candidate(slug="white", similarity=probs[1])],
+                          model_version="five-stream-test", ranked=True, decision_margin=probs[0] - probs[1])
+    with TestClient(create_app(settings, StubProvider(response))) as client:
+        assert client.post("/api/scan", files={"file": ("a.jpg", photo())}).json()["status"] == expected
+        assert client.post("/predict", files={"file": ("a.jpg", photo())}).json() == {
+            "slug": "red" if expected == "matched" else None}
+
+
 def test_cascade_duplicate_slugs_keep_first_position(settings):
     response = cascade([("white", .80), ("red", .81), ("white", .70)], basis="resolver", margin=.05)
     with TestClient(create_app(settings, StubProvider(response))) as client:
@@ -215,6 +233,34 @@ def test_pairing_uses_catalog_and_respects_preferences(client):
     assert client.post("/api/pairing", json={"dish": "unknown"}).status_code == 422
     result = client.post("/api/pairing", json={"dish": "fish", "preference": "red"}).json()
     assert result["wines"][0]["category"] == "Красное"
+
+
+class FakeSommelier:
+    ready, remote, model_name = True, True, "fake"
+
+    def __init__(self, fail=False):
+        self.fail, self.questions = fail, []
+
+    def ask(self, question, wine_slug=None):
+        self.questions.append(question)
+        if self.fail:
+            raise RuntimeError("LLM down")
+        return {"answer": "Возьмите [2].", "wines": [self.wine], "cited": [2], "model": "fake"}
+
+
+def test_pairing_goes_through_the_sommelier_and_falls_back_to_rules(settings):
+    app = create_app(settings, StubProvider(prediction()))
+    with TestClient(app) as client:
+        sommelier = FakeSommelier()
+        sommelier.wine = app.state.catalog.wines["red"]
+        app.state.sommelier = sommelier
+        result = client.post("/api/pairing", json={"dish": "meat", "preference": "any"}).json()
+        assert result["method"] == "llm" and result["cited"] == [2]
+        assert [w["slug"] for w in result["wines"]] == ["red"]
+        assert sommelier.questions == ["Подбери вино к мясу и блюдам на гриле."]
+        app.state.sommelier = FakeSommelier(fail=True)
+        result = client.post("/api/pairing", json={"dish": "meat", "preference": "any"}).json()
+        assert result["method"] == "editorial_rules" and result["wines"][0]["slug"] == "red"
 
 
 def test_missing_local_weights_keep_catalog_available(settings):

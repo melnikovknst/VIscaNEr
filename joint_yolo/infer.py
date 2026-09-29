@@ -175,6 +175,41 @@ def select_label_candidates(
     return selected, ambiguous
 
 
+def select_bottle_candidates(
+    bottles: list[dict[str, Any]],
+    image_width: float,
+    ambiguity_confidence: float = 0.75,
+    ambiguity_margin: float = 0.06,
+    duplicate_iou: float = 0.80,
+    axis_x: float = 0.50,
+) -> tuple[list[dict[str, Any]], bool]:
+    """Select one or two bottle boxes with the production axis policy."""
+
+    def score_and_distance(item: dict[str, Any]) -> tuple[float, float]:
+        score, distance, _ = confidence_axis_score(
+            item["confidence"], item["box"], image_width, axis_x=axis_x
+        )
+        return score, distance
+
+    ranked = sorted(bottles, key=lambda item: score_and_distance(item)[0], reverse=True)
+    if not ranked:
+        return [], False
+    selected = [ranked[0]]
+    ambiguous = False
+    if len(ranked) >= 2:
+        first_score, first_distance = score_and_distance(ranked[0])
+        second_score, second_distance = score_and_distance(ranked[1])
+        ambiguous = (
+            min(ranked[0]["confidence"], ranked[1]["confidence"]) >= ambiguity_confidence
+            and first_score - second_score <= ambiguity_margin
+            and abs(first_distance - second_distance) <= AMBIGUITY_DISTANCE_MARGIN
+            and box_iou(ranked[0]["box"], ranked[1]["box"]) < duplicate_iou
+        )
+        if ambiguous:
+            selected.append(ranked[1])
+    return selected, ambiguous
+
+
 def infer_one(
     model: YOLO,
     image_path: Path,

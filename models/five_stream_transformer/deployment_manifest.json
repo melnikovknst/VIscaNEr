@@ -1,0 +1,36 @@
+{
+  "pipeline": "stage2c-five-stream-residual-v1",
+  "stage2c_epoch": 17,
+  "transformer_epoch": 3,
+  "gallery_identities": 2103,
+  "artifacts": {
+    "joint_yolo": {
+      "path": "models/joint_yolo/best.pt",
+      "sha256": "4b88b58f1c5d752bc5eacd04d9d1d5854fed1310e6acad72443663a0adb12bde"
+    },
+    "stage2c_dual_dino_b": {
+      "path": "models/stage2c/manual_stage2c_best.pt",
+      "sha256": "f037ecd909f28ddadb782602a6ea079bddd5afd549fe351dad892ed9d2665c6e"
+    },
+    "residual_transformer": {
+      "path": "models/five_stream_transformer/residual_best.pt",
+      "sha256": "0402644f90b71aac7fc64fc270b2c0d1e4539f331a10a58189c798c62469da2e"
+    },
+    "gallery_features": {
+      "path": "models/five_stream_transformer/gallery_features.pt",
+      "sha256": "511a3047c43c87bb629f70439b6c79d1a09a6b571773dbfe0bfec41c94cf2b7f"
+    },
+    "easyocr_detector": {
+      "path": "models/easyocr_ru_en/craft_mlt_25k.pth",
+      "sha256": "4a5efbfb48b4081100544e75e1e2b57f8de3d84f213004b14b85fd4b3748db17"
+    },
+    "easyocr_recognizer": {
+      "path": "models/easyocr_ru_en/cyrillic_g2.pth",
+      "sha256": "48d0f3b58f28aa64651ab1032cc2d498c4de25135829668e87c14e7a07529f29"
+    },
+    "inference_galleries": {
+      "path": "datasets/inference_galleries.zip",
+      "sha256": "f0dfb057a802dfbf027aabe03a80290c3652211ef12aae4cae24a24c32937db0"
+    }
+  }
+}

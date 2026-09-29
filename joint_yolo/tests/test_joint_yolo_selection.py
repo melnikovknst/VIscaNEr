@@ -1,4 +1,4 @@
-from joint_yolo.infer import select_label_candidates
+from joint_yolo.infer import select_bottle_candidates, select_label_candidates
 
 
 def detection(confidence, box):
@@ -82,3 +82,13 @@ def test_vertical_position_does_not_change_ranking():
         image_width=100,
     )
     assert selected[0]["confidence"] == 0.71
+
+
+def test_bottle_selector_uses_the_same_bounded_axis_policy():
+    bottles = [
+        {"confidence": 0.70, "box": (40.0, 5.0, 60.0, 95.0), "class_id": 0},
+        {"confidence": 0.80, "box": (75.0, 5.0, 95.0, 95.0), "class_id": 0},
+    ]
+    selected, ambiguous = select_bottle_candidates(bottles, image_width=100)
+    assert selected[0]["box"] == (40.0, 5.0, 60.0, 95.0)
+    assert not ambiguous

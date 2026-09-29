@@ -35,3 +35,4 @@
 /datasets/store_shelves_catalog/*.md -filter diff merge text eol=lf
 /datasets/store_shelves_web/*.csv -filter diff merge text eol=lf
 /datasets/store_shelves_web/*.md -filter diff merge text eol=lf
+/datasets/inference_galleries.sha256.json -filter diff merge text eol=lf

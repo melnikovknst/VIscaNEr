@@ -22,6 +22,7 @@ datasets/**/*
 !datasets/**/*.tgz
 !datasets/**/*.tar.bz2
 !datasets/**/*.tar.xz
+!datasets/inference_galleries.sha256.json
 
 # Shared, annotated store-shelf training set (images are stored in Git LFS).
 !datasets/store_shelves_v1/queries/*.jpg

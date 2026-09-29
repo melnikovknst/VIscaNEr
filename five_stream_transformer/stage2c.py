@@ -61,6 +61,7 @@ def load_stage2c_models(
     checkpoint_path: str | Path,
     device: torch.device,
     image_size: int = 224,
+    verify_sha256: bool = True,
 ) -> tuple[RetrievalModel, RetrievalModel, dict[str, Any]]:
     """Load both complete DINO-B branches from one Stage-2C artifact.
 
@@ -79,7 +80,8 @@ def load_stage2c_models(
     bottle_model = _build_branch(payload["bottle_model_state_dict"], image_size, device)
     info = {
         "path": str(path),
-        "sha256": file_sha256(path),
+        "sha256": file_sha256(path) if verify_sha256 else None,
+        "sha256_verified": bool(verify_sha256),
         "format": "complete-stage2c-dual-dino-v1",
         "epoch": int(payload["epoch"]),
         "image_size": int(image_size),

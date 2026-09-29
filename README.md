@@ -2,21 +2,23 @@
 
 Веб-приложение для знакомства с российскими винами: мобильный интерфейс, загрузка этикетки, карточка вина, каталог, коллекция, история и подбор вина к блюду. Исходный пайплайн обучения DINOv3 сохранён без изменений.
 
-Каталог и 2103 фотографии настоящие. Пользовательский интерфейс показывает сканер, каталог и карточки без технических статусов и демонстрационных сценариев. Распознавание требует весов или API коллег. До подключения провайдера загрузка возвращает понятное сообщение о временной недоступности и предлагает поиск по каталогу; случайные результаты, фиктивные проценты точности и рейтинги не используются.
+Каталог и 2103 фотографии настоящие. Пользовательский интерфейс показывает сканер, каталог и карточки без технических статусов и демонстрационных сценариев. Актуальные веса inference хранятся в Git LFS; до подключения локального или удалённого провайдера загрузка возвращает понятное сообщение о временной недоступности и предлагает поиск по каталогу. Случайные результаты, фиктивные проценты точности и рейтинги не используются.
 
 ## Актуальный ML pipeline
 
-Финальный pipeline состоит ровно из двух моделей:
+Текущий выбранный pipeline — residual five-stream Transformer поверх двух
+замороженных Stage-2C DINOv3-B:
 
 ```text
 фотография пользователя
-  → YOLO11n: выбирает бутылку прежде всего по confidence, иногда две при неоднозначности
-  → DINOv3 ViT-B/16: одним batch обрабатывает 1–2 изображения бутылок
-  → объединяет similarity по двум бутылкам только для неоднозначного случая
-  → top-k wine_slug и cosine similarity
+  → один joint YOLO11n forward: bottle + wine_label
+  → DINOv3-B Stage-2C по whole-bottle crop
+  → DINOv3-B Stage-2C по label crop
+  → EasyOCR ru+en по label crop
+  → объединённый пул кандидатов
+  → residual five-stream Transformer
+  → top-k wine_slug
 ```
-
-Каскада, DINO-S и дополнительного reranker в актуальном inference нет.
 
 Пользователь наводит центральное перекрестье на этикетку нужной бутылки. YOLO
 кандидаты получают оценку `confidence + 0.20 × axis_proximity`, где
@@ -36,19 +38,22 @@
 - если YOLO ничего не нашёл — исходная фотография также передаётся целиком;
 - второй DINO-вход включается только для двух различных боксов с confidence
   `>= 0.75`, близкими итоговыми scores и расстояниями до вертикальной оси;
-- DINO получает square-padded изображение `224×224`, строит нормализованный
-  embedding и ранжирует эталоны по cosine similarity.
+- обе DINO получают square-padded изображение `224×224`;
+- Transformer получает два признака до retrieval-голов, два 256-мерных
+  retrieval embedding и 512-мерный OCR embedding;
+- итоговый `score` является ranking logit, а не вероятностью.
 
 Используемые файлы:
 
-- inference entrypoint: `infer_wine.py`;
-- DINO architecture/transforms: `dinov3_retrieval.py`;
-- локальные backbone loaders: `deeptune_backbones.py`;
+- inference entrypoint: `five_stream_transformer/infer.py`;
+- DINO architecture/transforms: `five_stream_transformer/dino.py`;
+- Transformer architecture: `five_stream_transformer/model.py`;
 - joint YOLO бутылок и этикеток: `models/joint_yolo/best.pt`;
-- исходный DINOv3-B backbone: `models/dinov3/model.safetensors`;
-- обученный DINOv3-B: `models/trained_checkpoints/dinov3_vitb16_bottles_best_full.pt`;
-- gallery: `datasets/bottle_classifier_crops/refs/`, автоматически извлекается
-  из `datasets/bottle_classifier_crops.zip`, если директории ещё нет.
+- полный Stage-2C обеих DINO-B: `models/stage2c/manual_stage2c_best.pt`;
+- residual Transformer: `models/five_stream_transformer/residual_best.pt`;
+- предвычисленные gallery features: `models/five_stream_transformer/gallery_features.pt`;
+- локальные OCR weights: `models/easyocr_ru_en/`;
+- обе galleries: `datasets/inference_galleries.zip`.
 
 После клонирования нужно получить LFS-файлы и установить inference-зависимости:
 
@@ -61,21 +66,21 @@ python3 -m venv .venv
 Один снимок:
 
 ```bash
-.venv/bin/python infer_wine.py /path/to/photo.jpg --top-k 5
+.venv/bin/python -m five_stream_transformer.infer /path/to/photo.jpg --top-k 5
 ```
 
 Целая директория с сохранением JSON:
 
 ```bash
-.venv/bin/python infer_wine.py /path/to/photos \
+.venv/bin/python -m five_stream_transformer.infer /path/to/photos \
   --top-k 5 \
   --output runs/inference/predictions.json
 ```
 
-На первом запуске DINO один раз строит gallery embeddings и сохраняет cache в
-`runs/inference/dinov3_vitb16_bottles_gallery.pt`. Последующие запуски используют
-готовый cache. `device=auto` выбирает CUDA, затем MPS, затем CPU. Значение
-`similarity` — cosine similarity, а не вероятность.
+Репозиторий содержит совместимый предвычисленный gallery cache; при его
+отсутствии или несовпадении подписи обе DINO автоматически перестроят features.
+`device=auto` выбирает CUDA, затем MPS, затем CPU. Полная карта
+файлов и инструкция для backend — [MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md).
 
 ## Быстрый запуск
 
@@ -112,7 +117,17 @@ npm.cmd run build
 
 ## Подключение модели
 
-### Вариант A — файлы коллег
+### Актуальный five-stream Transformer
+
+Для нового backend использовать `FiveStreamInferencePipeline` из
+`five_stream_transformer/infer.py`; готовые команды и все пути приведены в
+[MODEL_INFERENCE_HANDOFF.md](MODEL_INFERENCE_HANDOFF.md). Существующий
+`LocalProvider` ниже оставлен для совместимости со старым bottle-only режимом и
+не является новым Transformer pipeline. Transformer можно встроить напрямую в
+GPU-процесс или вынести в отдельный HTTP inference service и подключить как
+`remote` provider.
+
+### Legacy-вариант A — bottle-only LocalProvider
 
 Установить дополнительные зависимости (на машине с GPU заранее выбрать подходящую CUDA-сборку PyTorch):
 
@@ -260,7 +275,7 @@ docker compose up --build
 
 ## Границы текущей версии
 
-- Финальные веса и внешний API пока не переданы; реальный локальный DINO-инференс ещё не прогонялся. Адаптер соответствует коду обучения, удалённый контракт проверен тестовым сервисом.
+- Актуальные YOLO, Stage-2C DINO-B, EasyOCR и residual Transformer веса переданы через Git LFS; единый локальный inference CLI проверен end-to-end. Интеграция этого класса в конкретный production HTTP runtime остаётся задачей backend-развёртывания.
 - В CSV нет рейтинга Роскачества: карточка честно показывает отсутствие данных.
 - «К столу» использует понятные правила по стилям вина, а не LLM; это общие сочетания, не индивидуальная оценка конкретной бутылки.
 - Коллекция хранится в localStorage, история — в SQLite по HttpOnly cookie. Авторизации и синхронизации между устройствами нет. История ограничена 100 записями/сессию; записи старше 30 дней удаляются при следующей записи.

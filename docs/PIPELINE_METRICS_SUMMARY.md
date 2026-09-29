@@ -1,5 +1,11 @@
 # VIscaNEr: consolidated pipeline metrics
 
+> Historical comparison report. The deployment decision below was superseded
+> on 2026-09-29: the selected current path is the Stage-2C residual five-stream
+> Transformer in `five_stream_transformer/infer.py`. On the strict 130-image
+> `store_shelves_web` holdout it reached R@1 60.77% versus 48.46% for the
+> Stage-2C bottle branch. See `MODEL_INFERENCE_HANDOFF.md` for current files.
+
 **Evidence cutoff:** 2026-09-27
 **Purpose:** one place to compare the evaluated detector, retrieval, cascade, fusion, OCR and Transformer variants.
 

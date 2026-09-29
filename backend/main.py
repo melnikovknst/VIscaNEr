@@ -16,8 +16,8 @@ from starlette.concurrency import run_in_threadpool
 
 from backend.catalog import Catalog
 from backend.config import ROOT, Settings
-from backend.pairing import recommend
-from backend.sommelier import Sommelier
+from backend.pairing import recommend, recommend_llm
+from backend.sommelier import Sommelier, SommelierUnavailable
 from backend.metrics import read_metrics
 from backend.providers import ModelUnavailable, create_provider
 from backend.schemas import (Match, PairingRequest, Prediction, ScanResult, SommelierAnswer,
@@ -96,18 +96,23 @@ def resolve_prediction(prediction: Prediction, catalog: Catalog, settings: Setti
     # Each stage is judged by its own separation. After the bottle model ran,
     # stage 1 was a near tie by construction, so its margin cannot gate the answer.
     required_margin = settings.min_resolver_margin if prediction.decision_basis == "resolver" else settings.min_margin
+    min_similarity, min_suggest = settings.min_similarity, settings.min_suggest_similarity
+    if settings.model_provider == "five_stream":
+        # A softmax confidence already accounts for the runner-up; no separate margin gate.
+        min_similarity, min_suggest = settings.five_stream_min_confidence, settings.five_stream_min_suggest_confidence
+        required_margin = 0.0
     status = "not_found"
     message = "Не удалось найти вино. Снимите этикетку крупнее, без бликов и соседних бутылок."
     wine = None
     uncertain_message = "Есть несколько похожих этикеток. Снимите название и год крупнее — пока точный результат не подтверждён."
-    if top and not prediction.abstain and top.similarity >= settings.min_similarity:
+    if top and not prediction.abstain and top.similarity >= min_similarity:
         # A single candidate does not demonstrate separation from near-duplicates.
         if margin is not None and margin >= required_margin:
             status, wine, message = "matched", catalog.wines[top.slug], "Вино найдено в каталоге."
         else:
             status, message = "uncertain", uncertain_message
-    elif (top and not prediction.abstain and settings.min_suggest_similarity is not None
-          and top.similarity >= settings.min_suggest_similarity):
+    elif (top and not prediction.abstain and min_suggest is not None
+          and top.similarity >= min_suggest):
         # Too weak to answer, but the right wine is usually among the candidates:
         # let the visitor pick rather than report a failure.
         status, message = "uncertain", uncertain_message
@@ -130,7 +135,7 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
         app.state.inference_lock = asyncio.Lock()
         try:
             app.state.provider = provider_override or await run_in_threadpool(create_provider, settings)
-            if settings.model_provider in {"local", "cascade"} and hasattr(app.state.provider, "slugs"):
+            if settings.model_provider in {"local", "cascade", "five_stream"} and hasattr(app.state.provider, "slugs"):
                 if set(app.state.provider.slugs) - app.state.catalog.wines.keys():
                     raise ValueError("Галерея содержит slug, отсутствующие в каталоге")
         except Exception:
@@ -266,7 +271,8 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
     def sommelier_status():
         sommelier = app.state.sommelier
         return {"enabled": sommelier is not None, "ready": bool(sommelier and sommelier.ready),
-                "error": app.state.sommelier_error}
+                "error": app.state.sommelier_error, "remote": bool(sommelier and sommelier.remote),
+                "model": sommelier.model_name if sommelier else None}
 
     @app.post("/api/sommelier", response_model=SommelierAnswer)
     async def sommelier(body: SommelierRequest):
@@ -274,10 +280,20 @@ def create_app(settings: Settings | None = None, provider_override=None) -> Fast
             raise HTTPException(503, app.state.sommelier_error or "Сомелье не подключён.")
         if body.wine_slug and body.wine_slug not in app.state.catalog.wines:
             raise HTTPException(404, "Вино не найдено")
-        return await run_in_threadpool(app.state.sommelier.ask, body.question.strip(), body.wine_slug)
+        try:
+            return await run_in_threadpool(app.state.sommelier.ask, body.question.strip(), body.wine_slug)
+        except SommelierUnavailable as exc:
+            raise HTTPException(503, str(exc)) from exc
 
     @app.post("/api/pairing")
-    def pairing(body: PairingRequest):
+    async def pairing(body: PairingRequest):
+        sommelier = app.state.sommelier
+        if sommelier is not None and sommelier.ready and not app.state.sommelier_error:
+            try:
+                return await run_in_threadpool(recommend_llm, sommelier, body)
+            except Exception:
+                # The editorial rules below still give a sensible answer.
+                logger.exception("Sommelier pairing failed, falling back to rules")
         return recommend(app.state.catalog, body)
 
     # One process serves the production build. The API remains independent in dev.

@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import zipfile
 from contextlib import nullcontext
 from pathlib import Path
@@ -100,6 +101,22 @@ def ensure_galleries(root: Path, archive: Path) -> tuple[Path, Path]:
                 while chunk := source.read(1024 * 1024):
                     target.write(chunk)
     return label_root, bottle_root
+
+
+def load_foreign_checkpoint(path: Path) -> dict[str, Any]:
+    """torch.load a checkpoint whose pickled args hold PosixPath (saved on Kaggle/macOS).
+
+    Windows cannot instantiate PosixPath, so it is unpickled as PurePosixPath instead.
+    """
+    import pathlib
+
+    original = pathlib.PosixPath
+    if os.name == "nt":
+        pathlib.PosixPath = pathlib.PurePosixPath  # type: ignore[misc]
+    try:
+        return torch.load(path, map_location="cpu", weights_only=False)
+    finally:
+        pathlib.PosixPath = original  # type: ignore[misc]
 
 
 def crop_bottle(
@@ -211,7 +228,7 @@ class FiveStreamInferencePipeline:
         return streams
 
     def _load_transformer(self) -> tuple[FiveStreamResidualTransformer, dict[str, Any]]:
-        checkpoint = torch.load(self.transformer_path, map_location="cpu", weights_only=False)
+        checkpoint = load_foreign_checkpoint(self.transformer_path)
         if checkpoint.get("format") != "stage2c-five-stream-residual-v1":
             raise ValueError(f"Unsupported Transformer checkpoint: {checkpoint.get('format')}")
         source = checkpoint.get("stage2c_source", {})

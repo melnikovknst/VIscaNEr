@@ -93,17 +93,7 @@ Selection protocol:
 - break ties by fewer DINO-S calls, then smaller threshold;
 - evaluate the chosen threshold on untouched `val_unseen`.
 
-The validation-selected fixed threshold was `0.01525`:
-
-- `val_unseen` Recall@1: `0.723744`;
-- `val_unseen` DINO-S invocation rate: `0.273446`;
-- baseline DINO-B `val_unseen` Recall@1: `0.678082`.
-
-The highest *observed* `val_unseen` Recall@1 in the sweep was about `0.7464` at
-margin `0.029`, but that point was found by inspecting `val_unseen`; it is a
-diagnostic/oracle result, not an unbiased selected operating point. Margin
-`0.03`, which was the original pre-sweep heuristic, gives about `0.7462` with an
-approximately `39.94%` DINO-S invocation rate on `val_unseen`.
+The validation-selected fixed threshold was `0.01525`.
 
 ## Learned gate experiment
 
@@ -140,22 +130,9 @@ The selected model is logistic regression with `C=0.1`. Ridge was evaluated but
 was not selected because the logistic model produced the best `val_seen`
 Recall@1 with a lower invocation rate among the top candidates.
 
-Final operational learned-gate results:
-
-| Scope | DINO-B R@1 | Cascade R@1 | DINO-S call rate |
-|---|---:|---:|---:|
-| all 41,527 eligible | 0.800949 | 0.829123 | 0.206950 |
-| val_seen | 0.814928 | 0.839900 | 0.199223 |
-| val_unseen | 0.678082 | 0.732174 | 0.288549 |
-
-On `val_unseen`, the selected learned gate fixed 458 Top-1 errors, harmed 150
-correct answers, and produced a net gain of 308. It is better than the
-validation-selected fixed margin (`0.723744`) but below the much more expensive
-diagnostic `0.03` margin result (`~0.7462`).
-
-The 90% Top-1 target is not reached. Top-2 remains much higher because the
-resolver only reorders B's first two candidates; it cannot fix cases where the
-truth is outside DINO-B Top-2.
+The resolver only reorders DINO-B's first two candidates, so its effect is
+limited to Top-1 versus Top-2: it cannot fix cases where the truth is outside
+DINO-B Top-2.
 
 ## Reproduction commands
 

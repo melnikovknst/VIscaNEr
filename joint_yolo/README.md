@@ -54,14 +54,10 @@ Outputs:
 - training run: `runs/joint_yolo/yolo11n_bottle_label_joint/`;
 - deployable best model: `models/joint_yolo/best.pt`;
 - last checkpoint: `models/joint_yolo/last.pt`;
-- final validation metrics: `models/joint_yolo/metrics.json`.
+- training summary: `models/joint_yolo/metrics.json`.
 
 The committed checkpoint stopped after 29 epochs (patience 20); epoch 9 was
-best. On the untouched 100-image exact synthetic validation split it measured
-Precision `0.9118`, Recall `0.9320`, mAP50 `0.9548`, and mAP50-95 `0.5839`.
-Per-class values are stored in `models/joint_yolo/metrics.json`. These figures
-measure the supplied synthetic validation set, not end-to-end real-photo
-product accuracy.
+best.
 
 Re-run validation without training:
 

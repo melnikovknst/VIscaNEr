@@ -18,9 +18,8 @@ class Settings(BaseSettings):
     data_dir: Path = ROOT / "backend/data"
 
     # When to answer. Confidence is the softmax over the Transformer's top-10
-    # ranking logits. Chosen on store_shelves_v1 (126 catalog / 126 out-of-catalog
-    # shelf photos, never used in training): at 0.45 top-1 drops 58.7% -> 54.8%
-    # while 51.6% of out-of-catalog wines get an honest null.
+    # ranking logits. Chosen on held-out shelf photos with wines in and out of the
+    # catalog, trading right answers against honest nulls.
     min_confidence: float = Field(default=0.45, ge=0, le=1)
     # Between this and min_confidence the site asks "which of these is yours?";
     # below it, "not recognised". None disables the choice.

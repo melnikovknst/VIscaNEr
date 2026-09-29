@@ -29,6 +29,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
 
 from backend.config import Settings
+from scripts.evaluate_saved_run import served_status
 from scripts.relabel_tools import IMAGES, LABELS, REFS, catalog
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,22 +44,9 @@ def split(source_post: str) -> str:
 
 
 def thumb(image: Image.Image, path: Path, size: int) -> None:
-    if path.exists():
-        return
     image = image.convert("RGB")
     image.thumbnail((size, size), Image.Resampling.LANCZOS)
     image.save(path, quality=82)
-
-
-def served_status(ranked: list[tuple[str, float]], settings: Settings) -> str:
-    """The same decision backend.main.resolve_prediction makes for the local provider."""
-    top_sim = ranked[0][1]
-    margin = top_sim - ranked[1][1] if len(ranked) > 1 else None
-    if top_sim >= settings.min_similarity:
-        return "matched" if margin is not None and margin >= settings.min_margin else "uncertain"
-    if settings.min_suggest_similarity is not None and top_sim >= settings.min_suggest_similarity:
-        return "uncertain"
-    return "not_found"
 
 
 def outcome(row: dict, ranked: list[tuple[str, float]], served: str) -> str:
@@ -66,7 +54,7 @@ def outcome(row: dict, ranked: list[tuple[str, float]], served: str) -> str:
         return "excluded"
     answers = [s for s in row["accepted_slugs"].split(";") if s]
     if row["in_catalog"] != "True":
-        return "notcat_wrong" if served == "matched" else "notcat_ok"
+        return {"matched": "notcat_wrong", "uncertain": "notcat_choice", "not_found": "notcat_ok"}[served]
     slugs = [s for s, _ in ranked]
     if slugs[:1] and slugs[0] in answers:
         return "top1"
@@ -81,9 +69,11 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=OUT)
     parser.add_argument("--truth", type=Path, default=RELABELED, help="relabeled export or an extra labels CSV")
     parser.add_argument("--images", type=Path, default=IMAGES)
+    parser.add_argument("--review-notes", type=Path, help="Optional query_id -> {note, slugs} JSON for review")
     args = parser.parse_args()
 
     settings = Settings()
+    reviews = json.loads(args.review_notes.read_text(encoding="utf-8")) if args.review_notes else {}
     cat = catalog()
     # real_photos_v4 has original labels and a selection/report split; an extra
     # set labelled from scratch has neither and is shown as one "extra" half.
@@ -91,7 +81,7 @@ def main() -> None:
                 if args.truth == RELABELED else {})
     truth = {r["query_id"]: r for r in csv.DictReader(args.truth.open(encoding="utf-8"))}
     run = json.loads(args.bottle_run.read_text(encoding="utf-8"))
-    results = {Path(r["source"]).stem: r for r in run["results"]}
+    results = {Path(r["source"].replace("\\", "/")).stem: r for r in run["results"]}
     img_dir = args.out / "img"
     img_dir.mkdir(parents=True, exist_ok=True)
 
@@ -99,7 +89,7 @@ def main() -> None:
     for index, (qid, row) in enumerate(sorted(truth.items())):
         result = results.get(qid) or results.get(Path(row["image_path"]).stem)
         if result is None:
-            continue
+            raise ValueError(f"Missing prediction: {qid}")
         ranked = [(p["wine_slug"], p["similarity"]) for p in result["predictions"]][:5]
         served = served_status(ranked, settings)
         with Image.open(args.images / row["image_path"]) as source:
@@ -125,6 +115,8 @@ def main() -> None:
         thumb(marked, img_dir / f"{qid}.jpg", 720)
 
         answers = [s for s in row["accepted_slugs"].split(";") if s]
+        review = reviews.get(qid, {})
+        needed_refs.update(review.get("slugs", []))
         needed_refs.update(answers)
         needed_refs.update(s for s, _ in ranked)
         orig = original.get(qid)
@@ -135,6 +127,7 @@ def main() -> None:
             "in_catalog": row["in_catalog"],
             "original": orig["slug"] if orig and orig["in_catalog"] == "yes" else None,
             "answers": answers,
+            "review": review,
             "top5": [{"slug": s, "sim": round(v, 3)} for s, v in ranked],
             "photo": f"img/{qid}.jpg", "inputs": inputs,
             "pair": result.get("selection_mode") == "ambiguous_center_pair",
@@ -198,6 +191,7 @@ main { max-width:1400px; margin:auto; padding:12px 16px 60px }
 .tag { font-size:12px; padding:2px 8px; border-radius:99px; background:var(--grey-bg); color:var(--muted) }
 .t-top1 { background:var(--ok-bg); color:var(--ok) } .t-top5 { background:var(--mid-bg); color:var(--mid) }
 .t-miss, .t-notcat_wrong { background:var(--bad-bg); color:var(--bad) } .t-notcat_ok { background:var(--info-bg); color:var(--info) }
+.t-notcat_choice { background:var(--mid-bg); color:var(--mid) }
 .section-title { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:10px 0 6px }
 .wines { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px }
 .wine { flex:0 0 112px; border:2px solid var(--line); border-radius:8px; padding:4px; background:var(--card); font-size:12px; line-height:1.3 }
@@ -220,8 +214,9 @@ main { max-width:1400px; margin:auto; padding:12px 16px 60px }
   <label>Половина <select id="half"><option value="all">обе</option><option value="report">отчётная</option><option value="selection">подборная</option><option value="extra">новый набор</option></select></label>
   <label>Разметка <select id="status"><option value="all">любая</option><option value="changed">исправлена</option><option value="keep">оставлена</option><option value="fix">fix</option><option value="multi">multi</option><option value="not_in_catalog">not_in_catalog</option><option value="wrong_unknown">wrong_unknown</option><option value="remove">remove</option><option value="unsure">unsure</option></select></label>
   <label>Сайт покажет <select id="served"><option value="all">что угодно</option><option value="matched">карточку</option><option value="uncertain">выбор</option><option value="not_found">«не узнали»</option></select></label>
+  <label><input type="checkbox" id="reviewOnly"> повторная проверка</label>
   <label>Разметчик <select id="reviewer"><option value="all">любой</option><option value="user">вы</option><option value="claude">Claude</option></select></label>
-  <input type="search" id="q" placeholder="q-0123 или название">
+  <input type="search" id="q" placeholder="s-149, название или примечание">
   <span class="cap" id="count"></span>
 </div></div>
 <main id="list"></main>
@@ -232,6 +227,7 @@ const W = D.wines;
 const OUT = {
   top1: ["Верно с первого раза", "t-top1"], top5: ["Верное в топ-5", "t-top5"], miss: ["Промах", "t-miss"],
   notcat_ok: ["Нет в каталоге, отказ", "t-notcat_ok"], notcat_wrong: ["Нет в каталоге, ответил зря", "t-notcat_wrong"],
+  notcat_choice: ["Нет в каталоге, предложен выбор", "t-notcat_choice"],
   excluded: ["Исключено из оценки", ""],
 };
 const SERVED = { matched: "сайт: карточка", uncertain: "сайт: выбор из вариантов", not_found: "сайт: «не узнали»" };
@@ -250,7 +246,8 @@ function visible() {
     (st === "all" || (st === "changed" ? !["keep", "unreviewed"].includes(r.status) : r.status === st)) &&
     (sv === "all" || r.served === sv) &&
     (rv === "all" || r.reviewer === rv) &&
-    (!q || r.qid.includes(q) || [...r.answers, ...r.top5.map((t) => t.slug), r.original || ""].some((s) => W[s] && (W[s].name + " " + W[s].winery).toLowerCase().includes(q))));
+    (!$("reviewOnly").checked || r.review?.note) &&
+    (!q || r.qid.includes(q) || (r.note || "").toLowerCase().includes(q) || [...r.answers, ...r.top5.map((t) => t.slug), r.original || ""].some((s) => W[s] && (W[s].name + " " + W[s].winery).toLowerCase().includes(q))));
 }
 
 function stats() {
@@ -266,6 +263,7 @@ function stats() {
     ["miss", n("miss"), `промах · ${pct(n("miss"))}`],
     ["notcat_ok", n("notcat_ok"), "нет в каталоге, отказ"],
     ["notcat_wrong", n("notcat_wrong"), "нет в каталоге, ответил зря"],
+    ["notcat_choice", n("notcat_choice"), "нет в каталоге, предложен выбор"],
     ["excluded", n("excluded"), "исключено (нет цели / не решить)"],
   ];
   $("stats").innerHTML = cards.map(([k, v, t]) =>
@@ -280,13 +278,16 @@ function row(r) {
       <img loading="lazy" src="${W[t.slug]?.src}" alt=""><div><span class="sim">${i + 1}. ${t.sim.toFixed(3)}</span><br>${wineName(t.slug)}</div></div>`).join("");
   const truth = r.answers.length ? r.answers.map((s) => `<div class="wine hit">
       <img loading="lazy" src="${W[s]?.src}" alt=""><div>${wineName(s)}</div></div>`).join("")
-    : `<div class="cap">${r.status === "not_in_catalog" ? "Вина нет в каталоге — правильно отказаться"
+    : `<div class="cap">${["notcat", "not_in_catalog"].includes(r.status) ? "Вина нет в каталоге — правильно отказаться"
         : r.status === "wrong_unknown" ? "Исходная метка неверна, настоящее вино не опознано — любой ответ считается промахом"
         : r.status === "remove" || r.status === "unsure" ? "Фото не оценивается" : "Нет в каталоге"}</div>`;
   const inputs = r.inputs.map((x) => `<img loading="lazy" src="${x.src}" alt=""><div class="cap">${MODE[x.mode] || x.mode}${x.confidence != null ? `, YOLO ${x.confidence.toFixed(2)}` : ""}</div>`).join("");
   const orig = changed ? `<div class="note"><b>Было в исходной разметке:</b> ${r.original ? wineName(r.original) : "нет в каталоге"}</div>` : "";
   const note = r.note ? `<div class="note"><b>${r.reviewer === "user" ? "Вы" : "Claude"} (${esc(r.status)}):</b> ${esc(r.note)}</div>` : "";
-  return `<article class="row">
+  const review = r.review?.note ? `<div class="note"><b>Повторная проверка (метка пока сохранена):</b> ${esc(r.review.note)}</div>
+    <div class="section-title">Карточки для сравнения, не дополнительные правильные ответы</div><div class="wines">${(r.review.slugs || []).map((s) =>
+      `<div class="wine"><img loading="lazy" src="${W[s]?.src}" alt=""><div>${wineName(s)}</div></div>`).join("")}</div>` : "";
+  return `<article class="row" id="${esc(r.qid)}">
     <div class="photo"><img loading="lazy" src="${r.photo}" alt=""><div class="cap">+ центр кадра; рамка: зелёная — кроп, жёлтая — YOLO < 0.75</div></div>
     <div class="inputs"><div class="section-title">Вход модели</div>${inputs}${r.pair ? '<div class="cap">две бутылки, берётся максимум</div>' : ""}</div>
     <div class="detail">
@@ -295,7 +296,7 @@ function row(r) {
         ${changed ? `<span class="tag">разметка: ${esc(r.status)}</span>` : ""}</div>
       <div class="section-title">Ответ модели (топ-5, similarity)</div><div class="wines">${top}</div>
       <div class="section-title">Правильно (разметка)</div><div class="wines">${truth}</div>
-      ${orig}${note}
+      ${orig}${note}${review}
     </div></article>`;
 }
 
@@ -317,7 +318,12 @@ window.addEventListener("scroll", () => {
   if (shown < current.length && innerHeight + scrollY > document.body.scrollHeight - 1500) more();
 });
 ["half", "status", "served", "reviewer"].forEach((id) => $(id).onchange = render);
+$("reviewOnly").onchange = render;
 $("q").oninput = render;
+for (const status of [...new Set(D.records.map((r) => r.status))]) {
+  if (![...$("status").options].some((o) => o.value === status)) $("status").add(new Option(status, status));
+}
+if (location.hash) $("q").value = decodeURIComponent(location.hash.slice(1));
 const t = D.thresholds;
 $("sub").textContent = `Модель: ${D.model || "infer_wine"} · карточка при similarity ≥ ${t.min_similarity} и отрыве ≥ ${t.min_margin}, выбор при ≥ ${t.min_suggest_similarity}. Процент — от фото, где вино есть в каталоге и известно.`;
 render();

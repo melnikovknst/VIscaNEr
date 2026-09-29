@@ -40,10 +40,8 @@ class Settings(BaseSettings):
     # Five-stream Transformer (provider "five_stream", MODEL_INFERENCE_HANDOFF.md).
     # Its confidence is the softmax over the Transformer's ranking logits of the
     # top-10 candidates - not the cosine similarity the other providers report,
-    # so it has its own thresholds. Chosen on store_shelves_v1 (126 catalog /
-    # 126 out-of-catalog shelf crops): at 0.45 top-1 drops 58.7% -> 54.8% while
-    # 51.6% of out-of-catalog wines get null; on store_shelves_web top-1 is
-    # 56.9% (60.0% unthresholded), on Manual-211 out-of-catalog 45.9% null.
+    # so it has its own thresholds, chosen on store_shelves_v1 (catalog and
+    # out-of-catalog shelf crops) as a trade-off between answers and honest nulls.
     five_stream_min_confidence: float = Field(default=0.45, ge=0, le=1)
     # Below min_confidence but at or above this, candidates are offered as a choice.
     five_stream_min_suggest_confidence: float | None = Field(default=0.20, ge=0, le=1)

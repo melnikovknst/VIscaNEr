@@ -126,17 +126,3 @@ YOLO, EasyOCR и PyTorch-модели разделяют CUDA-контекст. 
 
 Контрольные SHA256 лежат рядом с весами и gallery archive.
 
-## 7. Последний честный holdout
-
-На `datasets/store_shelves_web` (130 web shelf crops, полностью holdout,
-разметка `x/y` не использовалась для выбора кропов):
-
-| Pipeline | R@1 | R@2 | R@5 | R@10 |
-|---|---:|---:|---:|---:|
-| Stage-2C bottle DINO-B | 48.46% | 63.08% | 80.00% | 87.69% |
-| Последний residual Transformer | **60.77%** | **70.77%** | **83.08%** | **88.46%** |
-
-Transformer исправил 21 Top-1 ошибку bottle DINO и испортил 5 правильных
-ответов: net `+16/130`. Candidate recall составил 96.15%.
-
-Kaggle run: `konstantinmelnikof/viscaner-store-shelves-web-stage2c-eval`.

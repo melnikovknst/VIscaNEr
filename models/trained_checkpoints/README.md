@@ -21,10 +21,10 @@ These checkpoints are kept separate from the current inference weights because
 Both were selected by `val_seen` Recall@1 at epoch 21, with the entire DINOv3-B/16
 backbone and both heads trainable.
 
-| Input | Checkpoint | `val_seen` R@1 | `val_unseen` R@1 | Kaggle run |
-| --- | --- | ---: | ---: | --- |
-| Bottle | `dinov3_vitb16_bottles_hard_best_full.pt` | 0.8762 (from 0.8633) | 0.8397 (from 0.8433) | [run](https://www.kaggle.com/code/f1amex/viscaner-dinov3-b-bottles-hard-fine-tune?scriptVersionId=352923332) |
-| Label | `dinov3_vitb16_labels_hard_best_full.pt` | 0.8585 (from 0.8269) | 0.6839 (from 0.6949) | [run](https://www.kaggle.com/code/f1amex/viscaner-dinov3-b-labels-hard-fine-tune?scriptVersionId=352930049) |
+| Input | Checkpoint | Kaggle run |
+| --- | --- | --- |
+| Bottle | `dinov3_vitb16_bottles_hard_best_full.pt` | [run](https://www.kaggle.com/code/f1amex/viscaner-dinov3-b-bottles-hard-fine-tune?scriptVersionId=352923332) |
+| Label | `dinov3_vitb16_labels_hard_best_full.pt` | [run](https://www.kaggle.com/code/f1amex/viscaner-dinov3-b-labels-hard-fine-tune?scriptVersionId=352930049) |
 
 Training code is in `hard_finetune.py`. The label Kaggle run skipped the
 repeated per-file crop inventory; use `--skip-file-validation` with the trusted

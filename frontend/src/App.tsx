@@ -330,10 +330,9 @@ function ResultChooser({
   onRetake: () => void;
   navigate: (page: Page) => void;
 }) {
-  // Measured on the held-out half of the relabeled real photos: after an
-  // "uncertain" answer the right wine is among the first five 75% of the time,
-  // after "not found" 48%. So the first is a real choice, the second a
-  // low-key fallback.
+  // After an "uncertain" answer the right wine is usually among the first five,
+  // after "not found" much less often. So the first is a real choice, the
+  // second a low-key fallback.
   const uncertain = result.status === "uncertain";
   const wines = result.candidates.slice(0, 5).map((c) => c.wine);
   return (
@@ -1773,9 +1772,9 @@ function WineDetail({
   onPair: () => void;
 }) {
   const scanned = result !== null && result.status !== "demo";
-  // On held-out real photos the first answer is right about half the time,
-  // but the right wine is in the first three 69% of the time - so the
-  // alternatives are part of the answer, not an afterthought.
+  // The right wine is often among the first few candidates even when the
+  // first answer misses - so the alternatives are part of the answer, not an
+  // afterthought.
   const alternatives = scanned
     ? result.candidates
         .map((c) => c.wine)

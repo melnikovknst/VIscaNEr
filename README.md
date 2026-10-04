@@ -1,3 +1,5 @@
+**Язык:** Русский · [English](README.en.md)
+
 <div align="center">
 
 # 🍷 winescanner
